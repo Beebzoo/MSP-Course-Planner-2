@@ -218,8 +218,8 @@ footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:
 .profile-card .pc-actions{display:flex;gap:8px;margin-top:14px}
 .profile-card .pc-actions button{padding:6px 14px;border-radius:var(--rs);font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;cursor:pointer;font-family:inherit;transition:all .2s;backdrop-filter:blur(4px)}
 .profile-card .pc-actions button:hover{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.4);transform:translateY(-1px)}
-.profile-card .pc-logo{flex-shrink:0;width:120px;height:auto;opacity:.85;filter:brightness(0) invert(1);transition:opacity .3s}
-.profile-card:hover .pc-logo{opacity:1}
+.profile-card .pc-logo{flex-shrink:0;width:200px;height:auto;opacity:.18;transition:opacity .3s}
+.profile-card:hover .pc-logo{opacity:.25}
 
 /* Quick stats row */
 .stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px}
@@ -228,9 +228,10 @@ footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:
 .stat-card .sc-val{font-family:'DM Sans',sans-serif;font-size:28px;font-weight:700;color:var(--navy);line-height:1.1}
 .stat-card .sc-label{font-size:10px;font-weight:700;color:var(--g4);text-transform:uppercase;letter-spacing:.08em;margin-top:6px}
 .stat-card .sc-sub{font-size:11px;color:var(--g5);margin-top:3px}
-.stat-card .sc-tooltip{display:none;position:absolute;left:0;right:0;bottom:0;top:0;background:rgba(255,255,255,.97);backdrop-filter:blur(6px);padding:14px 12px;font-size:11.5px;color:var(--g7);line-height:1.5;text-align:left;border-radius:14px;z-index:5;overflow-y:auto}
+.stat-card .sc-tooltip{display:none;position:absolute;left:0;right:0;bottom:0;top:0;background:rgba(255,255,255,.98);backdrop-filter:blur(8px);padding:14px 12px;font-size:11.5px;color:var(--g7);line-height:1.5;text-align:left;border-radius:14px;z-index:5;overflow-y:auto;animation:fadeInUp .2s ease}
 .stat-card .sc-tooltip h4{font-size:10px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
-.stat-card:hover .sc-tooltip{display:block}
+.stat-card .sc-tooltip .sc-close{position:absolute;top:6px;right:8px;font-size:16px;color:var(--g4);cursor:pointer;line-height:1;padding:2px}
+.stat-card.sc-open .sc-tooltip{display:block}
 .stat-card.sc-ok{border-color:var(--ok-bd);background:var(--ok-bg)} .stat-card.sc-ok .sc-val{color:var(--ok)} .stat-card.sc-ok:hover{border-color:var(--ok);background:var(--ok-bg)}
 .stat-card.sc-warn{border-color:var(--warn-bd);background:var(--warn-bg)} .stat-card.sc-warn .sc-val{color:var(--warn)} .stat-card.sc-warn:hover{border-color:var(--warn)}
 
@@ -400,7 +401,7 @@ footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:
 @media(max-width:900px){
   .cmp-grid{grid-template-columns:1fr;gap:10px}
   .stats-row{grid-template-columns:repeat(3,1fr)}
-  .profile-card .pc-logo{width:80px}
+  .profile-card .pc-logo{width:140px}
 }
 @media(max-width:640px){
   .hdr-brand{padding:0 16px;height:60px;gap:12px}
@@ -417,7 +418,7 @@ footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:
   .profile-card{flex-direction:column;text-align:center;padding:24px 20px}
   .profile-card .pc-meta{justify-content:center}
   .profile-card .pc-actions{justify-content:center}
-  .profile-card .pc-logo{width:80px}
+  .profile-card .pc-logo{width:100px}
   .cards-grid{grid-template-columns:1fr}
   .detail-grid{grid-template-columns:1fr}
   .toolbar{flex-direction:column;align-items:stretch}
@@ -841,25 +842,25 @@ function buildDashboard(){
   const pct=Math.round(c.totalECTSEarned/180*100);
   const gpaLetter=c.currentCumGPA>=9?'A+':c.currentCumGPA>=8?'A':c.currentCumGPA>=7?'B':c.currentCumGPA>=6?'C':'D';
   html+=`<div class="stats-row fade-in fade-in-d1">
-    <div class="stat-card">
+    <div class="stat-card" onclick="toggleStatCard(this)">
       <div class="sc-val">${c.totalECTSEarned}</div><div class="sc-label">ECTS</div><div class="sc-sub">of 180</div>
-      <div class="sc-tooltip"><h4>ECTS Credits</h4>You have earned <strong>${c.totalECTSEarned}</strong> of the <strong>180 ECTS</strong> required to graduate.<br><br>Each course = 5 ECTS<br>Each practical = 2.5 ECTS<br>BTR = 30 ECTS<br><br><strong>${(180-c.totalECTSEarned).toFixed(1)} ECTS</strong> remaining.</div>
+      <div class="sc-tooltip"><span class="sc-close" onclick="event.stopPropagation();closeStatCard(this)">\u00D7</span><h4>ECTS Credits</h4>You have earned <strong>${c.totalECTSEarned}</strong> of the <strong>180 ECTS</strong> required to graduate.<br><br>Each course = 5 ECTS<br>Each practical = 2.5 ECTS<br>BTR = 30 ECTS<br><br><strong>${(180-c.totalECTSEarned).toFixed(1)} ECTS</strong> remaining.</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card" onclick="toggleStatCard(this)">
       <div class="sc-val">${c.currentCumGPA.toFixed(1)}</div><div class="sc-label">GPA</div><div class="sc-sub">(${gpaLetter})</div>
-      <div class="sc-tooltip"><h4>Cumulative GPA</h4>Your grade point average across all semesters.<br><br>Scale: 1.0 \u2013 10.0<br>Pass threshold: 5.5<br><br><strong>\u2265 9.0</strong> = Summa Cum Laude<br><strong>\u2265 8.0</strong> = Cum Laude<br><strong>\u2265 7.0</strong> = Bene Meritum</div>
+      <div class="sc-tooltip"><span class="sc-close" onclick="event.stopPropagation();closeStatCard(this)">\u00D7</span><h4>Cumulative GPA</h4>Your grade point average across all semesters.<br><br>Scale: 1.0 \u2013 10.0<br>Pass threshold: 5.5<br><br><strong>\u2265 9.0</strong> = Summa Cum Laude<br><strong>\u2265 8.0</strong> = Cum Laude<br><strong>\u2265 7.0</strong> = Bene Meritum</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card" onclick="toggleStatCard(this)">
       <div class="sc-val">${c.currentPR.toFixed(2)}</div><div class="sc-label">PR</div><div class="sc-sub">Progress Rate</div>
-      <div class="sc-tooltip"><h4>Progress Rate</h4>ECTS earned \u00f7 ECTS attempted.<br><br>A PR of <strong>1.00</strong> means you passed every module you attempted.<br><br>Current: <strong>${c.totalECTSEarned}</strong> earned / <strong>${c.totalECTSAttempted}</strong> attempted = <strong>${c.currentPR.toFixed(2)}</strong></div>
+      <div class="sc-tooltip"><span class="sc-close" onclick="event.stopPropagation();closeStatCard(this)">\u00D7</span><h4>Progress Rate</h4>ECTS earned \u00f7 ECTS attempted.<br><br>A PR of <strong>1.00</strong> means you passed every module you attempted.<br><br>Current: <strong>${c.totalECTSEarned}</strong> earned / <strong>${c.totalECTSAttempted}</strong> attempted = <strong>${c.currentPR.toFixed(2)}</strong></div>
     </div>
-    <div class="stat-card${pct>=75?' sc-ok':pct>=50?'':' sc-warn'}">
+    <div class="stat-card${pct>=75?' sc-ok':pct>=50?'':' sc-warn'}" onclick="toggleStatCard(this)">
       <div class="sc-val">${pct}%</div><div class="sc-label">Done</div><div class="sc-sub">${c.totalECTSEarned} / 180</div>
-      <div class="sc-tooltip"><h4>Completion</h4>Overall degree progress.<br><br>Courses: ${c.courses.total}/20<br>Skills: ${c.skills.total}/10<br>Projects: ${c.projects.total}/5<br>BTR: ${r.btr.completed?'Complete':'Not started'}<br><br>You are <strong>${pct}%</strong> of the way to graduation.</div>
+      <div class="sc-tooltip"><span class="sc-close" onclick="event.stopPropagation();closeStatCard(this)">\u00D7</span><h4>Completion</h4>Overall degree progress.<br><br>Courses: ${c.courses.total}/20<br>Skills: ${c.skills.total}/10<br>Projects: ${c.projects.total}/5<br>BTR: ${r.btr.completed?'Complete':'Not started'}<br><br>You are <strong>${pct}%</strong> of the way to graduation.</div>
     </div>
-    <div class="stat-card${r.gpa.projectedDistinction?' sc-ok':''}">
+    <div class="stat-card${r.gpa.projectedDistinction?' sc-ok':''}" onclick="toggleStatCard(this)">
       <div class="sc-val" style="font-size:16px">${r.gpa.projectedDistinction||'\u2014'}</div><div class="sc-label">Track</div><div class="sc-sub">Distinction</div>
-      <div class="sc-tooltip"><h4>Distinction Track</h4>Based on your current GPA of <strong>${c.currentCumGPA.toFixed(1)}</strong>:<br><br>${c.currentCumGPA>=9?'\u2b50 <strong>Summa Cum Laude</strong> \u2014 Exceptional. Top academic achievement.':c.currentCumGPA>=8?'\u2b50 <strong>Cum Laude</strong> \u2014 With honours. Outstanding performance.':c.currentCumGPA>=7?'\u2b50 <strong>Bene Meritum</strong> \u2014 With merit. Strong academic record.':'\u2014 No distinction track currently. GPA \u2265 7.0 needed for Bene Meritum.'}<br><br><em>Distinctions are awarded at graduation and require meeting all requirements with no resits (for SCL).</em></div>
+      <div class="sc-tooltip"><span class="sc-close" onclick="event.stopPropagation();closeStatCard(this)">\u00D7</span><h4>Distinction Track</h4>Based on your current GPA of <strong>${c.currentCumGPA.toFixed(1)}</strong>:<br><br>${c.currentCumGPA>=9?'<strong>Summa Cum Laude</strong> \u2014 Exceptional. Top academic achievement.':c.currentCumGPA>=8?'<strong>Cum Laude</strong> \u2014 With honours. Outstanding performance.':c.currentCumGPA>=7?'<strong>Bene Meritum</strong> \u2014 With merit. Strong academic record.':'\u2014 No distinction track currently. GPA \u2265 7.0 needed for Bene Meritum.'}<br><br><em>Distinctions are awarded at graduation and require meeting all requirements with no resits (for SCL).</em></div>
     </div>
   </div>`;
 
@@ -869,47 +870,49 @@ function buildDashboard(){
   }
 
   // ─── Graduation Progress ───
-  html+=`<h3 style="font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;color:var(--navy);margin:24px 0 14px;display:flex;align-items:center;gap:8px">\u{1F393} Graduation Progress</h3>`;
+  html+=`<h3 style="font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;color:var(--navy);margin:24px 0 14px;display:flex;align-items:center;gap:8px"><span style="display:inline-flex;color:var(--navy)">${SVG_ICONS.cap}</span> Graduation Progress</h3>`;
 
   // Overall
-  html+=buildProgSection('Overall Progress',`${c.totalECTSEarned} / 180 ECTS`,c.totalECTSEarned/180*100,r.totalECTS.met,'',false,'\u{1F3AF}');
+  html+=buildProgSection('Overall Progress',`${c.totalECTSEarned} / 180 ECTS`,c.totalECTSEarned/180*100,r.totalECTS.met,'',false,'target');
 
   // Core
   const coreItems=CORE_CODES.map(code=>{
     const m=r.core[code];
     const allMods=t.semesters.flatMap(s=>s.modules);
     const mod=allMods.find(x=>x.code===code);
-    return`<div class="prog-item"><span class="pi-code">${code}</span><span class="pi-title">${mod?mod.title:code}</span><span class="pi-grade" style="color:${m.passed?'var(--ok)':'var(--err)'}">${m.grade!==null?m.grade.toFixed(1):'\u2014'}</span><span class="pi-status">${m.passed?'\u2705':'\u274C'}</span></div>`;
+    const statusIco=m.passed?`<span style="color:var(--ok);display:inline-flex">${SVG_ICONS.check}</span>`:`<span style="color:var(--err);display:inline-flex">${SVG_ICONS.x}</span>`;
+    return`<div class="prog-item"><span class="pi-code">${code}</span><span class="pi-title">${mod?mod.title:code}</span><span class="pi-grade" style="color:${m.passed?'var(--ok)':'var(--err)'}">${m.grade!==null?m.grade.toFixed(1):'\u2014'}</span><span class="pi-status">${statusIco}</span></div>`;
   }).join('');
-  html+=buildProgSection('Core Curriculum',`${Object.values(r.core).filter(v=>v.passed).length-1} / 7`,r.core.allCoreMet?100:Object.values(r.core).filter(v=>v.passed).length/8*100,r.core.allCoreMet,coreItems,false,'\u{1F9E9}');
+  html+=buildProgSection('Core Curriculum',`${Object.values(r.core).filter(v=>v.passed).length-1} / 7`,r.core.allCoreMet?100:Object.values(r.core).filter(v=>v.passed).length/8*100,r.core.allCoreMet,coreItems,false,'grid');
 
   // Courses
-  const courseDetail=`<div class="prog-sub">Advanced (min ${r.courses.advanced.required}): ${r.courses.advanced.count} ${r.courses.advanced.met?'\u2705':'\u26A0'} &nbsp; Introductory (max ${r.courses.introMax.max}): ${r.courses.introMax.count} ${r.courses.introMax.met?'\u2705':'\u26A0'}</div>${r.courses.total.met?'':'<div class="prog-sub" style="color:var(--warn)">\u2192 Need '+(r.courses.total.required-r.courses.total.count)+' more courses</div>'}`;
-  html+=buildProgSection(`Courses (${r.courses.total.required} required)`,`${r.courses.total.count} / ${r.courses.total.required}`,r.courses.total.count/r.courses.total.required*100,r.courses.total.met,courseDetail,false,'\u{1F4DA}');
+  const chk=SVG_ICONS.check,wrn=SVG_ICONS.alert;
+  const courseDetail=`<div class="prog-sub">Advanced (min ${r.courses.advanced.required}): ${r.courses.advanced.count} ${r.courses.advanced.met?'<span style="color:var(--ok);display:inline-flex;vertical-align:middle">'+chk+'</span>':'<span style="color:var(--warn);display:inline-flex;vertical-align:middle">'+wrn+'</span>'} &nbsp; Introductory (max ${r.courses.introMax.max}): ${r.courses.introMax.count} ${r.courses.introMax.met?'<span style="color:var(--ok);display:inline-flex;vertical-align:middle">'+chk+'</span>':'<span style="color:var(--warn);display:inline-flex;vertical-align:middle">'+wrn+'</span>'}</div>${r.courses.total.met?'':'<div class="prog-sub" style="color:var(--warn)">Need '+(r.courses.total.required-r.courses.total.count)+' more courses</div>'}`;
+  html+=buildProgSection(`Courses (${r.courses.total.required} required)`,`${r.courses.total.count} / ${r.courses.total.required}`,r.courses.total.count/r.courses.total.required*100,r.courses.total.met,courseDetail,false,'book');
 
   // Skills
-  const skillDetail=`<div class="prog-sub">Advanced (min ${r.skills.advanced.required}): ${r.skills.advanced.count} ${r.skills.advanced.met?'\u2705':'\u26A0'} &nbsp; Introductory (max ${r.skills.introMax.max}): ${r.skills.introMax.count} ${r.skills.introMax.met?'\u2705':'\u26A0'}</div>${r.skills.total.met?'':'<div class="prog-sub" style="color:var(--warn)">\u2192 Need '+(r.skills.total.required-r.skills.total.count)+' more skill training</div>'}`;
-  html+=buildProgSection(`Skills (${r.skills.total.required} required)`,`${r.skills.total.count} / ${r.skills.total.required}`,r.skills.total.count/r.skills.total.required*100,r.skills.total.met,skillDetail,false,'\u{1F52C}');
+  const skillDetail=`<div class="prog-sub">Advanced (min ${r.skills.advanced.required}): ${r.skills.advanced.count} ${r.skills.advanced.met?'<span style="color:var(--ok);display:inline-flex;vertical-align:middle">'+chk+'</span>':'<span style="color:var(--warn);display:inline-flex;vertical-align:middle">'+wrn+'</span>'} &nbsp; Introductory (max ${r.skills.introMax.max}): ${r.skills.introMax.count} ${r.skills.introMax.met?'<span style="color:var(--ok);display:inline-flex;vertical-align:middle">'+chk+'</span>':'<span style="color:var(--warn);display:inline-flex;vertical-align:middle">'+wrn+'</span>'}</div>${r.skills.total.met?'':'<div class="prog-sub" style="color:var(--warn)">Need '+(r.skills.total.required-r.skills.total.count)+' more skill training</div>'}`;
+  html+=buildProgSection(`Skills (${r.skills.total.required} required)`,`${r.skills.total.count} / ${r.skills.total.required}`,r.skills.total.count/r.skills.total.required*100,r.skills.total.met,skillDetail,false,'flask');
 
   // Projects
-  const projDetail=`<div class="prog-sub">Advanced (min ${r.projects.advanced.required}): ${r.projects.advanced.count} ${r.projects.advanced.met?'\u2705':'\u26A0'} &nbsp; Introductory (max ${r.projects.introMax.max}): ${r.projects.introMax.count} ${r.projects.introMax.met?'\u2705':'\u26A0'}</div>${r.projects.total.met?'':'<div class="prog-sub" style="color:var(--warn)">\u2192 Need '+(r.projects.total.required-r.projects.total.count)+' more project</div>'}`;
-  html+=buildProgSection(`Projects (${r.projects.total.required} required)`,`${r.projects.total.count} / ${r.projects.total.required}`,r.projects.total.count/r.projects.total.required*100,r.projects.total.met,projDetail,false,'\u{1F4DD}');
+  const projDetail=`<div class="prog-sub">Advanced (min ${r.projects.advanced.required}): ${r.projects.advanced.count} ${r.projects.advanced.met?'<span style="color:var(--ok);display:inline-flex;vertical-align:middle">'+chk+'</span>':'<span style="color:var(--warn);display:inline-flex;vertical-align:middle">'+wrn+'</span>'} &nbsp; Introductory (max ${r.projects.introMax.max}): ${r.projects.introMax.count} ${r.projects.introMax.met?'<span style="color:var(--ok);display:inline-flex;vertical-align:middle">'+chk+'</span>':'<span style="color:var(--warn);display:inline-flex;vertical-align:middle">'+wrn+'</span>'}</div>${r.projects.total.met?'':'<div class="prog-sub" style="color:var(--warn)">Need '+(r.projects.total.required-r.projects.total.count)+' more project</div>'}`;
+  html+=buildProgSection(`Projects (${r.projects.total.required} required)`,`${r.projects.total.count} / ${r.projects.total.required}`,r.projects.total.count/r.projects.total.required*100,r.projects.total.met,projDetail,false,'clipboard');
 
   // BTR
-  const btrDetail=r.btr.eligible?'<div class="prog-sub" style="color:var(--ok)">You are eligible to start your BTR (\u2265 145 ECTS)</div>':`<div class="prog-sub" style="color:var(--warn)">\u26A0 Need ${(145-c.totalECTSEarned).toFixed(1)} more ECTS before BTR eligibility (requirement: 145 ECTS)</div>`;
-  html+=buildProgSection('BTR (30 ECTS)',r.btr.completed?'Completed':'Not started',r.btr.completed?100:0,r.btr.completed,btrDetail,false,'\u{1F4D6}');
+  const btrDetail=r.btr.eligible?'<div class="prog-sub" style="color:var(--ok)">You are eligible to start your BTR (>= 145 ECTS)</div>':`<div class="prog-sub" style="color:var(--warn)">Need ${(145-c.totalECTSEarned).toFixed(1)} more ECTS before BTR eligibility (requirement: 145 ECTS)</div>`;
+  html+=buildProgSection('BTR (30 ECTS)',r.btr.completed?'Completed':'Not started',r.btr.completed?100:0,r.btr.completed,btrDetail,false,'filetext');
 
   // General Education
-  const geDetail=`<div class="prog-sub">Mathematics: ${r.generalEducation.mathematics.met?r.generalEducation.mathematics.course+' \u2705':'Not yet met \u26A0'}</div><div class="prog-sub">Humanities: ${r.generalEducation.humanities.met?r.generalEducation.humanities.course+' \u2705':'Not yet met \u26A0'}</div>`;
+  const geDetail=`<div class="prog-sub">Mathematics: ${r.generalEducation.mathematics.met?r.generalEducation.mathematics.course+' <span style="color:var(--ok);display:inline-flex;vertical-align:middle">'+chk+'</span>':'Not yet met <span style="color:var(--warn);display:inline-flex;vertical-align:middle">'+wrn+'</span>'}</div><div class="prog-sub">Humanities: ${r.generalEducation.humanities.met?r.generalEducation.humanities.course+' <span style="color:var(--ok);display:inline-flex;vertical-align:middle">'+chk+'</span>':'Not yet met <span style="color:var(--warn);display:inline-flex;vertical-align:middle">'+wrn+'</span>'}</div>`;
   const geMet=r.generalEducation.mathematics.met&&r.generalEducation.humanities.met;
-  html+=buildProgSection('General Education',geMet?'Complete':'Incomplete',geMet?100:r.generalEducation.mathematics.met||r.generalEducation.humanities.met?50:0,geMet,geDetail,false,'\u{1F30D}');
+  html+=buildProgSection('General Education',geMet?'Complete':'Incomplete',geMet?100:r.generalEducation.mathematics.met||r.generalEducation.humanities.met?50:0,geMet,geDetail,false,'globe');
 
   // ─── Semester History ───
-  html+=`<h3 style="font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;color:var(--navy);margin:24px 0 12px">Semester History</h3>`;
+  html+=`<h3 style="font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;color:var(--navy);margin:24px 0 12px;display:flex;align-items:center;gap:8px"><span style="display:inline-flex;color:var(--navy)">${SVG_ICONS.chart}</span> Semester History</h3>`;
   t.semesters.forEach((sem,i)=>{
     const isLast=i===t.semesters.length-1;
     const semECTS=sem.modules.reduce((a,m)=>a+m.ectsEarned,0);
-    let body=sem.modules.map(m=>`<div class="prog-item"><span class="pi-code">${m.code}</span><span class="pi-title">${esc(m.title)}</span><span class="pi-grade" style="color:${m.passed?'var(--ok)':'var(--err)'};">${m.grade>0?m.grade.toFixed(1):'NG'}</span><span class="pi-status">${m.passed?'\u2705':'\u274C'}</span></div>`).join('');
+    let body=sem.modules.map(m=>{const sico=m.passed?`<span style="color:var(--ok);display:inline-flex">${SVG_ICONS.check}</span>`:`<span style="color:var(--err);display:inline-flex">${SVG_ICONS.x}</span>`;return`<div class="prog-item"><span class="pi-code">${m.code}</span><span class="pi-title">${esc(m.title)}</span><span class="pi-grade" style="color:${m.passed?'var(--ok)':'var(--err)'};">${m.grade>0?m.grade.toFixed(1):'NG'}</span><span class="pi-status">${sico}</span></div>`;}).join('');
     html+=`<div class="sem-acc fade-in${isLast?' open':''}">
       <div class="sem-header" onclick="this.parentElement.classList.toggle('open')">
         <span class="sem-arrow">\u25B6</span>
@@ -928,8 +931,8 @@ function buildDashboard(){
   if(!r.btr.completed)needed.push('Bachelor Thesis Research (30 ECTS)');
   const remaining=180-c.totalECTSEarned;
 
-  html+=`<div class="action-card fade-in" style="margin-top:24px">
-    <h3>&#128203; What You Still Need</h3>
+  html+=`<div class="action-card fade-in" style="margin-top:24px" id="dash-needs">
+    <h3 style="display:flex;align-items:center;gap:8px"><span style="display:inline-flex;color:var(--navy)">${SVG_ICONS.clipboard}</span> What You Still Need</h3>
     <ul>${needed.map(n=>`<li>${n}</li>`).join('')}<li>Total: ${remaining.toFixed(1)} ECTS remaining</li></ul>`;
   if(!r.btr.eligible){
     html+=`<div class="ac-warn">\u26A0 You need ${(145-c.totalECTSEarned).toFixed(1)} more ECTS before you're eligible to start your BTR (requirement: 145 ECTS).</div>`;
@@ -938,7 +941,7 @@ function buildDashboard(){
   const semCount=t.semesters.length;
   const avgPerSem=semCount>0?c.totalECTSEarned/semCount:30;
   const semsLeft=Math.ceil(remaining/avgPerSem);
-  html+=`<div class="ac-tip">&#128161; At your current pace (~${avgPerSem.toFixed(0)} ECTS/semester), you can graduate after approximately ${semsLeft} more semester${semsLeft!==1?'s':''}${r.btr.completed?'':' (including BTR)'}.</div>`;
+  html+=`<div class="ac-tip"><span style="display:inline-flex;vertical-align:middle;margin-right:4px;color:var(--inf)">${SVG_ICONS.trending}</span> At your current pace (~${avgPerSem.toFixed(0)} ECTS/semester), you can graduate after approximately ${semsLeft} more semester${semsLeft!==1?'s':''}${r.btr.completed?'':' (including BTR)'}.</div>`;
   html+=`<div style="text-align:center;margin-top:4px"><a href="#planner" class="btn btn-or" onclick="switchView('planner')" style="text-decoration:none">\u2192 Go to Course Planner</a></div>`;
 
   // Credit sourcing disclaimer
@@ -957,19 +960,37 @@ function buildDashboard(){
   });
 }
 
-function buildProgSection(title,summary,pct,met,body,startOpen,icon){
+const SVG_ICONS={
+  target:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+  grid:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>',
+  book:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+  flask:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6m-5 0v6.5L4.5 18a1 1 0 0 0 .87 1.5h13.26a1 1 0 0 0 .87-1.5L14 9.5V3"/></svg>',
+  clipboard:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4m-4 4h4m-8-4h.01m-.01 4h.01"/></svg>',
+  filetext:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+  globe:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+  cap:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"/></svg>',
+  chart:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+  trending:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
+  alert:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+  check:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  x:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+  arrow:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>'
+};
+
+function buildProgSection(title,summary,pct,met,body,startOpen,iconKey){
   pct=Math.min(pct,100);
   const barClass=met?'bar-ok':pct>60?'bar-default':'bar-warn';
   const iconClass=met?'pi-ok':pct>60?'':'pi-warn';
-  const ico=icon||'\u{1F4CA}';
+  const ico=SVG_ICONS[iconKey]||SVG_ICONS.chart;
+  const checkIco=met?`<span style="color:var(--ok);display:inline-flex;margin-left:2px">${SVG_ICONS.check}</span>`:'';
   return`<div class="prog-section${startOpen?' open':''}">
     <div class="prog-header" onclick="this.parentElement.classList.toggle('open')">
       <div class="prog-icon ${iconClass}">${ico}</div>
       <h3>${title}</h3>
       <div class="prog-bar-wrap"><div class="prog-bar ${barClass}" data-width="${pct.toFixed(0)}" style="width:${pct.toFixed(0)}%"></div></div>
       <span class="prog-pct">${pct.toFixed(0)}%</span>
-      <span class="prog-summary">${summary} ${met?'\u2705':''}</span>
-      <span class="prog-arrow">\u25B6</span>
+      <span class="prog-summary">${summary} ${checkIco}</span>
+      <span class="prog-arrow">${SVG_ICONS.arrow}</span>
     </div>
     <div class="prog-body" style="padding-top:12px">${body}</div>
   </div>`;
@@ -980,7 +1001,8 @@ function buildGPAChart(t){
   if(sems.length<2)return'';
   const W=680,H=220,padL=48,padR=20,padT=30,padB=36;
   const chartW=W-padL-padR,chartH=H-padT-padB;
-  const minGPA=Math.max(0,Math.floor(Math.min(...sems.map(s=>s.cumGPA),7)*2-1)/2);
+  const dataMin=Math.min(...sems.map(s=>s.cumGPA),...sems.filter(s=>s.semGPA>0).map(s=>s.semGPA));
+  const minGPA=Math.min(6.5,Math.floor(dataMin*2)/2-0.5);
   const maxGPA=Math.min(10,Math.ceil(Math.max(...sems.map(s=>s.cumGPA),9)*2+1)/2);
   const range=maxGPA-minGPA||1;
   const x=i=>padL+(i/(sems.length-1))*chartW;
@@ -1058,7 +1080,7 @@ function buildGPAChart(t){
   svg+=`</svg>`;
 
   return`<div class="gpa-chart-card fade-in fade-in-d2">
-    <h3><span>\u{1F4C8}</span> GPA Over Time</h3>
+    <h3><span style="display:inline-flex;color:var(--navy)">${SVG_ICONS.trending}</span> GPA Over Time</h3>
     ${svg}
     <div class="gpa-legend">
       <div class="gpa-legend-item"><div class="gpa-legend-dot" style="background:#011B3C"></div> Cumulative GPA</div>
@@ -1067,7 +1089,17 @@ function buildGPAChart(t){
       <div class="gpa-legend-item"><div class="gpa-legend-swatch" style="background:#059669"></div> Cum Laude (\u2265 8.0)</div>
       <div class="gpa-legend-item"><div class="gpa-legend-swatch" style="background:#6366F1"></div> Bene Meritum (\u2265 7.0)</div>
     </div>
+    <div style="text-align:center;margin-top:14px"><a href="#dash-needs" onclick="document.getElementById('dash-needs').scrollIntoView({behavior:'smooth'});return false" class="btn btn-navy" style="text-decoration:none;font-size:12px;padding:8px 18px;display:inline-flex;align-items:center;gap:6px">${SVG_ICONS.clipboard} Missing Graduation Requirements</a></div>
   </div>`;
+}
+
+function toggleStatCard(el){
+  const wasOpen=el.classList.contains('sc-open');
+  document.querySelectorAll('.stat-card.sc-open').forEach(c=>c.classList.remove('sc-open'));
+  if(!wasOpen)el.classList.add('sc-open');
+}
+function closeStatCard(closeBtn){
+  closeBtn.closest('.stat-card').classList.remove('sc-open');
 }
 
 function clearTranscript(){
