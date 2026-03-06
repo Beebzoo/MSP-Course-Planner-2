@@ -209,37 +209,52 @@ footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:
 .skip-link:hover{color:var(--navy)}
 
 /* Dashboard profile card */
-.profile-card{background:linear-gradient(135deg,var(--navy) 0%,var(--navy3) 100%);color:#fff;border-radius:var(--r);padding:24px 28px;margin-bottom:16px;box-shadow:var(--sh-md)}
-.profile-card h2{font-family:'DM Sans',sans-serif;font-size:22px;font-weight:700;margin-bottom:2px}
-.profile-card .pc-sub{font-size:12.5px;opacity:.7;margin-bottom:4px}
-.profile-card .pc-meta{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;opacity:.6;margin-top:8px}
-.profile-card .pc-actions{display:flex;gap:8px;margin-top:12px}
-.profile-card .pc-actions button{padding:5px 12px;border-radius:var(--rs);font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;cursor:pointer;font-family:inherit;transition:all .15s}
-.profile-card .pc-actions button:hover{background:rgba(255,255,255,.2)}
+.profile-card{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 40%,var(--navy3) 100%);color:#fff;border-radius:16px;padding:32px 36px;margin-bottom:20px;box-shadow:0 8px 32px rgba(1,27,60,.18),0 2px 8px rgba(0,0,0,.08);display:flex;align-items:center;gap:24px;position:relative;overflow:hidden}
+.profile-card::before{content:'';position:absolute;top:-60px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(110,210,236,.08) 0%,transparent 70%);pointer-events:none}
+.profile-card .pc-left{flex:1}
+.profile-card h2{font-family:'DM Sans',sans-serif;font-size:26px;font-weight:700;margin-bottom:4px;letter-spacing:-.02em}
+.profile-card .pc-sub{font-size:13px;opacity:.7;margin-bottom:6px}
+.profile-card .pc-meta{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;opacity:.55;margin-top:10px}
+.profile-card .pc-actions{display:flex;gap:8px;margin-top:14px}
+.profile-card .pc-actions button{padding:6px 14px;border-radius:var(--rs);font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;cursor:pointer;font-family:inherit;transition:all .2s;backdrop-filter:blur(4px)}
+.profile-card .pc-actions button:hover{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.4);transform:translateY(-1px)}
+.profile-card .pc-logo{flex-shrink:0;width:120px;height:auto;opacity:.85;filter:brightness(0) invert(1);transition:opacity .3s}
+.profile-card:hover .pc-logo{opacity:1}
 
 /* Quick stats row */
-.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
-.stat-card{background:#fff;border-radius:var(--r);padding:16px 14px;text-align:center;border:1px solid var(--g2);box-shadow:var(--sh);transition:all .3s}
-.stat-card .sc-val{font-family:'DM Sans',sans-serif;font-size:26px;font-weight:700;color:var(--navy);line-height:1.1}
-.stat-card .sc-label{font-size:10.5px;font-weight:600;color:var(--g4);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
-.stat-card .sc-sub{font-size:11px;color:var(--g5);margin-top:2px}
-.stat-card.sc-ok{border-color:var(--ok-bd);background:var(--ok-bg)} .stat-card.sc-ok .sc-val{color:var(--ok)}
-.stat-card.sc-warn{border-color:var(--warn-bd);background:var(--warn-bg)} .stat-card.sc-warn .sc-val{color:var(--warn)}
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:#fff;border-radius:14px;padding:20px 16px 16px;text-align:center;border:1.5px solid var(--g2);box-shadow:var(--sh);transition:all .3s;cursor:pointer;position:relative;overflow:hidden}
+.stat-card:hover{box-shadow:var(--sh-md);transform:translateY(-3px);border-color:var(--g3)}
+.stat-card .sc-val{font-family:'DM Sans',sans-serif;font-size:28px;font-weight:700;color:var(--navy);line-height:1.1}
+.stat-card .sc-label{font-size:10px;font-weight:700;color:var(--g4);text-transform:uppercase;letter-spacing:.08em;margin-top:6px}
+.stat-card .sc-sub{font-size:11px;color:var(--g5);margin-top:3px}
+.stat-card .sc-tooltip{display:none;position:absolute;left:0;right:0;bottom:0;top:0;background:rgba(255,255,255,.97);backdrop-filter:blur(6px);padding:14px 12px;font-size:11.5px;color:var(--g7);line-height:1.5;text-align:left;border-radius:14px;z-index:5;overflow-y:auto}
+.stat-card .sc-tooltip h4{font-size:10px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.stat-card:hover .sc-tooltip{display:block}
+.stat-card.sc-ok{border-color:var(--ok-bd);background:var(--ok-bg)} .stat-card.sc-ok .sc-val{color:var(--ok)} .stat-card.sc-ok:hover{border-color:var(--ok);background:var(--ok-bg)}
+.stat-card.sc-warn{border-color:var(--warn-bd);background:var(--warn-bg)} .stat-card.sc-warn .sc-val{color:var(--warn)} .stat-card.sc-warn:hover{border-color:var(--warn)}
 
 /* Progress sections */
-.prog-section{background:#fff;border-radius:var(--r);border:1px solid var(--g2);box-shadow:var(--sh);margin-bottom:12px;overflow:hidden}
-.prog-header{padding:14px 20px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .15s;user-select:none}
+.prog-section{background:#fff;border-radius:14px;border:1px solid var(--g2);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden;transition:all .2s}
+.prog-section:hover{box-shadow:var(--sh-md)}
+.prog-header{padding:16px 22px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:background .15s;user-select:none}
 .prog-header:hover{background:var(--g0)}
+.prog-header .prog-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:var(--sa-bg);color:var(--sa)}
+.prog-header .prog-icon.pi-ok{background:var(--ok-bg);color:var(--ok)}
+.prog-header .prog-icon.pi-warn{background:var(--warn-bg);color:var(--warn)}
 .prog-header h3{font-size:14px;font-weight:600;color:var(--g9);flex:1}
-.prog-header .prog-summary{font-size:12px;color:var(--g5);margin-right:8px}
+.prog-header .prog-summary{font-size:12px;color:var(--g5);margin-right:8px;font-weight:500}
 .prog-header .prog-arrow{font-size:10px;color:var(--g4);transition:transform .2s}
 .prog-section.open .prog-arrow{transform:rotate(90deg)}
-.prog-body{display:none;padding:0 20px 16px;border-top:1px solid var(--g1)}
+.prog-body{display:none;padding:0 22px 18px;border-top:1px solid var(--g1)}
 .prog-section.open .prog-body{display:block}
-.prog-bar-wrap{flex:1;max-width:200px;height:8px;background:var(--g1);border-radius:4px;overflow:hidden}
-.prog-bar{height:100%;border-radius:4px;transition:width 1s ease;background:linear-gradient(90deg,var(--navy),var(--sky))}
-.prog-bar.bar-ok{background:linear-gradient(90deg,var(--ok),#34D399)}
-.prog-bar.bar-warn{background:linear-gradient(90deg,var(--warn),#F59E0B)}
+.prog-bar-wrap{flex:1;max-width:220px;height:10px;background:var(--g1);border-radius:6px;overflow:hidden;position:relative}
+.prog-bar{height:100%;border-radius:6px;transition:width 1.2s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden}
+.prog-bar::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(255,255,255,.25) 0%,transparent 50%,rgba(0,0,0,.05) 100%);border-radius:6px}
+.prog-bar.bar-default{background:linear-gradient(90deg,var(--navy) 0%,var(--sky) 100%)}
+.prog-bar.bar-ok{background:linear-gradient(90deg,#059669 0%,#34D399 60%,#6EE7B7 100%)}
+.prog-bar.bar-warn{background:linear-gradient(90deg,#B45309 0%,#F59E0B 60%,#FCD34D 100%)}
+.prog-pct{font-size:11px;font-weight:700;color:var(--g5);min-width:36px;text-align:right}
 .prog-item{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:12.5px;border-bottom:1px solid var(--g0)}
 .prog-item:last-child{border-bottom:none}
 .prog-item .pi-code{font-family:'SF Mono',Monaco,Consolas,monospace;font-weight:600;color:var(--g5);min-width:70px}
@@ -247,6 +262,16 @@ footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:
 .prog-item .pi-grade{font-weight:600;min-width:36px;text-align:right}
 .prog-item .pi-status{font-size:11px}
 .prog-sub{font-size:11.5px;color:var(--g5);margin-top:8px;padding:6px 10px;background:var(--g0);border-radius:var(--rs)}
+
+/* GPA Chart */
+.gpa-chart-card{background:#fff;border-radius:14px;border:1px solid var(--g2);box-shadow:var(--sh);padding:24px;margin-bottom:20px;transition:box-shadow .2s}
+.gpa-chart-card:hover{box-shadow:var(--sh-md)}
+.gpa-chart-card h3{font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;color:var(--navy);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.gpa-chart-card h3 span{font-size:18px}
+.gpa-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--g1);font-size:11px;color:var(--g5)}
+.gpa-legend-item{display:flex;align-items:center;gap:5px}
+.gpa-legend-swatch{width:16px;height:3px;border-radius:2px}
+.gpa-legend-dot{width:8px;height:8px;border-radius:50%}
 
 /* Semester history */
 .sem-acc{background:#fff;border-radius:var(--r);border:1px solid var(--g2);box-shadow:var(--sh);margin-bottom:12px;overflow:hidden}
@@ -375,6 +400,7 @@ footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:
 @media(max-width:900px){
   .cmp-grid{grid-template-columns:1fr;gap:10px}
   .stats-row{grid-template-columns:repeat(3,1fr)}
+  .profile-card .pc-logo{width:80px}
 }
 @media(max-width:640px){
   .hdr-brand{padding:0 16px;height:60px;gap:12px}
@@ -388,6 +414,10 @@ footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:
   .actbar{padding:12px 16px}
   .plan-tabs{padding:4px}
   .stats-row{grid-template-columns:repeat(2,1fr)}
+  .profile-card{flex-direction:column;text-align:center;padding:24px 20px}
+  .profile-card .pc-meta{justify-content:center}
+  .profile-card .pc-actions{justify-content:center}
+  .profile-card .pc-logo{width:80px}
   .cards-grid{grid-template-columns:1fr}
   .detail-grid{grid-template-columns:1fr}
   .toolbar{flex-direction:column;align-items:stretch}
@@ -791,65 +821,88 @@ function buildDashboard(){
 
   // ─── Profile Card ───
   html+=`<div class="profile-card fade-in">
-    <h2>${esc(t.student.name||'Student')}</h2>
-    <div class="pc-sub">${esc(t.student.programme)}</div>
-    <div class="pc-meta">
-      <span>Student #${esc(t.student.studentNumber||'—')}</span>
-      <span>Semester ${t.semesters.length}</span>
-      ${t.student.printDate?`<span>Transcript printed: ${esc(t.student.printDate)}</span>`:''}
+    <div class="pc-left">
+      <h2>${esc(t.student.name||'Student')}</h2>
+      <div class="pc-sub">${esc(t.student.programme)}</div>
+      <div class="pc-meta">
+        <span>Student #${esc(t.student.studentNumber||'—')}</span>
+        <span>Semester ${t.semesters.length}</span>
+        ${t.student.printDate?`<span>Transcript printed: ${esc(t.student.printDate)}</span>`:''}
+      </div>
+      <div class="pc-actions">
+        <button onclick="document.getElementById('pdff').click()">&#128259; Change transcript</button>
+        <button onclick="clearTranscript()">&#10005; Clear</button>
+      </div>
     </div>
-    <div class="pc-actions">
-      <button onclick="document.getElementById('pdff').click()">&#128259; Change transcript</button>
-      <button onclick="clearTranscript()">&#10005; Clear</button>
-    </div>
+    <img src="logo-main.png" alt="MSP" class="pc-logo">
   </div>`;
 
   // ─── Quick Stats Row ───
   const pct=Math.round(c.totalECTSEarned/180*100);
   const gpaLetter=c.currentCumGPA>=9?'A+':c.currentCumGPA>=8?'A':c.currentCumGPA>=7?'B':c.currentCumGPA>=6?'C':'D';
   html+=`<div class="stats-row fade-in fade-in-d1">
-    <div class="stat-card"><div class="sc-val">${c.totalECTSEarned}</div><div class="sc-label">ECTS</div><div class="sc-sub">of 180</div></div>
-    <div class="stat-card"><div class="sc-val">${c.currentCumGPA.toFixed(1)}</div><div class="sc-label">GPA</div><div class="sc-sub">(${gpaLetter})</div></div>
-    <div class="stat-card"><div class="sc-val">${c.currentPR.toFixed(2)}</div><div class="sc-label">PR</div><div class="sc-sub">Progress Rate</div></div>
-    <div class="stat-card${pct>=75?' sc-ok':pct>=50?'':' sc-warn'}"><div class="sc-val">${pct}%</div><div class="sc-label">Done</div><div class="sc-sub">${c.totalECTSEarned} / 180</div></div>
-    <div class="stat-card${r.gpa.projectedDistinction?' sc-ok':''}"><div class="sc-val" style="font-size:16px">${r.gpa.projectedDistinction||'—'}</div><div class="sc-label">Track</div><div class="sc-sub">Distinction</div></div>
+    <div class="stat-card">
+      <div class="sc-val">${c.totalECTSEarned}</div><div class="sc-label">ECTS</div><div class="sc-sub">of 180</div>
+      <div class="sc-tooltip"><h4>ECTS Credits</h4>You have earned <strong>${c.totalECTSEarned}</strong> of the <strong>180 ECTS</strong> required to graduate.<br><br>Each course = 5 ECTS<br>Each practical = 2.5 ECTS<br>BTR = 30 ECTS<br><br><strong>${(180-c.totalECTSEarned).toFixed(1)} ECTS</strong> remaining.</div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-val">${c.currentCumGPA.toFixed(1)}</div><div class="sc-label">GPA</div><div class="sc-sub">(${gpaLetter})</div>
+      <div class="sc-tooltip"><h4>Cumulative GPA</h4>Your grade point average across all semesters.<br><br>Scale: 1.0 \u2013 10.0<br>Pass threshold: 5.5<br><br><strong>\u2265 9.0</strong> = Summa Cum Laude<br><strong>\u2265 8.0</strong> = Cum Laude<br><strong>\u2265 7.0</strong> = Bene Meritum</div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-val">${c.currentPR.toFixed(2)}</div><div class="sc-label">PR</div><div class="sc-sub">Progress Rate</div>
+      <div class="sc-tooltip"><h4>Progress Rate</h4>ECTS earned \u00f7 ECTS attempted.<br><br>A PR of <strong>1.00</strong> means you passed every module you attempted.<br><br>Current: <strong>${c.totalECTSEarned}</strong> earned / <strong>${c.totalECTSAttempted}</strong> attempted = <strong>${c.currentPR.toFixed(2)}</strong></div>
+    </div>
+    <div class="stat-card${pct>=75?' sc-ok':pct>=50?'':' sc-warn'}">
+      <div class="sc-val">${pct}%</div><div class="sc-label">Done</div><div class="sc-sub">${c.totalECTSEarned} / 180</div>
+      <div class="sc-tooltip"><h4>Completion</h4>Overall degree progress.<br><br>Courses: ${c.courses.total}/20<br>Skills: ${c.skills.total}/10<br>Projects: ${c.projects.total}/5<br>BTR: ${r.btr.completed?'Complete':'Not started'}<br><br>You are <strong>${pct}%</strong> of the way to graduation.</div>
+    </div>
+    <div class="stat-card${r.gpa.projectedDistinction?' sc-ok':''}">
+      <div class="sc-val" style="font-size:16px">${r.gpa.projectedDistinction||'\u2014'}</div><div class="sc-label">Track</div><div class="sc-sub">Distinction</div>
+      <div class="sc-tooltip"><h4>Distinction Track</h4>Based on your current GPA of <strong>${c.currentCumGPA.toFixed(1)}</strong>:<br><br>${c.currentCumGPA>=9?'\u2b50 <strong>Summa Cum Laude</strong> \u2014 Exceptional. Top academic achievement.':c.currentCumGPA>=8?'\u2b50 <strong>Cum Laude</strong> \u2014 With honours. Outstanding performance.':c.currentCumGPA>=7?'\u2b50 <strong>Bene Meritum</strong> \u2014 With merit. Strong academic record.':'\u2014 No distinction track currently. GPA \u2265 7.0 needed for Bene Meritum.'}<br><br><em>Distinctions are awarded at graduation and require meeting all requirements with no resits (for SCL).</em></div>
+    </div>
   </div>`;
 
+  // ─── GPA Over Time Chart ───
+  if(t.semesters.length>=2){
+    html+=buildGPAChart(t);
+  }
+
   // ─── Graduation Progress ───
-  html+=`<h3 style="font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;color:var(--navy);margin:24px 0 12px">Graduation Progress</h3>`;
+  html+=`<h3 style="font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;color:var(--navy);margin:24px 0 14px;display:flex;align-items:center;gap:8px">\u{1F393} Graduation Progress</h3>`;
 
   // Overall
-  html+=buildProgSection('Overall Progress',`${c.totalECTSEarned} / 180 ECTS`,c.totalECTSEarned/180*100,r.totalECTS.met,'',false);
+  html+=buildProgSection('Overall Progress',`${c.totalECTSEarned} / 180 ECTS`,c.totalECTSEarned/180*100,r.totalECTS.met,'',false,'\u{1F3AF}');
 
   // Core
   const coreItems=CORE_CODES.map(code=>{
     const m=r.core[code];
     const allMods=t.semesters.flatMap(s=>s.modules);
     const mod=allMods.find(x=>x.code===code);
-    return`<div class="prog-item"><span class="pi-code">${code}</span><span class="pi-title">${mod?mod.title:code}</span><span class="pi-grade" style="color:${m.passed?'var(--ok)':'var(--err)'}">${m.grade!==null?m.grade.toFixed(1):'—'}</span><span class="pi-status">${m.passed?'\u2705':'\u274C'}</span></div>`;
+    return`<div class="prog-item"><span class="pi-code">${code}</span><span class="pi-title">${mod?mod.title:code}</span><span class="pi-grade" style="color:${m.passed?'var(--ok)':'var(--err)'}">${m.grade!==null?m.grade.toFixed(1):'\u2014'}</span><span class="pi-status">${m.passed?'\u2705':'\u274C'}</span></div>`;
   }).join('');
-  html+=buildProgSection('Core Curriculum',`${Object.values(r.core).filter(v=>v.passed).length-1} / 7`,r.core.allCoreMet?100:Object.values(r.core).filter(v=>v.passed).length/8*100,r.core.allCoreMet,coreItems,false);
+  html+=buildProgSection('Core Curriculum',`${Object.values(r.core).filter(v=>v.passed).length-1} / 7`,r.core.allCoreMet?100:Object.values(r.core).filter(v=>v.passed).length/8*100,r.core.allCoreMet,coreItems,false,'\u{1F9E9}');
 
   // Courses
   const courseDetail=`<div class="prog-sub">Advanced (min ${r.courses.advanced.required}): ${r.courses.advanced.count} ${r.courses.advanced.met?'\u2705':'\u26A0'} &nbsp; Introductory (max ${r.courses.introMax.max}): ${r.courses.introMax.count} ${r.courses.introMax.met?'\u2705':'\u26A0'}</div>${r.courses.total.met?'':'<div class="prog-sub" style="color:var(--warn)">\u2192 Need '+(r.courses.total.required-r.courses.total.count)+' more courses</div>'}`;
-  html+=buildProgSection(`Courses (${r.courses.total.required} required)`,`${r.courses.total.count} / ${r.courses.total.required}`,r.courses.total.count/r.courses.total.required*100,r.courses.total.met,courseDetail,false);
+  html+=buildProgSection(`Courses (${r.courses.total.required} required)`,`${r.courses.total.count} / ${r.courses.total.required}`,r.courses.total.count/r.courses.total.required*100,r.courses.total.met,courseDetail,false,'\u{1F4DA}');
 
   // Skills
   const skillDetail=`<div class="prog-sub">Advanced (min ${r.skills.advanced.required}): ${r.skills.advanced.count} ${r.skills.advanced.met?'\u2705':'\u26A0'} &nbsp; Introductory (max ${r.skills.introMax.max}): ${r.skills.introMax.count} ${r.skills.introMax.met?'\u2705':'\u26A0'}</div>${r.skills.total.met?'':'<div class="prog-sub" style="color:var(--warn)">\u2192 Need '+(r.skills.total.required-r.skills.total.count)+' more skill training</div>'}`;
-  html+=buildProgSection(`Skills (${r.skills.total.required} required)`,`${r.skills.total.count} / ${r.skills.total.required}`,r.skills.total.count/r.skills.total.required*100,r.skills.total.met,skillDetail,false);
+  html+=buildProgSection(`Skills (${r.skills.total.required} required)`,`${r.skills.total.count} / ${r.skills.total.required}`,r.skills.total.count/r.skills.total.required*100,r.skills.total.met,skillDetail,false,'\u{1F52C}');
 
   // Projects
   const projDetail=`<div class="prog-sub">Advanced (min ${r.projects.advanced.required}): ${r.projects.advanced.count} ${r.projects.advanced.met?'\u2705':'\u26A0'} &nbsp; Introductory (max ${r.projects.introMax.max}): ${r.projects.introMax.count} ${r.projects.introMax.met?'\u2705':'\u26A0'}</div>${r.projects.total.met?'':'<div class="prog-sub" style="color:var(--warn)">\u2192 Need '+(r.projects.total.required-r.projects.total.count)+' more project</div>'}`;
-  html+=buildProgSection(`Projects (${r.projects.total.required} required)`,`${r.projects.total.count} / ${r.projects.total.required}`,r.projects.total.count/r.projects.total.required*100,r.projects.total.met,projDetail,false);
+  html+=buildProgSection(`Projects (${r.projects.total.required} required)`,`${r.projects.total.count} / ${r.projects.total.required}`,r.projects.total.count/r.projects.total.required*100,r.projects.total.met,projDetail,false,'\u{1F4DD}');
 
   // BTR
   const btrDetail=r.btr.eligible?'<div class="prog-sub" style="color:var(--ok)">You are eligible to start your BTR (\u2265 145 ECTS)</div>':`<div class="prog-sub" style="color:var(--warn)">\u26A0 Need ${(145-c.totalECTSEarned).toFixed(1)} more ECTS before BTR eligibility (requirement: 145 ECTS)</div>`;
-  html+=buildProgSection('BTR (30 ECTS)',r.btr.completed?'Completed':'Not started',r.btr.completed?100:0,r.btr.completed,btrDetail,false);
+  html+=buildProgSection('BTR (30 ECTS)',r.btr.completed?'Completed':'Not started',r.btr.completed?100:0,r.btr.completed,btrDetail,false,'\u{1F4D6}');
 
   // General Education
   const geDetail=`<div class="prog-sub">Mathematics: ${r.generalEducation.mathematics.met?r.generalEducation.mathematics.course+' \u2705':'Not yet met \u26A0'}</div><div class="prog-sub">Humanities: ${r.generalEducation.humanities.met?r.generalEducation.humanities.course+' \u2705':'Not yet met \u26A0'}</div>`;
   const geMet=r.generalEducation.mathematics.met&&r.generalEducation.humanities.met;
-  html+=buildProgSection('General Education',geMet?'Complete':'Incomplete',geMet?100:r.generalEducation.mathematics.met||r.generalEducation.humanities.met?50:0,geMet,geDetail,false);
+  html+=buildProgSection('General Education',geMet?'Complete':'Incomplete',geMet?100:r.generalEducation.mathematics.met||r.generalEducation.humanities.met?50:0,geMet,geDetail,false,'\u{1F30D}');
 
   // ─── Semester History ───
   html+=`<h3 style="font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;color:var(--navy);margin:24px 0 12px">Semester History</h3>`;
@@ -904,17 +957,116 @@ function buildDashboard(){
   });
 }
 
-function buildProgSection(title,summary,pct,met,body,startOpen){
+function buildProgSection(title,summary,pct,met,body,startOpen,icon){
   pct=Math.min(pct,100);
-  const barClass=met?'bar-ok':pct>60?'':'bar-warn';
+  const barClass=met?'bar-ok':pct>60?'bar-default':'bar-warn';
+  const iconClass=met?'pi-ok':pct>60?'':'pi-warn';
+  const ico=icon||'\u{1F4CA}';
   return`<div class="prog-section${startOpen?' open':''}">
     <div class="prog-header" onclick="this.parentElement.classList.toggle('open')">
-      <span class="prog-arrow">\u25B6</span>
+      <div class="prog-icon ${iconClass}">${ico}</div>
       <h3>${title}</h3>
       <div class="prog-bar-wrap"><div class="prog-bar ${barClass}" data-width="${pct.toFixed(0)}" style="width:${pct.toFixed(0)}%"></div></div>
+      <span class="prog-pct">${pct.toFixed(0)}%</span>
       <span class="prog-summary">${summary} ${met?'\u2705':''}</span>
+      <span class="prog-arrow">\u25B6</span>
     </div>
     <div class="prog-body" style="padding-top:12px">${body}</div>
+  </div>`;
+}
+
+function buildGPAChart(t){
+  const sems=t.semesters.filter(s=>s.cumGPA>0);
+  if(sems.length<2)return'';
+  const W=680,H=220,padL=48,padR=20,padT=30,padB=36;
+  const chartW=W-padL-padR,chartH=H-padT-padB;
+  const minGPA=Math.max(0,Math.floor(Math.min(...sems.map(s=>s.cumGPA),7)*2-1)/2);
+  const maxGPA=Math.min(10,Math.ceil(Math.max(...sems.map(s=>s.cumGPA),9)*2+1)/2);
+  const range=maxGPA-minGPA||1;
+  const x=i=>padL+(i/(sems.length-1))*chartW;
+  const y=gpa=>padT+chartH-(((gpa-minGPA)/range)*chartH);
+
+  // Build line path
+  let linePath=`M ${x(0)} ${y(sems[0].cumGPA)}`;
+  for(let i=1;i<sems.length;i++)linePath+=` L ${x(i)} ${y(sems[i].cumGPA)}`;
+
+  // Also build semester GPA path
+  const semGPAs=sems.filter(s=>s.semGPA>0);
+  let semPath='';
+  if(semGPAs.length>=2){
+    const semIdx=semGPAs.map(s=>sems.indexOf(s));
+    semPath=`M ${x(semIdx[0])} ${y(semGPAs[0].semGPA)}`;
+    for(let i=1;i<semGPAs.length;i++)semPath+=` L ${x(semIdx[i])} ${y(semGPAs[i].semGPA)}`;
+  }
+
+  // Area fill under cumGPA
+  let areaPath=linePath+` L ${x(sems.length-1)} ${padT+chartH} L ${x(0)} ${padT+chartH} Z`;
+
+  // Threshold lines
+  const thresholds=[
+    {gpa:9,label:'Summa Cum Laude',color:'#D97706'},
+    {gpa:8,label:'Cum Laude',color:'#059669'},
+    {gpa:7,label:'Bene Meritum',color:'#6366F1'}
+  ].filter(th=>th.gpa>=minGPA&&th.gpa<=maxGPA);
+
+  let svg=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;max-height:240px" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="gpafill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#011B3C" stop-opacity=".12"/>
+        <stop offset="100%" stop-color="#011B3C" stop-opacity=".01"/>
+      </linearGradient>
+      <linearGradient id="gpaline" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#011B3C"/>
+        <stop offset="100%" stop-color="#6ED2EC"/>
+      </linearGradient>
+      <filter id="glow"><feGaussianBlur stdDeviation="2" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>`;
+
+  // Grid lines
+  const steps=Math.round(range*2);
+  for(let i=0;i<=steps;i++){
+    const gpa=minGPA+i*0.5;
+    const yy=y(gpa);
+    svg+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="#E2E8F0" stroke-width=".5"/>`;
+    svg+=`<text x="${padL-8}" y="${yy+4}" text-anchor="end" font-size="10" fill="#94A3B8" font-family="Inter,sans-serif">${gpa.toFixed(1)}</text>`;
+  }
+
+  // Threshold lines
+  thresholds.forEach(th=>{
+    const yy=y(th.gpa);
+    svg+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="${th.color}" stroke-width="1.5" stroke-dasharray="6 4" opacity=".5"/>`;
+    svg+=`<text x="${W-padR-2}" y="${yy-5}" text-anchor="end" font-size="9" fill="${th.color}" font-family="Inter,sans-serif" font-weight="600" opacity=".7">${th.label}</text>`;
+  });
+
+  // Area fill
+  svg+=`<path d="${areaPath}" fill="url(#gpafill)"/>`;
+
+  // Semester GPA line (subtle)
+  if(semPath)svg+=`<path d="${semPath}" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="3 3" opacity=".4"/>`;
+
+  // Cumulative GPA line
+  svg+=`<path d="${linePath}" fill="none" stroke="url(#gpaline)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>`;
+
+  // Data points + labels
+  sems.forEach((s,i)=>{
+    const cx=x(i),cy=y(s.cumGPA);
+    svg+=`<circle cx="${cx}" cy="${cy}" r="5" fill="#011B3C" stroke="#fff" stroke-width="2"/>`;
+    svg+=`<text x="${cx}" y="${cy-10}" text-anchor="middle" font-size="10" fill="#011B3C" font-weight="700" font-family="Inter,sans-serif">${s.cumGPA.toFixed(1)}</text>`;
+    svg+=`<text x="${cx}" y="${padT+chartH+16}" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="Inter,sans-serif">S${s.number}</text>`;
+  });
+
+  svg+=`</svg>`;
+
+  return`<div class="gpa-chart-card fade-in fade-in-d2">
+    <h3><span>\u{1F4C8}</span> GPA Over Time</h3>
+    ${svg}
+    <div class="gpa-legend">
+      <div class="gpa-legend-item"><div class="gpa-legend-dot" style="background:#011B3C"></div> Cumulative GPA</div>
+      <div class="gpa-legend-item"><div class="gpa-legend-swatch" style="background:#94A3B8;border:1px dashed #94A3B8"></div> Semester GPA</div>
+      <div class="gpa-legend-item"><div class="gpa-legend-swatch" style="background:#D97706"></div> Summa Cum Laude (\u2265 9.0)</div>
+      <div class="gpa-legend-item"><div class="gpa-legend-swatch" style="background:#059669"></div> Cum Laude (\u2265 8.0)</div>
+      <div class="gpa-legend-item"><div class="gpa-legend-swatch" style="background:#6366F1"></div> Bene Meritum (\u2265 7.0)</div>
+    </div>
   </div>`;
 }
 
