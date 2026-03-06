@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MSP Course Planner</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#011B3C;--navy2:#02274F;--navy3:#0A3060;
+  --sky:#6ED2EC;--orange:#E87722;--um-red:#BE0028;
+  --ok:#15803D;--ok-bg:#F0FDF4;--ok-bd:#86EFAC;
+  --warn:#92400E;--warn-bg:#FFFBEB;--warn-bd:#FCD34D;
+  --err:#B91C1C;--err-bg:#FEF2F2;--err-bd:#FCA5A5;
+  --inf:#0C4A6E;--inf-bg:#F0F9FF;--inf-bd:#7DD3FC;
+  --g0:#F8FAFC;--g1:#F1F5F9;--g2:#E2E8F0;--g3:#CBD5E1;
+  --g4:#94A3B8;--g5:#64748B;--g7:#334155;--g9:#0F172A;
+  --sa-bg:#EFF6FF;--sa:#1D4ED8;--sb-bg:#F0FDF4;--sb:#166534;
+  --sc-bg:#FEFCE8;--showScreen:#854D0E;--sd-bg:#F5F3FF;--sd:#5B21B6;
+  --se-bg:#FFF1F2;--se:#9F1239;
+  --r:10px;--rs:6px;
+  --sh:0 1px 3px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.03);
+  --sh-md:0 4px 20px rgba(0,0,0,.06),0 2px 6px rgba(0,0,0,.03);
+  --sh-lg:0 8px 30px rgba(0,0,0,.08),0 4px 10px rgba(0,0,0,.04)
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--g0);color:var(--g9);min-height:100vh;font-size:14px;line-height:1.6}
+
+/* ── Header ── */
+.hdr{position:sticky;top:0;z-index:200;background:#fff;box-shadow:0 1px 0 var(--g2)}
+.hdr-brand{display:flex;align-items:center;padding:0 40px;height:72px;gap:20px;background:#fff;border-bottom:3px solid var(--orange)}
+.logo-um{height:42px;width:auto;object-fit:contain}
+.logo-msp{height:48px;width:auto;object-fit:contain}
+.hdr-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.hdr-title{font-family:'TheSans','DM Sans','Inter',-apple-system,sans-serif;font-size:23px;font-weight:700;color:var(--navy);letter-spacing:-.02em;line-height:1.1}
+.hdr-sub{font-size:10.5px;color:var(--g4);letter-spacing:.12em;text-transform:uppercase;margin-top:3px;font-weight:500}
+.cfgbtn{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:var(--rs);font-size:11px;font-weight:500;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);cursor:pointer;font-family:inherit;transition:all .15s}
+.cfgbtn:hover{background:rgba(255,255,255,.15);color:rgba(255,255,255,.9)}
+
+/* ── Main ── */
+.main{max-width:860px;margin:0 auto;padding:32px 24px 80px}
+#planner{display:none}
+#loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:14px;color:var(--g4)}
+.spin{width:32px;height:32px;border:3px solid var(--g2);border-top-color:var(--navy);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#errscr{display:none;flex-direction:column;align-items:center;padding:64px 20px;gap:14px;text-align:center}
+#errscr h2{font-family:'DM Sans',sans-serif;font-size:22px;font-weight:700;color:var(--g7)}
+#errscr p{font-size:13.5px;color:var(--g5);max-width:400px;line-height:1.7}
+
+/* ── Plan Tabs ── */
+.plan-tabs{display:flex;gap:6px;margin-bottom:22px;background:#fff;padding:6px;border-radius:var(--r);border:1px solid var(--g2);box-shadow:var(--sh)}
+.ptab{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px 14px;border-radius:7px;cursor:pointer;border:none;background:transparent;font-size:13px;font-weight:500;color:var(--g5);transition:all .2s;font-family:inherit}
+.ptab:hover{background:var(--g0);color:var(--g7)}
+.ptab.active{background:var(--navy);color:#fff;box-shadow:var(--sh-md)}
+.ptab .tlbl{font-weight:600}
+.ptab.tok .tst{color:var(--ok)} .ptab.active .tst{color:rgba(255,255,255,.7)}
+.ptab.twarn .tst{color:var(--orange)} .ptab.terr .tst{color:var(--err)}
+.ptab-cmp{flex:none;padding:10px 16px;font-weight:600;gap:5px;color:var(--navy);border:1.5px solid var(--g2)}
+.ptab-cmp:hover{border-color:var(--navy);background:var(--sa-bg)}
+.ptab-cmp.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+/* ── Cards ── */
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--g2);margin-bottom:16px;overflow:hidden;transition:box-shadow .2s}
+.card:hover{box-shadow:var(--sh-md)}
+.card-h{padding:16px 24px;border-bottom:1px solid var(--g1);display:flex;align-items:center;gap:12px}
+.step{width:28px;height:28px;background:var(--navy);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.step.ok{background:var(--ok)}
+.card-h h2{font-size:15px;font-weight:600;color:var(--g9);letter-spacing:-.01em}
+.hint{font-size:12px;color:var(--g4);margin-left:auto;font-weight:400}
+.card-b{padding:24px}
+
+/* ── Form Fields ── */
+.field{margin-bottom:18px} .field:last-child{margin-bottom:0}
+.flbl{display:block;font-size:10.5px;font-weight:600;color:var(--g5);margin-bottom:6px;letter-spacing:.08em;text-transform:uppercase}
+.sw{position:relative}
+.sw select{width:100%;padding:10px 32px 10px 14px;border:1.5px solid var(--g2);border-radius:var(--rs);font-size:13.5px;font-family:inherit;color:var(--g9);background:#fff;appearance:none;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.sw select:hover{border-color:var(--g3)} .sw select:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(1,27,60,.08)}
+.sw select option:disabled{color:var(--g3)}
+.sw::after{content:'\25BE';position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--g4);pointer-events:none;font-size:12px}
+.cpanel{display:none;margin-top:8px;padding:10px 14px;background:var(--g0);border:1px solid var(--g1);border-radius:var(--rs);font-size:12.5px} .cpanel.show{display:block}
+.crow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px} .crow:last-child{margin-bottom:0}
+.slotb{display:inline-flex;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.05em}
+.sl-A{background:var(--sa-bg);color:var(--sa)} .sl-B{background:var(--sb-bg);color:var(--sb)} .sl-C{background:var(--sc-bg);color:var(--showScreen)} .sl-D{background:var(--sd-bg);color:var(--sd)} .sl-E{background:var(--se-bg);color:var(--se)}
+.tg{display:inline-flex;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600}
+.tg-co{background:var(--inf-bg);color:var(--inf)} .tg-pre{background:var(--warn-bg);color:var(--warn)}
+.days{display:flex;flex-wrap:wrap;gap:4px}
+.daychip{background:var(--navy);color:#fff;font-size:10px;font-weight:500;padding:2px 8px;border-radius:4px;letter-spacing:.02em}
+.coord{color:var(--g5);font-size:12px}
+.divr{border:none;border-top:1px solid var(--g1);margin:18px 0}
+.labct{font-size:12px;color:var(--g4);margin-top:6px}
+
+/* ── Status Pills ── */
+.spill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;margin-left:auto;white-space:nowrap;letter-spacing:.02em}
+.sp-pend{background:var(--g1);color:var(--g4)} .sp-ok{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-bd)} .sp-warn{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-bd)} .sp-err{background:var(--err-bg);color:var(--err);border:1px solid var(--err-bd)}
+
+/* ── Alerts ── */
+.alrt{display:flex;gap:10px;align-items:flex-start;padding:12px 16px;border-radius:var(--rs);margin-bottom:8px;line-height:1.5} .alrt:last-child{margin-bottom:0}
+.aico{font-size:14px;flex-shrink:0;margin-top:1px} .abdy{flex:1} .abdy strong{display:block;font-weight:600;font-size:13px;margin-bottom:2px} .abdy p{color:var(--g5);font-size:12.5px}
+.a-ok{background:var(--ok-bg);border:1px solid var(--ok-bd)} .a-ok .aico,.a-ok strong{color:var(--ok)}
+.a-warn{background:var(--warn-bg);border:1px solid var(--warn-bd)} .a-warn .aico,.a-warn strong{color:var(--warn)}
+.a-err{background:var(--err-bg);border:1px solid var(--err-bd)} .a-err .aico,.a-err strong{color:var(--err)}
+.a-inf{background:var(--inf-bg);border:1px solid var(--inf-bd)} .a-inf .aico,.a-inf strong{color:var(--inf)}
+
+/* ── Prerequisite Boxes ── */
+.pb{display:flex;gap:10px;align-items:flex-start;padding:12px 16px;background:var(--warn-bg);border:1px solid var(--warn-bd);border-radius:var(--rs);margin-bottom:8px;font-size:12.5px;line-height:1.5;transition:all .2s} .pb:last-child{margin-bottom:0} .pb.conf{background:var(--ok-bg);border-color:var(--ok-bd)}
+.pb input[type=checkbox]{width:15px;height:15px;margin-top:3px;flex-shrink:0;cursor:pointer;accent-color:var(--navy)}
+.pb label{cursor:pointer;color:var(--g5)} .pb label .pc{font-weight:600;color:var(--warn)} .pb.conf label .pc{color:var(--ok)}
+.ph{font-size:11px;color:var(--warn);margin-top:3px;display:block;font-style:italic} .pb.conf .ph{display:none}
+.guidance{margin-top:6px;padding:9px 12px;background:rgba(12,74,110,.04);border-left:3px solid var(--inf-bd);border-radius:0 var(--rs) var(--rs) 0;font-size:11.5px;color:var(--g5);line-height:1.6}
+.guidance strong{color:var(--g7);font-weight:600}
+.guidance a{color:var(--inf);font-weight:500;text-decoration:none} .guidance a:hover{text-decoration:underline}
+.seclbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--g4);margin-bottom:10px;margin-top:2px}
+/* ── Next Steps Card ── */
+.nsteps{list-style:none;padding:0;margin:0;counter-reset:ns}
+.nsteps li{position:relative;padding:6px 0 6px 32px;font-size:13px;color:var(--g7);counter-increment:ns}
+.nsteps li::before{content:counter(ns);position:absolute;left:0;top:6px;width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.dl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.dl-box{padding:12px 14px;border-radius:var(--rs);border:1px solid var(--g2);background:var(--g0)}
+.dl-box .dl-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--g4);margin-bottom:3px}
+.dl-box .dl-val{font-size:13px;font-weight:600;color:var(--g9)}
+.dl-box.dl-urgent{border-color:var(--warn-bd);background:var(--warn-bg)}
+.dl-box.dl-urgent .dl-lbl{color:var(--warn)} .dl-box.dl-urgent .dl-val{color:var(--warn)}
+.links-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.links-row a{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--rs);font-size:11.5px;font-weight:500;color:var(--navy);background:var(--sa-bg);border:1px solid rgba(29,78,216,.1);text-decoration:none;transition:all .15s}
+.links-row a:hover{background:var(--navy);color:#fff}
+.emptys{text-align:center;padding:28px 20px;color:var(--g4)} .emptys .ei{font-size:28px;display:block;margin-bottom:8px;opacity:.6} .emptys p{font-size:13px}
+
+/* ── Weekly Timetable ── */
+.timetable{border-collapse:collapse;width:100%;font-size:12px;table-layout:fixed}
+.timetable th{background:var(--g0);padding:8px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--g4);text-transform:uppercase;letter-spacing:.08em;border:1px solid var(--g2)}
+.timetable td{border:1px solid var(--g2);padding:4px;height:56px;vertical-align:top;background:#fff}
+.timetable .tt-label{background:var(--g0);font-weight:600;color:var(--g5);text-align:center;width:60px;font-size:11px;vertical-align:middle}
+.tt-cell{border-radius:4px;padding:5px 6px;font-size:10.5px;line-height:1.3;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;font-weight:500}
+.tt-course{background:var(--sa-bg);color:var(--sa);border:1px solid rgba(29,78,216,.15)}
+.tt-course.sl-B{background:var(--sb-bg);color:var(--sb);border-color:rgba(22,101,52,.15)}
+.tt-course.sl-C{background:var(--sc-bg);color:var(--showScreen);border-color:rgba(133,77,14,.15)}
+.tt-course.sl-D{background:var(--sd-bg);color:var(--sd);border-color:rgba(91,33,182,.15)}
+.tt-course.sl-E{background:var(--se-bg);color:var(--se);border-color:rgba(159,18,57,.15)}
+.tt-lab{background:var(--inf-bg);color:var(--inf);border:1px solid rgba(12,74,110,.15)}
+.tt-code{font-weight:700;font-size:10px;letter-spacing:.02em}
+.tt-name{font-size:9px;opacity:.8;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+
+/* ── Comparison View ── */
+.cmp-view{display:none}
+.cmp-view.show{display:block}
+.cmp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.cmp-col{background:#fff;border:1px solid var(--g2);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+.cmp-col-h{padding:12px 16px;font-weight:700;font-size:14px;color:#fff;background:var(--navy);display:flex;align-items:center;gap:8px}
+.cmp-col-h .cmp-st{margin-left:auto;font-size:10px;font-weight:600;padding:2px 8px;border-radius:12px;background:rgba(255,255,255,.15)}
+.cmp-col-h .cmp-st-ok{background:rgba(21,128,61,.2);color:#86EFAC}
+.cmp-col-h .cmp-st-warn{background:rgba(232,119,34,.2);color:#FCD34D}
+.cmp-col-h .cmp-st-err{background:rgba(185,28,28,.2);color:#FCA5A5}
+.cmp-col-b{padding:12px}
+.cmp-item{padding:8px 10px;border-radius:var(--rs);margin-bottom:6px;font-size:12px;border:1px solid var(--g1);background:var(--g0)}
+.cmp-item:last-child{margin-bottom:0}
+.cmp-item .ci-type{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--g4);margin-bottom:2px}
+.cmp-item .ci-code{font-weight:600;color:var(--g9)}
+.cmp-item .ci-title{font-size:11px;color:var(--g5)}
+.cmp-item .ci-days{display:flex;gap:3px;margin-top:4px;flex-wrap:wrap}
+.cmp-empty{text-align:center;padding:20px 12px;color:var(--g4);font-size:12px}
+.cmp-tt{margin-top:8px}
+.cmp-tt .timetable td{height:36px}
+.cmp-tt .timetable .tt-cell{font-size:9px;padding:3px}
+.cmp-tt .timetable .tt-code{font-size:8.5px}
+.cmp-tt .timetable .tt-name{display:none}
+
+/* ── Summary Table ── */
+.stbl{width:100%;border-collapse:collapse;font-size:13px}
+.stbl th{background:var(--g0);padding:10px 14px;text-align:left;font-size:10px;font-weight:700;color:var(--g4);text-transform:uppercase;letter-spacing:.08em;border-bottom:2px solid var(--g2)}
+.stbl td{padding:12px 14px;border-bottom:1px solid var(--g1);vertical-align:middle} .stbl tr:last-child td{border-bottom:none}
+.stbl tr:hover td{background:var(--g0)}
+.tchip{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--g4);background:var(--g1);padding:3px 8px;border-radius:4px}
+.scode{color:var(--g4);font-size:12px;font-family:'SF Mono',Monaco,Consolas,monospace} .sname{font-weight:500;color:var(--g9);line-height:1.3} .scoord{font-size:12px;color:var(--g4)}
+
+/* ── Action Bar ── */
+.actbar{padding:16px 24px;background:var(--g0);border-top:1px solid var(--g1);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:var(--rs);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;border:none;transition:all .15s}
+.btn-or{background:var(--orange);color:#fff;box-shadow:0 1px 3px rgba(232,119,34,.3)} .btn-or:hover{opacity:.9;box-shadow:0 2px 8px rgba(232,119,34,.35)} .btn-or:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+.btn-gh{background:#fff;color:var(--g5);border:1.5px solid var(--g2)} .btn-gh:hover{border-color:var(--g4);color:var(--g7)}
+.actnote{margin-left:auto;font-size:11.5px;color:var(--g4);line-height:1.5;text-align:right;max-width:260px}
+
+/* ── Footer ── */
+footer{text-align:center;padding:20px 24px;font-size:12px;color:var(--g4);border-top:1px solid var(--g2);background:#fff;display:flex;flex-direction:column;align-items:center}
+footer .ft-line{margin-bottom:0;font-size:11px}
+
+.printonly{display:none}
+@media print{
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body{background:#fff!important}
+  .hdr{position:static!important;box-shadow:none!important}
+  .hdr-bar,.nav-bar{display:none!important}
+  .hdr-brand{border-bottom-color:var(--navy)!important}
+  footer{display:none!important}
+  .main{padding:12px!important;max-width:100%!important}
+  #loading,#errscr{display:none!important}
+  .plan-tabs{display:none!important}
+  .cmp-view{display:none!important}
+  #planview>.card:not(#sumcard){display:none!important}
+  #ttcard{display:none!important}
+  #sumcard{box-shadow:none!important;border:1px solid #ddd!important;margin:0!important}
+  .actbar{display:none!important}
+  .printonly{display:block!important}
+  .sum-status-alert{display:none!important}
+  .guidance{display:none!important}
+  #nextsteps{display:none!important}
+  #infoscreen{display:none!important}
+  .card-h .spill{display:none!important}
+  .card-h .step{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+}
+
+@media(max-width:900px){
+  .cmp-grid{grid-template-columns:1fr;gap:10px}
+}
+@media(max-width:640px){
+  .hdr-brand{padding:0 16px;height:60px;gap:12px}
+  .logo-um{height:32px} .logo-msp{height:36px}
+  .hdr-title{font-size:18px}
+  .nav-bar{padding:0 16px}
+  .dl-grid{grid-template-columns:1fr}
+  .main{padding:20px 12px 60px}
+  .card-h{padding:14px 16px} .card-b{padding:16px}
+  .actbar{padding:12px 16px}
+  .plan-tabs{padding:4px}
+}
+
+/* ── Nav Bar ── */
+.nav-bar{display:flex;align-items:center;padding:0 40px;height:42px;background:var(--navy);gap:4px}
+.nav-link{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:var(--rs);font-size:12.5px;font-weight:500;color:rgba(255,255,255,.6);text-decoration:none;transition:all .15s}
+.nav-link:hover{background:rgba(255,255,255,.1);color:rgba(255,255,255,.9)}
+.nav-link.active{background:rgba(255,255,255,.15);color:#fff;font-weight:600}
+.nav-spacer{flex:1}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-brand">
+    <a href="index.html" style="display:flex;align-items:center"><img src="logo-header.png" alt="Maastricht University" class="logo-um"></a>
+    <div class="hdr-center">
+      <div class="hdr-title">MSP Course Planner</div>
+      <div class="hdr-sub">Maastricht Science Programme &nbsp;&middot;&nbsp; Faculty of Science and Engineering</div>
+    </div>
+    <img src="logo-main.png" alt="Maastricht Science Programme" class="logo-msp">
+  </div>
+  <nav class="nav-bar">
+    <a class="nav-link active" href="index.html">&#128736; Course Planner</a>
+    <a class="nav-link" href="catalogue.html">&#128218; Course Catalogue</a>
+    <a class="nav-link" href="#" onclick="event.preventDefault();toggleInfo()">&#9432; Information</a>
+    <span class="nav-spacer"></span>
+    <span id="mp" style="font-size:11px;color:rgba(255,255,255,.5)">Loading&hellip;</span>
+    <span id="mv" style="display:none;font-size:11px;color:rgba(255,255,255,.5)"></span>
+    <span id="mc" style="display:none;font-size:11px;color:rgba(255,255,255,.5)"></span>
+    <button class="cfgbtn" onclick="document.getElementById('csvf').click()" style="margin-left:8px">&#128194; Load config</button>
+  </nav>
+</header>
+<input type="file" id="csvf" accept=".csv" style="display:none">
+<main class="main">
+  <div id="loading"><div class="spin"></div><p style="font-size:13px">Loading schedule&hellip;</p></div>
+  <div id="errscr">
+    <span style="font-size:36px">&#128203;</span>
+    <h2>Load the course schedule</h2>
+    <p>The schedule could not load automatically. Use the button below to load the CSV file &mdash; available on Canvas or from your advisor.</p>
+    <button class="btn btn-or" onclick="document.getElementById('csvf').click()">&#128194;&nbsp; Load config file (.csv)</button>
+    <p style="font-size:11.5px;color:var(--g4);margin-top:8px">&#128274; Everything stays on your device.</p>
+  </div>
+  <div id="planner">
+    <div class="plan-tabs">
+      <button class="ptab active" id="tab-A" onclick="switchPlan('A')"><span class="tlbl">Plan A</span><span class="tst" id="ts-A"></span></button>
+      <button class="ptab" id="tab-B" onclick="switchPlan('B')"><span class="tlbl">Plan B</span><span class="tst" id="ts-B"></span></button>
+      <button class="ptab" id="tab-C" onclick="switchPlan('C')"><span class="tlbl">Plan C</span><span class="tst" id="ts-C"></span></button>
+      <button class="ptab ptab-cmp" id="tab-cmp" onclick="toggleCmp()">&#9638; Compare</button>
+    </div>
+    <div id="planview">
+    <div class="card">
+      <div class="card-h"><div class="step">1</div><h2>Select Your Courses</h2><span class="hint">2 courses from different time slots</span></div>
+      <div class="card-b">
+        <div class="field"><label class="flbl">Course 1</label><div class="sw"><select id="c1"></select></div><div class="cpanel" id="pi1"></div></div>
+        <hr class="divr">
+        <div class="field"><label class="flbl">Course 2</label><div class="sw"><select id="c2"></select></div><div class="cpanel" id="pi2"></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div class="step">2</div><h2>Select Your Practical</h2><span class="hint">Must not overlap with course days</span></div>
+      <div class="card-b">
+        <div class="field"><label class="flbl">Practical / Skill</label><div class="sw"><select id="lab"></select></div><div id="labct" class="labct"></div><div class="cpanel" id="pil"></div></div>
+      </div>
+    </div>
+    <div class="card" id="ttcard">
+      <div class="card-h"><div class="step">&#128197;</div><h2>Weekly Timetable</h2><span class="hint">Your schedule at a glance</span></div>
+      <div class="card-b" id="ttbd"><div class="emptys"><span class="ei">&#128197;</span><p>Select courses to see your weekly timetable.</p></div></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div class="step">3</div><h2>Checks &amp; Confirmations</h2><span class="spill sp-pend" id="chkst">&mdash; Select courses first</span></div>
+      <div class="card-b" id="chkbd"><div class="emptys"><span class="ei">&#10003;</span><p>Select your courses above to see checks.</p></div></div>
+    </div>
+    <div class="card" id="nextsteps" style="display:none">
+      <div class="card-h"><div class="step">4</div><h2>Next Steps</h2><span class="hint">What to do with your plan</span></div>
+      <div class="card-b" id="nsbd"></div>
+    </div>
+    <div class="card" id="sumcard">
+      <div class="card-h"><div class="step ok">&#10003;</div><h2>Your Plan</h2><span class="spill sp-pend" id="planst">Incomplete</span></div>
+      <div class="printonly" style="padding:14px 24px 0;border-bottom:1px solid var(--g2)">
+        <p style="font-size:12px;color:var(--g5)">MSP Course Planner &middot; <span id="pp"></span> &middot; Printed: <span id="pd"></span></p>
+        <p style="font-size:11px;color:var(--g4);margin-top:3px">For self-preparation only. Confirm all registrations with your academic advisor.</p>
+      </div>
+      <div id="sumbd" style="padding:24px"><div class="emptys"><span class="ei">&#128203;</span><p>Your plan will appear here once you select courses.</p></div></div>
+      <div class="actbar">
+        <button class="btn btn-or" id="btnp" onclick="window.print()" disabled>&#128424;&nbsp; Save as PDF</button>
+        <button class="btn btn-gh" onclick="resetPlan()">&#8635;&nbsp; Reset plan</button>
+        <span class="actnote">For self-preparation only.<br>Always confirm with your academic advisor.</span>
+      </div>
+    </div>
+    </div>
+    <div id="cmpview" class="cmp-view"></div>
+  </div>
+  <div id="infoscreen" style="display:none">
+    <div class="card">
+      <div class="card-h"><div class="step">&#9432;</div><h2>Rules, Waivers &amp; Deadlines</h2><span class="hint">EER &amp; R&amp;R references</span></div>
+      <div class="card-b" id="infobd" style="line-height:1.7"></div>
+    </div>
+  </div>
+</main>
+<footer>
+  <img src="logo-main.png" alt="MSP" style="height:28px;width:auto;object-fit:contain;opacity:.5;margin-bottom:6px">
+  <div class="ft-line">Maastricht Science Programme &nbsp;&middot;&nbsp; Faculty of Science and Engineering</div>
+</footer>
+<script>
+const AUTO='FrameSchedule_P5_v1.csv';
+const DEADLINES={
+  switch:'Friday 6 March 2026, 17:00',
+  withdrawal:'Friday 3 April 2026, 17:00',
+  period:'5',year:'2025\u20132026'
+};
+const LINKS={
+  switchForm:'https://intranet.maastrichtuniversity.nl/en/msp-students/forms-and-downloads-0/withdrawswitch',
+  waivers:'https://intranet.maastrichtuniversity.nl/en/msp-students/waivers',
+  transcript:'https://intranet.maastrichtuniversity.nl/en/msp-students/forms-and-downloads/forms/transcript-request',
+  additionalModule:'https://intranet.maastrichtuniversity.nl/en/msp-students/forms-and-downloads/forms/additional-module',
+  esd:'mailto:msp-educationsupport@maastrichtuniversity.nl'
+};
+let courses=[],labs=[],cfgV='',cfgP='',cfgY='';
+const PLANS={A:emptyPlan(),B:emptyPlan(),C:emptyPlan()};
+let act='A',cmpMode=false;
+function emptyPlan(){return{c1:'',c2:'',lab:'',ack:{}};}
+
+// ── CSV / Config ──
+window.addEventListener('DOMContentLoaded',()=>{
+  fetch(AUTO).then(r=>{if(!r.ok)throw 0;return r.text();}).then(load).catch(()=>showScreen('err'));
+});
+document.getElementById('csvf').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();r.onload=ev=>load(ev.target.result);r.readAsText(f);e.target.value='';
+});
+
+function showScreen(s){
+  document.getElementById('loading').style.display=s==='ld'?'flex':'none';
+  document.getElementById('errscr').style.display=s==='err'?'flex':'none';
+  document.getElementById('planner').style.display=s==='pl'?'block':'none';
+  document.getElementById('infoscreen').style.display='none';
+}
+
+function parseRow(row){
+  const res=[];let q=false,c='';
+  for(let i=0;i<row.length;i++){const ch=row[i];if(ch==='"'){q=!q;continue;}if(ch===','&&!q){res.push(c.trim());c='';continue;}c+=ch;}
+  res.push(c.trim());return res;
+}
+
+function load(text){
+  courses=[];labs=[];cfgV=cfgP=cfgY='';
+  const lines=text.split(/\r?\n/).filter(l=>l.trim());
+  let hi=-1;
+  for(let i=0;i<lines.length;i++){
+    const c=parseRow(lines[i]);
+    if(c[0]==='Version'&&i+1<lines.length){const m=parseRow(lines[i+1]);cfgV=m[0]||'';cfgP=m[1]||'';cfgY=m[2]||'';}
+    if(c[0]==='Slot'){hi=i;break;}
+  }
+  if(hi<0){showScreen('err');return;}
+  const hdrs=parseRow(lines[hi]);
+  for(let i=hi+1;i<lines.length;i++){
+    const row=parseRow(lines[i]);if(row.length<3||!row[1])continue;
+    const e={};hdrs.forEach((h,idx)=>e[h]=(row[idx]||'').trim());
+    e.Corequisite=e.Corequisite?.toUpperCase()==='TRUE';
+    e.Prerequisite=e.Prerequisite?.toUpperCase()==='TRUE';
+    e.Days=e.Days?e.Days.split(/\s*,\s*/).map(d=>d.trim()).filter(Boolean):[];
+    e.CorequisiteOf=(e.CorequisiteOf||'').trim();
+    e.PrerequisiteCodes=(e.PrerequisiteCodes||'').trim();
+    if(e.Slot)courses.push(e);else labs.push(e);
+  }
+  document.getElementById('mp').textContent=cfgP&&cfgY?`Period ${cfgP} \u00b7 ${cfgY}`:'Schedule loaded';
+  if(cfgV){document.getElementById('mv').textContent=`v${cfgV}`;document.getElementById('mv').style.display='';}
+  document.getElementById('mc').textContent=`${courses.length} courses \u00b7 ${labs.length} practicals`;
+  document.getElementById('mc').style.display='';
+  document.getElementById('pp').textContent=cfgP&&cfgY?`Period ${cfgP}, ${cfgY}`:'';
+  document.getElementById('pd').textContent=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  switchPlan('A');showScreen('pl');
+}
+
+// ── Plan switching ──
+function switchPlan(k){
+  if(cmpMode)toggleCmp();
+  act=k;
+  document.querySelectorAll('.ptab:not(.ptab-cmp)').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+k).classList.add('active');
+  const p=PLANS[k];
+  buildCourse1();
+  const cv1=courses.find(c=>c.Code===p.c1)||null;
+  document.getElementById('c1').value=p.c1;
+  buildCourse2(cv1?.Slot||null);
+  document.getElementById('c2').value=p.c2;
+  const cv2=courses.find(c=>c.Code===p.c2)||null;
+  const used=new Set([...(cv1?.Days||[]),...(cv2?.Days||[])]);
+  buildLabs(used);
+  document.getElementById('lab').value=p.lab;
+  showPanel(cv1,'pi1',false);showPanel(cv2,'pi2',false);
+  showPanel(labs.find(l=>l.Code===p.lab)||null,'pil',true);
+  checkPrereqs();buildSummary();buildNextSteps();buildTT();
+}
+
+function save(){const p=PLANS[act];p.c1=document.getElementById('c1').value;p.c2=document.getElementById('c2').value;p.lab=document.getElementById('lab').value;}
+
+function buildCourse1(){const s=document.getElementById('c1');s.innerHTML='<option value="">\u2014 Select a course \u2014</option>';addGroupedOptions(s,groupBySlot(courses,null));}
+function buildCourse2(ex){const s=document.getElementById('c2'),pv=s.value;s.innerHTML='<option value="">\u2014 Select a course \u2014</option>';addGroupedOptions(s,groupBySlot(courses,ex));if(pv&&[...s.options].some(o=>o.value===pv))s.value=pv;}
+function groupBySlot(arr,ex){const g={};arr.forEach(c=>{if(c.Slot===ex&&ex)return;if(!g[c.Slot])g[c.Slot]=[];g[c.Slot].push(c);});return g;}
+
+function addGroupedOptions(s,g){
+  Object.keys(g).sort().forEach(sl=>{
+    const og=document.createElement('optgroup');
+    og.label=sl?`Slot ${sl}`:'Other';
+    g[sl].forEach(c=>{
+      const flags=[c.Corequisite?'\u25ca':'',c.Prerequisite?'\u25b2':''].filter(Boolean).join(' ');
+      const opt=new Option(`${c.Code} \u2014 ${c.Title}${flags?'  '+flags:''}`,c.Code);
+      og.appendChild(opt);
+    });
+    s.appendChild(og);
+  });
+}
+
+function buildLabs(used){
+  const s=document.getElementById('lab'),pv=s.value;
+  s.innerHTML='<option value="">\u2014 Select a practical \u2014</option>';
+  const ok=labs.filter(l=>!l.Days.some(d=>used.has(d)));
+  ok.forEach(l=>{
+    const f=[l.Corequisite?'\u25ca':'',l.Prerequisite?'\u25b2':''].filter(Boolean).join(' ');
+    const opt=new Option(`${l.Code} \u2014 ${l.Title}${f?'  '+f:''}`,l.Code);
+    s.appendChild(opt);
+  });
+  if(pv&&[...s.options].some(o=>o.value===pv))s.value=pv;
+  document.getElementById('labct').textContent=used.size===0?`${labs.length} practicals available`:`${ok.length} of ${labs.length} practicals compatible with your courses`;
+}
+
+const getCourse1=()=>courses.find(c=>c.Code===document.getElementById('c1').value)||null;
+const getCourse2=()=>courses.find(c=>c.Code===document.getElementById('c2').value)||null;
+const getLab=()=>labs.find(l=>l.Code===document.getElementById('lab').value)||null;
+function formatDay(d){return d.replace('AM',' AM').replace('PM',' PM');}
+
+function showPanel(item,id,isLab){
+  const el=document.getElementById(id);
+  if(!item){el.classList.remove('show');return;}
+  const chips=item.Days.map(d=>`<span class="daychip">${formatDay(d)}</span>`).join('');
+  const tags=[item.Corequisite?'<span class="tg tg-co">\u25ca Co-req</span>':'',item.Prerequisite?'<span class="tg tg-pre">\u25b2 Pre-req</span>':''].filter(Boolean).join('');
+  el.innerHTML=`<div class="crow">${!isLab?`<span class="slotb sl-${item.Slot}">SLOT ${item.Slot}</span>`:''}<div class="days">${chips}</div>${tags}</div><div class="crow"><span class="coord">Coordinator: ${item.Coordinator}</span></div>`;
+  el.classList.add('show');
+}
+
+// ── Weekly Timetable ──
+const DAYS=['Mon','Tue','Wed','Thu','Fri'];
+const TIMES=['AM','PM'];
+
+function buildTT(){
+  const c1=getCourse1(),c2=getCourse2(),lab=getLab();
+  const sel=[c1,c2].filter(Boolean);
+  const bd=document.getElementById('ttbd');
+
+  if(!sel.length){
+    bd.innerHTML='<div class="emptys"><span class="ei">\u{1F4C5}</span><p>Select courses to see your weekly timetable.</p></div>';
+    return;
+  }
+  bd.innerHTML=buildTTHTML(c1,c2,lab,false);
+}
+
+function buildTTHTML(c1,c2,lab,compact){
+  const grid={};
+  DAYS.forEach(d=>TIMES.forEach(t=>{grid[d+t]=[];}));
+
+  const items=[[c1,'course'],[c2,'course'],[lab,'lab']];
+  items.forEach(([it,type])=>{
+    if(!it)return;
+    it.Days.forEach(d=>{
+      if(grid[d])grid[d].push({item:it,type});
+    });
+  });
+
+  let html='<table class="timetable"><thead><tr><th></th>';
+  DAYS.forEach(d=>{html+=`<th>${d}</th>`;});
+  html+='</tr></thead><tbody>';
+  TIMES.forEach(t=>{
+    html+=`<tr><td class="tt-label">${t}</td>`;
+    DAYS.forEach(d=>{
+      const cell=grid[d+t];
+      if(cell.length){
+        const e=cell[0];
+        const cls=e.type==='lab'?'tt-lab':`tt-course sl-${e.item.Slot||''}`;
+        const shortName=compact?'':`<div class="tt-name">${e.item.Title}</div>`;
+        html+=`<td><div class="tt-cell ${cls}"><div class="tt-code">${e.item.Code}</div>${shortName}</div></td>`;
+      }else{
+        html+='<td></td>';
+      }
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  return html;
+}
+
+// ── Plan status ──
+function planStatus(k){
+  const p=PLANS[k];
+  const c1=courses.find(c=>c.Code===p.c1)||null,c2=courses.find(c=>c.Code===p.c2)||null;
+  const lab=labs.find(l=>l.Code===p.lab)||null,sel=[c1,c2].filter(Boolean);
+  if(!sel.length)return'empty';
+  const iss=[];
+  for(const c of sel)if(c.Corequisite&&c.CorequisiteOf&&(!lab||lab.Code!==c.CorequisiteOf))iss.push('co');
+  if(lab&&lab.Corequisite&&lab.CorequisiteOf&&!sel.some(c=>c.Code===lab.CorequisiteOf))iss.push('co');
+  for(const it of [...sel,lab].filter(Boolean))if(it.Prerequisite&&it.PrerequisiteCodes&&!p.ack[it.Code])iss.push('pre');
+  if(sel.length===2&&lab&&!iss.length)return'ok';
+  if(iss.includes('co'))return'err';if(iss.includes('pre'))return'warn';return'inc';
+}
+
+function updateTabIcons(){
+  ['A','B','C'].forEach(k=>{
+    const t=document.getElementById('tab-'+k),ts=document.getElementById('ts-'+k);
+    t.classList.remove('tok','twarn','terr');
+    const s=planStatus(k);
+    if(s==='ok'){ts.textContent=' \u2713';t.classList.add('tok');}
+    else if(s==='warn'){ts.textContent=' \u26a0';t.classList.add('twarn');}
+    else if(s==='err'){ts.textContent=' \u26a0';t.classList.add('terr');}
+    else ts.textContent='';
+  });
+}
+
+// ── Checks ──
+function checkPrereqs(){
+  const c1=getCourse1(),c2=getCourse2(),lab=getLab(),sel=[c1,c2].filter(Boolean);
+  const p=PLANS[act],sEl=document.getElementById('chkst'),bEl=document.getElementById('chkbd');
+  if(!sel.length){sEl.className='spill sp-pend';sEl.textContent='\u2014 Select courses first';bEl.innerHTML='<div class="emptys"><span class="ei">\u2713</span><p>Select your courses to see checks.</p></div>';return;}
+  let html='',badCo=false,unPre=false,coI=[];
+  for(const c of sel){if(c.Corequisite&&c.CorequisiteOf){const rc=c.CorequisiteOf,rebuildLabs=labs.find(l=>l.Code===rc);const rn=rebuildLabs?.Title||courses.find(x=>x.Code===rc)?.Title||rc;coI.push({from:c,rc,rn,rt:rebuildLabs?'practical':'course',ok:lab&&lab.Code===rc});}}
+  if(lab&&lab.Corequisite&&lab.CorequisiteOf){const rc=lab.CorequisiteOf,rn=courses.find(c=>c.Code===rc)?.Title||rc,sat=sel.some(c=>c.Code===rc);if(!coI.some(i=>i.from.Code===rc&&i.rc===lab.Code))coI.push({from:lab,rc,rn,rt:'course',ok:sat});}
+  if(coI.length){html+='<p class="seclbl">Co-requisites</p>';coI.forEach(i=>{if(i.ok)html+=`<div class="alrt a-ok"><span class="aico">\u2713</span><div class="abdy"><strong>Co-requisite satisfied</strong><p><em>${i.from.Code}</em> requires <em>${i.rc} \u2014 ${i.rn}</em>. Already selected.</p></div></div>`;else{badCo=true;html+=`<div class="alrt a-err"><span class="aico">\u26a0</span><div class="abdy"><strong>Missing co-requisite</strong><p><em>${i.from.Code} \u2014 ${i.from.Title}</em> must be taken with <strong>${i.rc} \u2014 ${i.rn}</strong>.</p><div class="guidance"><strong>Add the co-requisite</strong> to your plan, or contact the module coordinator to <a href="${LINKS.waivers}" target="_blank">request a waiver</a>. If you have already passed the co-requisite in a previous period, it is automatically waived.</div></div></div>`;}});}
+  const preI=[];
+  for(const it of [...sel,lab].filter(Boolean)){if(it.Prerequisite&&it.PrerequisiteCodes){if(!(it.Code in p.ack))p.ack[it.Code]=false;preI.push(it);}}
+  if(preI.length){
+    if(html)html+='<div style="height:12px"></div>';
+    html+='<p class="seclbl">Prerequisites</p>';
+    preI.forEach(it=>{
+      const ok=p.ack[it.Code];
+      if(!ok)unPre=true;
+      html+=`<div class="pb ${ok?'conf':''}" id="pb-${it.Code}"><input type="checkbox" id="ck-${it.Code}" ${ok?'checked':''} onchange="acknowledgeCheck('${it.Code}',this.checked)"><label for="ck-${it.Code}">To take <strong>${it.Code} \u2014 ${it.Title}</strong> you must have completed: <span class="pc">${formatPrereqs(it.PrerequisiteCodes)}</span>.<span class="ph">Check this box to confirm.</span></label></div>${!ok?'<div class="guidance">Don\u2019t have the prerequisite? You can <a href="'+LINKS.waivers+'" target="_blank"><strong>request a waiver</strong></a> from the course coordinator. Email them with a brief explanation of why you should be admitted. Submit the coordinator\u2019s approval email with your course selection form before the registration deadline. Waivers are an exception, not the norm.</div>':''}`;
+    });
+  }
+  if(!coI.length&&!preI.length)html='<div class="alrt a-ok"><span class="aico">\u2713</span><div class="abdy"><strong>No prerequisites or co-requisites</strong><p>Your selection has no additional requirements.</p></div></div>';
+  bEl.innerHTML=html;
+  if(badCo){sEl.className='spill sp-err';sEl.textContent='\u26a0 Missing co-requisite';}
+  else if(unPre){sEl.className='spill sp-warn';sEl.textContent='! Confirm prerequisites';}
+  else{sEl.className='spill sp-ok';sEl.textContent='\u2713 All checks passed';}
+  updateTabIcons();
+}
+
+function acknowledgeCheck(code,v){PLANS[act].ack[code]=v;checkPrereqs();buildSummary();}
+
+function formatPrereqs(s){return s.split('+').map(pt=>{const or=pt.trim().split('/').map(p=>`<strong>${p.trim()}</strong>`);return or.length>1?or.join(' <em>or</em> '):or[0];}).join(' <em>and</em> ');}
+
+// ── Summary ──
+function buildSummary(){
+  const c1=getCourse1(),c2=getCourse2(),lab=getLab(),sel=[c1,c2].filter(Boolean);
+  const p=PLANS[act],sEl=document.getElementById('planst'),bEl=document.getElementById('sumbd'),btn=document.getElementById('btnp');
+  if(!sel.length){sEl.className='spill sp-pend';sEl.textContent='Incomplete';bEl.innerHTML='<div class="emptys"><span class="ei">\ud83d\udccb</span><p>Select courses to see your plan.</p></div>';btn.disabled=true;return;}
+  const iss=[];
+  for(const c of sel)if(c.Corequisite&&c.CorequisiteOf&&(!lab||lab.Code!==c.CorequisiteOf))iss.push(`Missing co-req: ${c.Code}`);
+  if(lab&&lab.Corequisite&&lab.CorequisiteOf&&!sel.some(c=>c.Code===lab.CorequisiteOf))iss.push(`Missing co-req: ${lab.Code}`);
+  for(const it of [...sel,lab].filter(Boolean))if(it.Prerequisite&&it.PrerequisiteCodes&&!p.ack[it.Code])iss.push(`Unconfirmed prereq: ${it.Code}`);
+  const done=sel.length===2&&lab&&!iss.length;
+
+  // Course detail rows with prerequisites
+  let rows='';
+  sel.forEach(c=>{
+    const chips=c.Days.map(d=>`<span class="daychip">${formatDay(d)}</span>`).join(' ');
+    let prereqInfo='';
+    if(c.Prerequisite&&c.PrerequisiteCodes){
+      const met=p.ack[c.Code];
+      prereqInfo=`<div style="font-size:10.5px;margin-top:3px;color:${met?'var(--ok)':'var(--warn)'}">Prereq: ${c.PrerequisiteCodes} ${met?'\u2713':'\u26a0'}</div>`;
+    }
+    let coreqInfo='';
+    if(c.Corequisite&&c.CorequisiteOf){
+      const ok=lab&&lab.Code===c.CorequisiteOf;
+      coreqInfo=`<div style="font-size:10.5px;margin-top:2px;color:${ok?'var(--ok)':'var(--err)'}">Co-req: ${c.CorequisiteOf} ${ok?'\u2713':'\u2717'}</div>`;
+    }
+    rows+=`<tr><td><span class="tchip">Course</span></td><td><div class="scode">${c.Code}</div><div class="sname">${c.Title}</div>${prereqInfo}${coreqInfo}</td><td><span class="slotb sl-${c.Slot}">SLOT ${c.Slot}</span></td><td><div class="days">${chips}</div></td><td class="scoord">${c.Coordinator}</td></tr>`;
+  });
+  if(lab){
+    const chips=lab.Days.map(d=>`<span class="daychip">${formatDay(d)}</span>`).join(' ');
+    let prereqInfo='';
+    if(lab.Prerequisite&&lab.PrerequisiteCodes){
+      const met=p.ack[lab.Code];
+      prereqInfo=`<div style="font-size:10.5px;margin-top:3px;color:${met?'var(--ok)':'var(--warn)'}">Prereq: ${lab.PrerequisiteCodes} ${met?'\u2713':'\u26a0'}</div>`;
+    }
+    let coreqInfo='';
+    if(lab.Corequisite&&lab.CorequisiteOf){
+      const ok=sel.some(c=>c.Code===lab.CorequisiteOf);
+      coreqInfo=`<div style="font-size:10.5px;margin-top:2px;color:${ok?'var(--ok)':'var(--err)'}">Co-req: ${lab.CorequisiteOf} ${ok?'\u2713':'\u2717'}</div>`;
+    }
+    rows+=`<tr><td><span class="tchip">Practical</span></td><td><div class="scode">${lab.Code}</div><div class="sname">${lab.Title}</div>${prereqInfo}${coreqInfo}</td><td>\u2014</td><td><div class="days">${chips}</div></td><td class="scoord">${lab.Coordinator}</td></tr>`;
+  }
+  else rows+='<tr><td><span class="tchip">Practical</span></td><td colspan="4" style="color:var(--g4);font-style:italic;font-size:12px">No practical selected yet</td></tr>';
+
+  // Status banner (hidden in print)
+  let sb='';
+  if(done)sb='<div class="alrt a-ok sum-status-alert" style="margin-top:16px"><span class="aico">\u2713</span><div class="abdy"><strong>Plan complete \u2014 ready to print</strong><p>All checks passed. Save as PDF to bring to your advising session.</p></div></div>';
+  else if(iss.length)sb=`<div class="alrt a-warn sum-status-alert" style="margin-top:16px"><span class="aico">\u26a0</span><div class="abdy"><strong>Outstanding issues</strong><p>${iss.join(' \u00b7 ')}</p></div></div>`;
+
+  // Weekly timetable for print
+  const ttHtml=buildTTHTML(c1,c2,lab,false);
+
+  // Checks summary for print
+  let checksHtml='';
+  const allItems=[...sel,lab].filter(Boolean);
+  const preItems=allItems.filter(it=>it.Prerequisite&&it.PrerequisiteCodes);
+  const coItems=[];
+  for(const c of sel){if(c.Corequisite&&c.CorequisiteOf)coItems.push({from:c.Code,req:c.CorequisiteOf,ok:lab&&lab.Code===c.CorequisiteOf});}
+  if(lab&&lab.Corequisite&&lab.CorequisiteOf)coItems.push({from:lab.Code,req:lab.CorequisiteOf,ok:sel.some(c=>c.Code===lab.CorequisiteOf)});
+
+  if(preItems.length||coItems.length){
+    checksHtml='<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--g2)"><p class="seclbl" style="margin-bottom:8px">Prerequisite &amp; Co-requisite Summary</p>';
+    preItems.forEach(it=>{
+      const met=p.ack[it.Code];
+      checksHtml+=`<div style="font-size:12px;padding:4px 0;color:${met?'var(--ok)':'var(--warn)'}"><strong>${it.Code}</strong> requires ${it.PrerequisiteCodes} \u2014 ${met?'Confirmed \u2713':'Unconfirmed \u26a0'}</div>`;
+    });
+    coItems.forEach(ci=>{
+      checksHtml+=`<div style="font-size:12px;padding:4px 0;color:${ci.ok?'var(--ok)':'var(--err)'}"><strong>${ci.from}</strong> co-requisite ${ci.req} \u2014 ${ci.ok?'Satisfied \u2713':'Missing \u2717'}</div>`;
+    });
+    checksHtml+='</div>';
+  }
+
+  // Print-only reminders
+  let printReminders=`<div class="printonly" style="margin-top:16px;padding:14px;background:var(--g0);border:1px solid var(--g2);border-radius:var(--rs)"><p class="seclbl" style="margin-bottom:6px">Important Reminders</p><ul style="margin:0 0 0 16px;font-size:11.5px;color:var(--g5);line-height:1.7"><li>This plan is for self-preparation only. <strong>Confirm all registrations with your academic advisor.</strong></li><li>If you need prerequisite waivers, contact the course coordinator <strong>before the registration deadline</strong>.</li><li>Period ${DEADLINES.period} switch deadline: <strong>${DEADLINES.switch}</strong></li><li>Period ${DEADLINES.period} withdrawal deadline: <strong>${DEADLINES.withdrawal}</strong></li></ul></div>`;
+
+  bEl.innerHTML=`<div style="overflow-x:auto"><table class="stbl"><thead><tr><th>Type</th><th>Course / Practical</th><th>Slot</th><th>Schedule</th><th>Coordinator</th></tr></thead><tbody>${rows}</tbody></table></div><div style="margin-top:18px"><p class="seclbl" style="margin-bottom:8px">Weekly Timetable</p>${ttHtml}</div>${checksHtml}${printReminders}${sb}`;
+  if(done){sEl.className='spill sp-ok';sEl.textContent='\u2713 Ready to print';}
+  else if(iss.length){sEl.className='spill sp-warn';sEl.textContent='\u26a0 Issues to resolve';}
+  else{sEl.className='spill sp-pend';sEl.textContent='Incomplete';}
+  btn.disabled=!sel.length;
+}
+
+// ── Comparison View ──
+function toggleCmp(){
+  cmpMode=!cmpMode;
+  const cmpBtn=document.getElementById('tab-cmp');
+  const planView=document.getElementById('planview');
+  const cmpView=document.getElementById('cmpview');
+
+  if(cmpMode){
+    cmpBtn.classList.add('active');
+    document.querySelectorAll('.ptab:not(.ptab-cmp)').forEach(t=>t.classList.remove('active'));
+    planView.style.display='none';
+    cmpView.classList.add('show');
+    buildCmp();
+  }else{
+    cmpBtn.classList.remove('active');
+    planView.style.display='block';
+    cmpView.classList.remove('show');
+    document.getElementById('tab-'+act).classList.add('active');
+  }
+}
+
+function buildCmp(){
+  const el=document.getElementById('cmpview');
+  let html='<div class="cmp-grid">';
+  ['A','B','C'].forEach(k=>{
+    const p=PLANS[k];
+    const c1=courses.find(c=>c.Code===p.c1)||null;
+    const c2=courses.find(c=>c.Code===p.c2)||null;
+    const lab=labs.find(l=>l.Code===p.lab)||null;
+    const sel=[c1,c2].filter(Boolean);
+    const st=planStatus(k);
+
+    let stCls='',stTxt='';
+    if(st==='ok'){stCls='cmp-st-ok';stTxt='\u2713 Ready';}
+    else if(st==='warn'){stCls='cmp-st-warn';stTxt='\u26a0 Warnings';}
+    else if(st==='err'){stCls='cmp-st-err';stTxt='\u26a0 Issues';}
+    else if(st==='empty'){stTxt='Empty';}
+    else{stTxt='Incomplete';}
+
+    html+=`<div class="cmp-col">`;
+    html+=`<div class="cmp-col-h">Plan ${k}<span class="cmp-st ${stCls}">${stTxt}</span></div>`;
+    html+=`<div class="cmp-col-b">`;
+
+    if(!sel.length){
+      html+='<div class="cmp-empty">No courses selected</div>';
+    }else{
+      sel.forEach(c=>{
+        const chips=c.Days.map(d=>`<span class="daychip">${formatDay(d)}</span>`).join('');
+        html+=`<div class="cmp-item"><div class="ci-type">Course &middot; <span class="slotb sl-${c.Slot}">SLOT ${c.Slot}</span></div><div class="ci-code">${c.Code}</div><div class="ci-title">${c.Title}</div><div class="ci-days">${chips}</div></div>`;
+      });
+      if(lab){
+        const chips=lab.Days.map(d=>`<span class="daychip">${formatDay(d)}</span>`).join('');
+        html+=`<div class="cmp-item"><div class="ci-type">Practical</div><div class="ci-code">${lab.Code}</div><div class="ci-title">${lab.Title}</div><div class="ci-days">${chips}</div></div>`;
+      }else{
+        html+='<div class="cmp-item" style="opacity:.5"><div class="ci-type">Practical</div><div class="ci-title" style="font-style:italic">Not selected</div></div>';
+      }
+      // Mini timetable
+      html+=`<div class="cmp-tt">${buildTTHTML(c1,c2,lab,true)}</div>`;
+    }
+    html+='</div></div>';
+  });
+  html+='</div>';
+  // Back button
+  html+=`<div style="text-align:center"><button class="btn btn-gh" onclick="toggleCmp()">\u2190 Back to plan editor</button></div>`;
+  el.innerHTML=html;
+}
+
+// ── Next Steps ──
+function buildNextSteps(){
+  const c1=getCourse1(),c2=getCourse2(),lab=getLab(),sel=[c1,c2].filter(Boolean);
+  const el=document.getElementById('nextsteps'),bd=document.getElementById('nsbd');
+  const p=PLANS[act];
+  const done=sel.length===2&&lab&&planStatus(act)==='ok';
+  if(!sel.length){el.style.display='none';return;}
+  el.style.display='';
+
+  // Check if switch deadline is near or past
+  const switchDate=new Date('2026-03-06T17:00:00');
+  const now=new Date();
+  const switchUrgent=now>new Date(switchDate.getTime()-7*24*60*60*1000);
+
+  let html='';
+  if(done){
+    html+=`<div class="alrt a-ok"><span class="aico">\u2713</span><div class="abdy"><strong>Your plan looks good!</strong><p>Here\u2019s what to do next:</p></div></div>`;
+    html+=`<ol class="nsteps" style="margin-top:12px"><li><strong>Save this plan as PDF</strong> using the button below</li><li><strong>Bring it to your academic advising session</strong></li><li><strong>Register</strong> for your chosen modules via the course registration form before the deadline</li><li><strong>Check the switch/withdrawal deadlines</strong> if you need to make changes later</li></ol>`;
+  }else{
+    html+=`<div class="alrt a-inf"><span class="aico">\u2139</span><div class="abdy"><strong>Almost there</strong><p>Resolve the outstanding issues above, then follow these steps to finalise your registration.</p></div></div>`;
+  }
+
+  // Deadline boxes
+  html+=`<div class="dl-grid"><div class="dl-box${switchUrgent?' dl-urgent':''}"><div class="dl-lbl">Switch deadline \u2014 Period ${DEADLINES.period}</div><div class="dl-val">${DEADLINES.switch}</div></div><div class="dl-box"><div class="dl-lbl">Withdrawal deadline \u2014 Period ${DEADLINES.period}</div><div class="dl-val">${DEADLINES.withdrawal}</div></div></div>`;
+
+  // Useful links
+  html+=`<div class="links-row"><a href="${LINKS.switchForm}" target="_blank">\u{1F4DD} Switch/withdraw form</a></div>`;
+
+  bd.innerHTML=html;
+}
+
+// ── Information screen ──
+function toggleInfo(){
+  const info=document.getElementById('infoscreen');
+  const planner=document.getElementById('planner');
+  const navLinks=document.querySelectorAll('.nav-link');
+  const showing=info.style.display!=='none';
+  if(showing){
+    info.style.display='none';planner.style.display='block';
+    navLinks.forEach(l=>{l.classList.toggle('active',l.textContent.includes('Planner'));});
+  }else{
+    info.style.display='block';planner.style.display='none';
+    navLinks.forEach(l=>{l.classList.toggle('active',l.textContent.includes('Information'));});
+    buildInfoScreen();
+  }
+}
+function buildInfoScreen(){
+  document.getElementById('infobd').innerHTML=`
+
+    <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Prerequisite Waivers</h3>
+    <p style="font-size:13px;color:var(--g5);margin-bottom:4px;font-style:italic">Legal basis: EER Article 4.3</p>
+    <p style="font-size:13px;color:var(--g7);margin-bottom:8px">A student can only start a module if they meet the prerequisites. All 3000-level modules must have prerequisites; 2000-level modules may have them; 1000-level modules do not.</p>
+    <p style="font-size:13px;color:var(--g7);margin-bottom:8px">Prerequisites can be waived with <strong>written consent from the course coordinator</strong> of the module that requires the prerequisite (EER Art. 4.3.3).</p>
+    <ol style="font-size:13px;color:var(--g7);padding-left:20px;margin-bottom:10px">
+      <li style="margin-bottom:4px">Email the course coordinator with a short explanation of why you should receive a waiver</li>
+      <li style="margin-bottom:4px">The coordinator evaluates whether you can cope with the course content</li>
+      <li style="margin-bottom:4px">The coordinator grants the waiver by replying to your email</li>
+      <li style="margin-bottom:4px">Hand in this approval email with your course selection form</li>
+      <li>You will <strong>not</strong> be registered without the waiver, or with a waiver handed in after the deadline</li>
+    </ol>
+    <p style="font-size:13px;color:var(--g7);margin-bottom:8px"><strong>When:</strong> Waivers can be requested twice a year &mdash; November and May &mdash; during course registration. Both student and coordinator need to handle requests with urgency due to strict deadlines.</p>
+    <p style="font-size:13px;color:var(--warn);margin-bottom:12px"><strong>Important:</strong> Waivers should only be requested as an exception. Prerequisites and co-requisites are important elements of the open curriculum.</p>
+
+    <details style="margin-bottom:16px;border:1px solid var(--g2);border-radius:var(--rs);overflow:hidden">
+      <summary style="padding:10px 14px;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;background:var(--g0)">Course-specific waiver notes</summary>
+      <div style="padding:12px 14px;font-size:12.5px;color:var(--g7);line-height:1.7">
+        <p><strong>BIO3004 Animal Behaviour</strong> (prereq: BIO2004 + BIO2005) &mdash; Students without BIO2004 General Zoology but with sufficient biology background may be able to take this course with a waiver. Contact the coordinator.</p>
+        <p style="margin-top:6px"><strong>CHE3009 Crystallography</strong> (prereq: PRO1002) &mdash; Not recommended for first-year students. If you haven\u2019t taken at least two semesters at MSP, waivers are unlikely.</p>
+        <p style="margin-top:6px"><strong>PRA2007 Physics Laboratory</strong> (prereq: PRA1003) &mdash; Waivers are unlikely unless you can show equivalent experimental physics experience.</p>
+        <p style="margin-top:6px"><strong>MAT2004 Linear Algebra</strong> &mdash; Requires substantial high-school mathematics experience. Contact the coordinator if unsure.</p>
+      </div>
+    </details>
+
+    <hr style="border:none;border-top:1px solid var(--g2);margin:20px 0">
+
+    <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Co-requisite Waivers</h3>
+    <p style="font-size:13px;color:var(--g5);margin-bottom:4px;font-style:italic">Legal basis: EER Article 4.3.5\u20134.3.8</p>
+    <p style="font-size:13px;color:var(--g7);margin-bottom:8px">Co-requisites require the student to take two or more modules in the same period. A co-requisite can be waived with <strong>written consent from the module coordinator</strong> (EER Art. 4.3.7).</p>
+    <p style="font-size:13px;color:var(--g7);margin-bottom:12px"><strong>Automatic waiver:</strong> A co-requisite is automatically waived if you have already passed the co-requisite module in a previous period (EER Art. 4.3.8).</p>
+
+    <details style="margin-bottom:16px;border:1px solid var(--g2);border-radius:var(--rs);overflow:hidden">
+      <summary style="padding:10px 14px;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;background:var(--g0)">P5 2025\u20132026 co-requisite pairs</summary>
+      <div style="padding:12px 14px;font-size:12.5px;color:var(--g7);line-height:1.7">
+        <p><strong>CHE2010</strong> General Chemistry \u2194 <strong>PRA2034</strong> General Chemistry Laboratory</p>
+        <p style="margin-top:4px"><strong>BIO3001</strong> Molecular Biology \u2194 <strong>PRA3003</strong> Molecular Biology Skills</p>
+        <p style="margin-top:4px"><strong>BIO3003</strong> Medical Microbiology \u2194 <strong>PRA3010</strong> Microbiology Skills</p>
+      </div>
+    </details>
+
+    <hr style="border:none;border-top:1px solid var(--g2);margin:20px 0">
+
+    <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Registration</h3>
+    <p style="font-size:13px;color:var(--g5);margin-bottom:4px;font-style:italic">Legal basis: EER Article 4.4, R&amp;R Article 7</p>
+    <ul style="font-size:13px;color:var(--g7);padding-left:20px;margin-bottom:12px;line-height:1.7">
+      <li>You can only participate in a module after registering by the deadline via the registration form submitted to OSA</li>
+      <li>If you miss the deadline, registration cannot be guaranteed</li>
+      <li>Upon registration you are automatically registered for the first exam and resit</li>
+      <li>You are responsible for checking your own registration</li>
+    </ul>
+    <div class="dl-grid" style="margin-bottom:16px">
+      <div class="dl-box"><div class="dl-lbl">Spring semester (P4 &amp; P4\u2013P5)</div><div class="dl-val">14 November 2025</div></div>
+      <div class="dl-box"><div class="dl-lbl">Fall semester</div><div class="dl-val">18 May 2026</div></div>
+    </div>
+
+    <hr style="border:none;border-top:1px solid var(--g2);margin:20px 0">
+
+    <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Switches (Late Enrolments)</h3>
+    <p style="font-size:13px;color:var(--g5);margin-bottom:4px;font-style:italic">Legal basis: R&amp;R Article 8</p>
+    <p style="font-size:13px;color:var(--g7);margin-bottom:8px">A switch is a withdrawal from one module combined with late enrolment in an alternative module for the same period.</p>
+    <ol style="font-size:13px;color:var(--g7);padding-left:20px;margin-bottom:10px">
+      <li style="margin-bottom:4px">Complete the online <a href="${LINKS.switchForm}" target="_blank" style="color:var(--inf);font-weight:500">withdraw/switch form</a></li>
+      <li style="margin-bottom:4px">The switch must be supported by your academic advisor</li>
+      <li style="margin-bottom:4px">Must be approved by Dr. Chris Pawley (coordinator of Academic Advising)</li>
+      <li>Inform your Academic Adviser (AA), the Office of Academic Advising (OAA), and the Office of Student Affairs (OSA)</li>
+    </ol>
+    <p style="font-size:13px;color:var(--g7);margin-bottom:12px"><strong>Restrictions:</strong> No switching to external modules. Alternatives may be limited by capacity.</p>
+
+    <details style="margin-bottom:16px;border:1px solid var(--g2);border-radius:var(--rs);overflow:hidden">
+      <summary style="padding:10px 14px;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;background:var(--g0)">Switch deadlines 2025\u20132026 (all at 17:00)</summary>
+      <div style="padding:12px 14px;font-size:12.5px;color:var(--g7);line-height:1.7">
+        <p>Period 1: <strong>Friday 8 August 2025</strong></p>
+        <p>Period 2: <strong>Friday 3 October 2025</strong></p>
+        <p>Period 4: <strong>Friday 9 January 2026</strong></p>
+        <p>Period 5: <strong>Friday 6 March 2026</strong></p>
+      </div>
+    </details>
+
+    <hr style="border:none;border-top:1px solid var(--g2);margin:20px 0">
+
+    <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Withdrawals</h3>
+    <p style="font-size:13px;color:var(--g5);margin-bottom:4px;font-style:italic">Legal basis: R&amp;R Article 8</p>
+    <p style="font-size:13px;color:var(--g7);margin-bottom:8px">Withdrawing from a module without switching to another. Same process as switches &mdash; complete the <a href="${LINKS.switchForm}" target="_blank" style="color:var(--inf);font-weight:500">online form</a> and inform AA, OAA, and OSA.</p>
+    <p style="font-size:13px;color:var(--g7);margin-bottom:12px"><strong>Key fact:</strong> If you withdraw before the deadline, the module does not appear on your transcript.</p>
+
+    <details style="margin-bottom:16px;border:1px solid var(--g2);border-radius:var(--rs);overflow:hidden">
+      <summary style="padding:10px 14px;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;background:var(--g0)">Withdrawal deadlines 2025\u20132026 (all at 17:00)</summary>
+      <div style="padding:12px 14px;font-size:12.5px;color:var(--g7);line-height:1.7">
+        <p>Period 1: <strong>Friday 5 September 2025</strong></p>
+        <p>Period 2: <strong>Friday 31 October 2025</strong></p>
+        <p>Period 4: <strong>Friday 30 January 2026</strong></p>
+        <p>Period 5: <strong>Friday 3 April 2026</strong></p>
+      </div>
+    </details>
+    <p style="font-size:12px;color:var(--g4);margin-bottom:4px">Note: Withdrawal deadlines are always later than switch deadlines for the same period.</p>
+
+    <hr style="border:none;border-top:1px solid var(--g2);margin:20px 0">
+
+    <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Exemptions</h3>
+    <p style="font-size:13px;color:var(--g5);margin-bottom:4px;font-style:italic">Legal basis: R&amp;R Article 12, EER Article 5.13</p>
+    <p style="font-size:13px;color:var(--g7);margin-bottom:8px">An exemption means you don\u2019t have to take a mandatory module at all. This is different from a prerequisite waiver.</p>
+    <ul style="font-size:13px;color:var(--g7);padding-left:20px;margin-bottom:12px;line-height:1.7">
+      <li>Only possible for mandatory modules of the Programme</li>
+      <li>Submit a motivated request to the <strong>Board of Examiners</strong> no later than <strong>three weeks before the module starts</strong></li>
+      <li>Must include sufficient written documentation</li>
+      <li>Granted if you passed a similar exam elsewhere or have equivalent professional experience</li>
+      <li>May only pertain to an entire module, not a component</li>
+      <li>BTR/Capstone is excluded from exemption</li>
+    </ul>
+
+    <hr style="border:none;border-top:1px solid var(--g2);margin:20px 0">
+
+    <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Additional Modules (Overload)</h3>
+    <p style="font-size:13px;color:var(--g5);margin-bottom:4px;font-style:italic">Legal basis: R&amp;R Article 10</p>
+    <ul style="font-size:13px;color:var(--g7);padding-left:20px;margin-bottom:12px;line-height:1.7">
+      <li>Requires a motivated request to the <strong>Board of Examiners</strong> before the registration deadline via the <a href="${LINKS.additionalModule}" target="_blank" style="color:var(--inf);font-weight:500">online form</a></li>
+      <li>Only allowed if GPA and progress rate show sufficient capacity, max 10 ECTS per semester</li>
+      <li><strong>Not allowed</strong> in the first year or first two semesters</li>
+      <li>Only one additional module alongside BTR</li>
+      <li>Without prior BoE approval, no ECTS will be granted</li>
+      <li>Cannot be external modules</li>
+    </ul>
+
+    <hr style="border:none;border-top:1px solid var(--g2);margin:20px 0">
+
+    <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">External Credits</h3>
+    <p style="font-size:13px;color:var(--g5);margin-bottom:4px;font-style:italic">Legal basis: R&amp;R Articles 11A and 11B</p>
+    <ul style="font-size:13px;color:var(--g7);padding-left:20px;margin-bottom:12px;line-height:1.7">
+      <li>Motivated request to BoE via the applicable online form</li>
+      <li><strong>Not allowed</strong> in the first year or first two semesters</li>
+      <li>Cannot be followed as additional workload</li>
+      <li>Preferred at advanced level</li>
+      <li>External credits count towards GPA and progress rate (except transferred credits)</li>
+      <li>Maximum 30 external credits, or 35 if the Education Minor is followed in full</li>
+      <li>Credit transfer requests must be submitted before the end of the first year</li>
+    </ul>
+
+    <hr style="border:none;border-top:1px solid var(--g2);margin:20px 0">
+
+    <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Transcripts</h3>
+    <p style="font-size:13px;color:var(--g7);margin-bottom:12px">Official transcripts are issued by the Education Support Department. A certified transcript is downloadable from the Student Portal: <strong>My Courses \u2192 Grade list</strong>.</p>
+
+    <hr style="border:none;border-top:1px solid var(--g2);margin:20px 0">
+
+    <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Period ${DEADLINES.period} Deadlines</h3>
+    <div class="dl-grid" style="margin-bottom:16px">
+      <div class="dl-box"><div class="dl-lbl">Switch deadline</div><div class="dl-val">${DEADLINES.switch}</div></div>
+      <div class="dl-box"><div class="dl-lbl">Withdrawal deadline</div><div class="dl-val">${DEADLINES.withdrawal}</div></div>
+    </div>
+
+    <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Key Contacts &amp; Forms</h3>
+    <div style="overflow-x:auto">
+      <table class="stbl" style="font-size:12.5px">
+        <thead><tr><th>What</th><th>Who / Where</th></tr></thead>
+        <tbody>
+          <tr><td>Prerequisite waiver</td><td>Email the course coordinator directly</td></tr>
+          <tr><td>Co-requisite waiver</td><td>Email the module coordinator directly</td></tr>
+          <tr><td>Exemption</td><td>Motivated request to Board of Examiners (3 weeks before module start)</td></tr>
+          <tr><td>Switch / Withdrawal</td><td>Online form, approved by Dr. Chris Pawley</td></tr>
+          <tr><td>Additional module</td><td>Online form to BoE before registration deadline</td></tr>
+          <tr><td>External credits</td><td>Online form to BoE before registration deadline</td></tr>
+          <tr><td>ESD contact</td><td><a href="${LINKS.esd}" style="color:var(--inf);font-weight:500">msp-educationsupport@maastrichtuniversity.nl</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="links-row" style="margin-top:16px">
+      <a href="${LINKS.waivers}" target="_blank">\u{1F4CB} Waivers</a>
+      <a href="${LINKS.switchForm}" target="_blank">\u{1F4DD} Switch/withdraw form</a>
+      <a href="${LINKS.transcript}" target="_blank">\u{1F4C4} Transcript request</a>
+      <a href="${LINKS.additionalModule}" target="_blank">\u{1F4E6} Additional module form</a>
+    </div>
+  `;
+}
+
+// ── Event listeners ──
+document.getElementById('c1').addEventListener('change',()=>{save();const c1=getCourse1();showPanel(c1,'pi1',false);buildCourse2(c1?.Slot||null);if(!getCourse2())document.getElementById('pi2').classList.remove('show');rebuildLabs();checkPrereqs();buildSummary();buildNextSteps();buildTT();});
+document.getElementById('c2').addEventListener('change',()=>{save();showPanel(getCourse2(),'pi2',false);rebuildLabs();checkPrereqs();buildSummary();buildNextSteps();buildTT();});
+document.getElementById('lab').addEventListener('change',()=>{save();showPanel(getLab(),'pil',true);checkPrereqs();buildSummary();buildNextSteps();buildTT();});
+function rebuildLabs(){const c1=getCourse1(),c2=getCourse2();const u=new Set([...(c1?.Days||[]),...(c2?.Days||[])]);buildLabs(u);showPanel(getLab(),'pil',true);}
+function resetPlan(){PLANS[act]=emptyPlan();switchPlan(act);updateTabIcons();}
+</script>
+</body>
+</html>
