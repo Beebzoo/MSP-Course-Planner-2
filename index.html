@@ -6,6 +6,7 @@
 <title>MSP Course Planner</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -18,7 +19,7 @@
   --g0:#F8FAFC;--g1:#F1F5F9;--g2:#E2E8F0;--g3:#CBD5E1;
   --g4:#94A3B8;--g5:#64748B;--g7:#334155;--g9:#0F172A;
   --sa-bg:#EFF6FF;--sa:#1D4ED8;--sb-bg:#F0FDF4;--sb:#166534;
-  --sc-bg:#FEFCE8;--showScreen:#854D0E;--sd-bg:#F5F3FF;--sd:#5B21B6;
+  --sc-bg:#FEFCE8;--sc:#854D0E;--sd-bg:#F5F3FF;--sd:#5B21B6;
   --se-bg:#FFF1F2;--se:#9F1239;
   --r:10px;--rs:6px;
   --sh:0 1px 3px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.03);
@@ -39,9 +40,18 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .cfgbtn{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:var(--rs);font-size:11px;font-weight:500;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);cursor:pointer;font-family:inherit;transition:all .15s}
 .cfgbtn:hover{background:rgba(255,255,255,.15);color:rgba(255,255,255,.9)}
 
+/* ── Nav Bar ── */
+.nav-bar{display:flex;align-items:center;padding:0 40px;height:42px;background:var(--navy);gap:4px}
+.nav-link{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:var(--rs);font-size:12.5px;font-weight:500;color:rgba(255,255,255,.6);text-decoration:none;transition:all .15s;border:none;background:none;cursor:pointer;font-family:inherit}
+.nav-link:hover{background:rgba(255,255,255,.1);color:rgba(255,255,255,.9)}
+.nav-link.active{background:rgba(255,255,255,.15);color:#fff;font-weight:600}
+.nav-spacer{flex:1}
+
 /* ── Main ── */
 .main{max-width:860px;margin:0 auto;padding:32px 24px 80px}
-#planner{display:none}
+.main.wide{max-width:1100px}
+.view{display:none}
+.view.active{display:block}
 #loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:14px;color:var(--g4)}
 .spin{width:32px;height:32px;border:3px solid var(--g2);border-top-color:var(--navy);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -82,7 +92,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .cpanel{display:none;margin-top:8px;padding:10px 14px;background:var(--g0);border:1px solid var(--g1);border-radius:var(--rs);font-size:12.5px} .cpanel.show{display:block}
 .crow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px} .crow:last-child{margin-bottom:0}
 .slotb{display:inline-flex;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.05em}
-.sl-A{background:var(--sa-bg);color:var(--sa)} .sl-B{background:var(--sb-bg);color:var(--sb)} .sl-C{background:var(--sc-bg);color:var(--showScreen)} .sl-D{background:var(--sd-bg);color:var(--sd)} .sl-E{background:var(--se-bg);color:var(--se)}
+.sl-A{background:var(--sa-bg);color:var(--sa)} .sl-B{background:var(--sb-bg);color:var(--sb)} .sl-C{background:var(--sc-bg);color:var(--sc)} .sl-D{background:var(--sd-bg);color:var(--sd)} .sl-E{background:var(--se-bg);color:var(--se)}
 .tg{display:inline-flex;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600}
 .tg-co{background:var(--inf-bg);color:var(--inf)} .tg-pre{background:var(--warn-bg);color:var(--warn)}
 .days{display:flex;flex-wrap:wrap;gap:4px}
@@ -112,6 +122,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .guidance strong{color:var(--g7);font-weight:600}
 .guidance a{color:var(--inf);font-weight:500;text-decoration:none} .guidance a:hover{text-decoration:underline}
 .seclbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--g4);margin-bottom:10px;margin-top:2px}
+
 /* ── Next Steps Card ── */
 .nsteps{list-style:none;padding:0;margin:0;counter-reset:ns}
 .nsteps li{position:relative;padding:6px 0 6px 32px;font-size:13px;color:var(--g7);counter-increment:ns}
@@ -135,7 +146,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .tt-cell{border-radius:4px;padding:5px 6px;font-size:10.5px;line-height:1.3;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;font-weight:500}
 .tt-course{background:var(--sa-bg);color:var(--sa);border:1px solid rgba(29,78,216,.15)}
 .tt-course.sl-B{background:var(--sb-bg);color:var(--sb);border-color:rgba(22,101,52,.15)}
-.tt-course.sl-C{background:var(--sc-bg);color:var(--showScreen);border-color:rgba(133,77,14,.15)}
+.tt-course.sl-C{background:var(--sc-bg);color:var(--sc);border-color:rgba(133,77,14,.15)}
 .tt-course.sl-D{background:var(--sd-bg);color:var(--sd);border-color:rgba(91,33,182,.15)}
 .tt-course.sl-E{background:var(--se-bg);color:var(--se);border-color:rgba(159,18,57,.15)}
 .tt-lab{background:var(--inf-bg);color:var(--inf);border:1px solid rgba(12,74,110,.15)}
@@ -179,12 +190,161 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:var(--rs);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;border:none;transition:all .15s}
 .btn-or{background:var(--orange);color:#fff;box-shadow:0 1px 3px rgba(232,119,34,.3)} .btn-or:hover{opacity:.9;box-shadow:0 2px 8px rgba(232,119,34,.35)} .btn-or:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
 .btn-gh{background:#fff;color:var(--g5);border:1.5px solid var(--g2)} .btn-gh:hover{border-color:var(--g4);color:var(--g7)}
+.btn-navy{background:var(--navy);color:#fff} .btn-navy:hover{background:var(--navy2)}
 .actnote{margin-left:auto;font-size:11.5px;color:var(--g4);line-height:1.5;text-align:right;max-width:260px}
 
 /* ── Footer ── */
-footer{text-align:center;padding:20px 24px;font-size:12px;color:var(--g4);border-top:1px solid var(--g2);background:#fff;display:flex;flex-direction:column;align-items:center}
+footer{text-align:center;padding:20px 24px;font-size:12px;color:var(--g4);border-top:1px solid var(--g2);background:#fff;display:flex;flex-direction:column;align-items:center;gap:6px}
 footer .ft-line{margin-bottom:0;font-size:11px}
+footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:1.5}
 
+/* ── Dashboard ── */
+.upload-zone{border:2.5px dashed var(--g3);border-radius:16px;padding:60px 40px;text-align:center;transition:all .2s;cursor:pointer;background:#fff}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--navy);background:var(--sa-bg);transform:translateY(-2px);box-shadow:var(--sh-md)}
+.upload-zone .uz-icon{font-size:48px;margin-bottom:16px;display:block;opacity:.7}
+.upload-zone h2{font-family:'DM Sans',sans-serif;font-size:22px;font-weight:700;color:var(--navy);margin-bottom:8px}
+.upload-zone p{font-size:13.5px;color:var(--g5);max-width:400px;margin:0 auto 16px;line-height:1.7}
+.upload-zone .uz-privacy{font-size:11.5px;color:var(--g4);margin-top:16px;display:flex;align-items:center;justify-content:center;gap:6px}
+.skip-link{display:inline-block;margin-top:20px;font-size:13px;color:var(--g4);text-decoration:none;transition:color .15s}
+.skip-link:hover{color:var(--navy)}
+
+/* Dashboard profile card */
+.profile-card{background:linear-gradient(135deg,var(--navy) 0%,var(--navy3) 100%);color:#fff;border-radius:var(--r);padding:24px 28px;margin-bottom:16px;box-shadow:var(--sh-md)}
+.profile-card h2{font-family:'DM Sans',sans-serif;font-size:22px;font-weight:700;margin-bottom:2px}
+.profile-card .pc-sub{font-size:12.5px;opacity:.7;margin-bottom:4px}
+.profile-card .pc-meta{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;opacity:.6;margin-top:8px}
+.profile-card .pc-actions{display:flex;gap:8px;margin-top:12px}
+.profile-card .pc-actions button{padding:5px 12px;border-radius:var(--rs);font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;cursor:pointer;font-family:inherit;transition:all .15s}
+.profile-card .pc-actions button:hover{background:rgba(255,255,255,.2)}
+
+/* Quick stats row */
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+.stat-card{background:#fff;border-radius:var(--r);padding:16px 14px;text-align:center;border:1px solid var(--g2);box-shadow:var(--sh);transition:all .3s}
+.stat-card .sc-val{font-family:'DM Sans',sans-serif;font-size:26px;font-weight:700;color:var(--navy);line-height:1.1}
+.stat-card .sc-label{font-size:10.5px;font-weight:600;color:var(--g4);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+.stat-card .sc-sub{font-size:11px;color:var(--g5);margin-top:2px}
+.stat-card.sc-ok{border-color:var(--ok-bd);background:var(--ok-bg)} .stat-card.sc-ok .sc-val{color:var(--ok)}
+.stat-card.sc-warn{border-color:var(--warn-bd);background:var(--warn-bg)} .stat-card.sc-warn .sc-val{color:var(--warn)}
+
+/* Progress sections */
+.prog-section{background:#fff;border-radius:var(--r);border:1px solid var(--g2);box-shadow:var(--sh);margin-bottom:12px;overflow:hidden}
+.prog-header{padding:14px 20px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .15s;user-select:none}
+.prog-header:hover{background:var(--g0)}
+.prog-header h3{font-size:14px;font-weight:600;color:var(--g9);flex:1}
+.prog-header .prog-summary{font-size:12px;color:var(--g5);margin-right:8px}
+.prog-header .prog-arrow{font-size:10px;color:var(--g4);transition:transform .2s}
+.prog-section.open .prog-arrow{transform:rotate(90deg)}
+.prog-body{display:none;padding:0 20px 16px;border-top:1px solid var(--g1)}
+.prog-section.open .prog-body{display:block}
+.prog-bar-wrap{flex:1;max-width:200px;height:8px;background:var(--g1);border-radius:4px;overflow:hidden}
+.prog-bar{height:100%;border-radius:4px;transition:width 1s ease;background:linear-gradient(90deg,var(--navy),var(--sky))}
+.prog-bar.bar-ok{background:linear-gradient(90deg,var(--ok),#34D399)}
+.prog-bar.bar-warn{background:linear-gradient(90deg,var(--warn),#F59E0B)}
+.prog-item{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:12.5px;border-bottom:1px solid var(--g0)}
+.prog-item:last-child{border-bottom:none}
+.prog-item .pi-code{font-family:'SF Mono',Monaco,Consolas,monospace;font-weight:600;color:var(--g5);min-width:70px}
+.prog-item .pi-title{flex:1;color:var(--g7)}
+.prog-item .pi-grade{font-weight:600;min-width:36px;text-align:right}
+.prog-item .pi-status{font-size:11px}
+.prog-sub{font-size:11.5px;color:var(--g5);margin-top:8px;padding:6px 10px;background:var(--g0);border-radius:var(--rs)}
+
+/* Semester history */
+.sem-acc{background:#fff;border-radius:var(--r);border:1px solid var(--g2);box-shadow:var(--sh);margin-bottom:12px;overflow:hidden}
+.sem-header{padding:12px 20px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .15s;user-select:none}
+.sem-header:hover{background:var(--g0)}
+.sem-header h3{font-size:13px;font-weight:600;color:var(--g9);flex:1}
+.sem-header .sem-info{font-size:12px;color:var(--g5)}
+.sem-header .sem-arrow{font-size:10px;color:var(--g4);transition:transform .2s}
+.sem-acc.open .sem-arrow{transform:rotate(90deg)}
+.sem-body{display:none;padding:0 20px 14px;border-top:1px solid var(--g1)}
+.sem-acc.open .sem-body{display:block}
+
+/* Action card */
+.action-card{background:#fff;border-radius:var(--r);border:1px solid var(--g2);border-left:4px solid var(--orange);box-shadow:var(--sh);padding:24px;margin-bottom:16px}
+.action-card h3{font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;color:var(--navy);margin-bottom:12px}
+.action-card ul{margin:0 0 16px 18px;font-size:13px;color:var(--g7);line-height:1.8}
+.action-card .ac-warn{padding:10px 14px;background:var(--warn-bg);border:1px solid var(--warn-bd);border-radius:var(--rs);font-size:12.5px;color:var(--warn);margin-bottom:12px}
+.action-card .ac-tip{padding:10px 14px;background:var(--inf-bg);border:1px solid var(--inf-bd);border-radius:var(--rs);font-size:12.5px;color:var(--inf);margin-bottom:12px}
+
+/* ── Catalogue ── */
+.toolbar{display:flex;align-items:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+.search-box{flex:1;min-width:240px;position:relative}
+.search-box input{width:100%;padding:11px 16px 11px 40px;border:1.5px solid var(--g2);border-radius:var(--r);font-size:14px;font-family:inherit;color:var(--g9);background:#fff;transition:all .15s;box-shadow:var(--sh)}
+.search-box input:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(1,27,60,.08)}
+.search-box::before{content:'\1F50D';position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:14px;opacity:.4;pointer-events:none}
+.filter-chips{display:flex;gap:6px;flex-wrap:wrap}
+.fchip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid var(--g2);background:#fff;color:var(--g5);cursor:pointer;transition:all .15s;font-family:inherit}
+.fchip:hover{border-color:var(--g3);color:var(--g7)}
+.fchip.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.result-count{font-size:12px;color:var(--g4);font-weight:500}
+
+.slot-section{margin-bottom:32px}
+.slot-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--g2)}
+.slot-badge{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;font-size:16px;font-weight:800;color:#fff;letter-spacing:.02em;flex-shrink:0}
+.slot-badge.sl-A{background:var(--sa)} .slot-badge.sl-B{background:var(--sb)} .slot-badge.sl-C{background:#B45309} .slot-badge.sl-D{background:var(--sd)} .slot-badge.sl-E{background:var(--se)} .slot-badge.sl-PRA{background:var(--navy)}
+.slot-header h2{font-family:'DM Sans',sans-serif;font-size:18px;font-weight:700;color:var(--g9)}
+.slot-header .slot-info{font-size:12px;color:var(--g4);font-weight:400}
+.slot-count{margin-left:auto;font-size:11px;color:var(--g4);background:var(--g1);padding:3px 10px;border-radius:12px;font-weight:600}
+
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.ccard{background:#fff;border:1.5px solid var(--g2);border-radius:var(--r);overflow:hidden;transition:all .2s;cursor:pointer;position:relative}
+.ccard:hover{box-shadow:var(--sh-md);transform:translateY(-1px)}
+.ccard.expanded{box-shadow:var(--sh-lg);grid-column:1/-1}
+.ccard.card-A{background:#EBF3FF;border-color:#C5D9F5} .ccard.card-A:hover{border-color:#9BBDE8}
+.ccard.card-B{background:#EDFAF0;border-color:#B8E6C4} .ccard.card-B:hover{border-color:#86D69A}
+.ccard.card-C{background:#FFF7EB;border-color:#F5DFB8} .ccard.card-C:hover{border-color:#ECCC8E}
+.ccard.card-D{background:#F3EEFA;border-color:#D4C4EA} .ccard.card-D:hover{border-color:#B89FDC}
+.ccard.card-E{background:#FFF0F1;border-color:#F5C4C8} .ccard.card-E:hover{border-color:#EA9EA5}
+.ccard.card-PRA{background:#EFF6FF;border-color:#C5D9F5} .ccard.card-PRA:hover{border-color:#9BBDE8}
+.ccard-top{padding:18px 20px 14px;display:flex;flex-direction:column;gap:6px}
+.ccard-row1{display:flex;align-items:flex-start;gap:10px}
+.ccard .cc-code{font-size:12px;font-weight:700;color:#fff;background:var(--navy);padding:3px 10px;border-radius:5px;font-family:'SF Mono',Monaco,Consolas,monospace;letter-spacing:.03em;flex-shrink:0}
+.ccard .cc-slot{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;letter-spacing:.05em}
+.cc-slot.sl-A{background:var(--sa-bg);color:var(--sa)} .cc-slot.sl-B{background:var(--sb-bg);color:var(--sb)} .cc-slot.sl-C{background:var(--sc-bg);color:var(--sc)} .cc-slot.sl-D{background:var(--sd-bg);color:var(--sd)} .cc-slot.sl-E{background:var(--se-bg);color:var(--se)}
+.ccard .cc-title{font-size:16px;font-weight:700;color:var(--g9);line-height:1.3;font-family:'DM Sans',sans-serif}
+.ccard .cc-coord{font-size:12px;color:var(--g5)}
+.ccard-meta{display:flex;align-items:center;gap:8px;padding:0 20px 14px;flex-wrap:wrap}
+.ccard-meta .daychip{background:var(--g9);color:#fff;font-size:10px;font-weight:600;padding:3px 9px;border-radius:5px;letter-spacing:.02em}
+.tag{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:5px;letter-spacing:.03em}
+.tag-pre{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-bd)}
+.tag-co{background:var(--inf-bg);color:var(--inf);border:1px solid var(--inf-bd)}
+.tag-passed{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-bd)}
+.ccard-expand{font-size:11px;color:var(--navy);font-weight:600;padding:10px 20px;background:rgba(0,0,0,.03);border-top:1px solid rgba(0,0,0,.06);display:flex;align-items:center;gap:5px;transition:all .15s}
+.ccard:hover .ccard-expand{background:rgba(0,0,0,.06)}
+.ccard.expanded .ccard-expand{display:none}
+.ccard-detail{display:none;padding:0 20px 20px;border-top:1.5px solid var(--g1)}
+.ccard.expanded .ccard-detail{display:block}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:16px}
+.detail-section{margin-bottom:0}
+.detail-section h4{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--navy);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--g1)}
+.detail-section p{font-size:13px;color:var(--g7);line-height:1.7;margin-bottom:0}
+.detail-section ul{margin:0 0 0 16px;padding:0;list-style:none}
+.detail-section li{font-size:12.5px;color:var(--g7);line-height:1.6;padding:2px 0;position:relative;padding-left:14px}
+.detail-section li::before{content:'\2022';position:absolute;left:0;color:var(--navy);font-weight:700}
+.detail-full{grid-column:1/-1}
+.detail-lit{white-space:pre-line;font-size:12.5px;color:var(--g5);line-height:1.6}
+.detail-close{display:inline-flex;align-items:center;gap:5px;margin-top:16px;padding:8px 16px;border-radius:var(--rs);font-size:12px;font-weight:600;color:var(--navy);background:var(--sa-bg);border:1px solid rgba(29,78,216,.15);cursor:pointer;font-family:inherit;transition:all .15s}
+.detail-close:hover{background:var(--navy);color:#fff}
+.no-results{text-align:center;padding:60px 20px;color:var(--g4)}
+.no-results span{font-size:40px;display:block;margin-bottom:12px;opacity:.5}
+.no-results p{font-size:14px}
+
+/* ── Advice Panel ── */
+.advice-panel{background:var(--inf-bg);border:1px solid var(--inf-bd);border-radius:var(--r);padding:16px 20px;margin-bottom:16px}
+.advice-panel h3{font-size:13px;font-weight:700;color:var(--inf);margin-bottom:8px}
+.advice-panel ul{margin:0 0 0 16px;font-size:12.5px;color:var(--g7);line-height:1.8}
+
+/* ── Animations ── */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeInUp .4s ease both}
+.fade-in-d1{animation-delay:.05s}
+.fade-in-d2{animation-delay:.1s}
+.fade-in-d3{animation-delay:.15s}
+.fade-in-d4{animation-delay:.2s}
+.fade-in-d5{animation-delay:.25s}
+@keyframes countUp{from{opacity:0}to{opacity:1}}
+
+/* ── Print ── */
 .printonly{display:none}
 @media print{
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
@@ -206,37 +366,39 @@ footer .ft-line{margin-bottom:0;font-size:11px}
   .guidance{display:none!important}
   #nextsteps{display:none!important}
   #infoscreen{display:none!important}
+  .advice-panel{display:none!important}
   .card-h .spill{display:none!important}
   .card-h .step{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
 }
 
+/* ── Responsive ── */
 @media(max-width:900px){
   .cmp-grid{grid-template-columns:1fr;gap:10px}
+  .stats-row{grid-template-columns:repeat(3,1fr)}
 }
 @media(max-width:640px){
   .hdr-brand{padding:0 16px;height:60px;gap:12px}
   .logo-um{height:32px} .logo-msp{height:36px}
   .hdr-title{font-size:18px}
-  .nav-bar{padding:0 16px}
+  .nav-bar{padding:0 16px;gap:2px}
+  .nav-link{padding:6px 10px;font-size:11px}
   .dl-grid{grid-template-columns:1fr}
   .main{padding:20px 12px 60px}
   .card-h{padding:14px 16px} .card-b{padding:16px}
   .actbar{padding:12px 16px}
   .plan-tabs{padding:4px}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .cards-grid{grid-template-columns:1fr}
+  .detail-grid{grid-template-columns:1fr}
+  .toolbar{flex-direction:column;align-items:stretch}
+  .upload-zone{padding:40px 20px}
 }
-
-/* ── Nav Bar ── */
-.nav-bar{display:flex;align-items:center;padding:0 40px;height:42px;background:var(--navy);gap:4px}
-.nav-link{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:var(--rs);font-size:12.5px;font-weight:500;color:rgba(255,255,255,.6);text-decoration:none;transition:all .15s}
-.nav-link:hover{background:rgba(255,255,255,.1);color:rgba(255,255,255,.9)}
-.nav-link.active{background:rgba(255,255,255,.15);color:#fff;font-weight:600}
-.nav-spacer{flex:1}
 </style>
 </head>
 <body>
 <header class="hdr">
   <div class="hdr-brand">
-    <a href="index.html" style="display:flex;align-items:center"><img src="logo-header.png" alt="Maastricht University" class="logo-um"></a>
+    <a href="#" onclick="event.preventDefault()" style="display:flex;align-items:center"><img src="logo-header.png" alt="Maastricht University" class="logo-um"></a>
     <div class="hdr-center">
       <div class="hdr-title">MSP Course Planner</div>
       <div class="hdr-sub">Maastricht Science Programme &nbsp;&middot;&nbsp; Faculty of Science and Engineering</div>
@@ -244,9 +406,10 @@ footer .ft-line{margin-bottom:0;font-size:11px}
     <img src="logo-main.png" alt="Maastricht Science Programme" class="logo-msp">
   </div>
   <nav class="nav-bar">
-    <a class="nav-link active" href="index.html">&#128736; Course Planner</a>
-    <a class="nav-link" href="catalogue.html">&#128218; Course Catalogue</a>
-    <a class="nav-link" href="#" onclick="event.preventDefault();toggleInfo()">&#9432; Information</a>
+    <a class="nav-link active" href="#dashboard" data-view="dashboard" onclick="switchView('dashboard')">&#128202; Dashboard</a>
+    <a class="nav-link" href="#planner" data-view="planner" onclick="switchView('planner')">&#128736; Course Planner</a>
+    <a class="nav-link" href="#catalogue" data-view="catalogue" onclick="switchView('catalogue')">&#128218; Course Catalogue</a>
+    <a class="nav-link" href="#" data-view="info" onclick="switchView('info')">&#9432; Information</a>
     <span class="nav-spacer"></span>
     <span id="mp" style="font-size:11px;color:rgba(255,255,255,.5)">Loading&hellip;</span>
     <span id="mv" style="display:none;font-size:11px;color:rgba(255,255,255,.5)"></span>
@@ -255,7 +418,9 @@ footer .ft-line{margin-bottom:0;font-size:11px}
   </nav>
 </header>
 <input type="file" id="csvf" accept=".csv" style="display:none">
-<main class="main">
+<input type="file" id="pdff" accept=".pdf" style="display:none">
+
+<main class="main" id="mainEl">
   <div id="loading"><div class="spin"></div><p style="font-size:13px">Loading schedule&hellip;</p></div>
   <div id="errscr">
     <span style="font-size:36px">&#128203;</span>
@@ -264,7 +429,30 @@ footer .ft-line{margin-bottom:0;font-size:11px}
     <button class="btn btn-or" onclick="document.getElementById('csvf').click()">&#128194;&nbsp; Load config file (.csv)</button>
     <p style="font-size:11.5px;color:var(--g4);margin-top:8px">&#128274; Everything stays on your device.</p>
   </div>
-  <div id="planner">
+
+  <!-- ═══ VIEW: DASHBOARD ═══ -->
+  <div id="view-dashboard" class="view">
+    <div id="dash-upload">
+      <div class="upload-zone" id="dropZone" onclick="document.getElementById('pdff').click()">
+        <span class="uz-icon">&#128196;</span>
+        <h2>Upload your MSP Transcript</h2>
+        <p>Drop your transcript PDF here or click to browse. Your transcript is processed entirely in your browser &mdash; no data is sent anywhere.</p>
+        <button class="btn btn-or" onclick="event.stopPropagation();document.getElementById('pdff').click()">&#128194;&nbsp; Choose PDF</button>
+        <div class="uz-privacy">&#128274; Your data stays on your device</div>
+      </div>
+      <div style="text-align:center;margin-top:8px">
+        <p style="font-size:12px;color:var(--g4);margin-bottom:4px">&#128161; Download your transcript from the Student Portal &rarr; My Courses &rarr; Grade list</p>
+        <a href="#planner" class="skip-link" onclick="switchView('planner')">&mdash; or continue without transcript &mdash;<br>Skip to Course Planner &rarr;</a>
+      </div>
+    </div>
+    <div id="dash-profile" style="display:none">
+      <div id="dashContent"></div>
+    </div>
+  </div>
+
+  <!-- ═══ VIEW: PLANNER ═══ -->
+  <div id="view-planner" class="view">
+    <div id="advicePanel" class="advice-panel" style="display:none"></div>
     <div class="plan-tabs">
       <button class="ptab active" id="tab-A" onclick="switchPlan('A')"><span class="tlbl">Plan A</span><span class="tst" id="ts-A"></span></button>
       <button class="ptab" id="tab-B" onclick="switchPlan('B')"><span class="tlbl">Plan B</span><span class="tst" id="ts-B"></span></button>
@@ -314,52 +502,464 @@ footer .ft-line{margin-bottom:0;font-size:11px}
     </div>
     <div id="cmpview" class="cmp-view"></div>
   </div>
-  <div id="infoscreen" style="display:none">
+
+  <!-- ═══ VIEW: CATALOGUE ═══ -->
+  <div id="view-catalogue" class="view">
+    <div class="toolbar">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search by course code, title, coordinator, or keyword..." oninput="applyCatFilters()">
+      </div>
+      <div class="filter-chips" id="filterChips"></div>
+    </div>
+    <div id="resultCount" class="result-count" style="margin-bottom:16px"></div>
+    <div id="catalogue"></div>
+  </div>
+
+  <!-- ═══ VIEW: INFO ═══ -->
+  <div id="view-info" class="view">
     <div class="card">
       <div class="card-h"><div class="step">&#9432;</div><h2>Rules, Waivers &amp; Deadlines</h2><span class="hint">EER &amp; R&amp;R references</span></div>
       <div class="card-b" id="infobd" style="line-height:1.7"></div>
     </div>
   </div>
 </main>
+
 <footer>
-  <img src="logo-main.png" alt="MSP" style="height:28px;width:auto;object-fit:contain;opacity:.5;margin-bottom:6px">
+  <img src="logo-main.png" alt="MSP" style="height:28px;width:auto;object-fit:contain;opacity:.5;margin-bottom:2px">
   <div class="ft-line">Maastricht Science Programme &nbsp;&middot;&nbsp; Faculty of Science and Engineering</div>
+  <div class="ft-privacy">&#128274; This tool processes your transcript entirely in your browser. No data is uploaded to any server. When you close this page, all data is permanently deleted.</div>
+  <div style="font-size:10px;color:var(--g4);margin-top:2px">&#9888; This tool is for planning purposes only and does not replace official academic advising. Always verify with your Academic Advisor.</div>
 </footer>
 <script>
+// ═══════════════════════════════════════════════════
+// GLOBAL STATE
+// ═══════════════════════════════════════════════════
 const AUTO='FrameSchedule_P5_v1.csv';
-const DEADLINES={
-  switch:'Friday 6 March 2026, 17:00',
-  withdrawal:'Friday 3 April 2026, 17:00',
-  period:'5',year:'2025\u20132026'
-};
-const LINKS={
-  switchForm:'https://intranet.maastrichtuniversity.nl/en/msp-students/forms-and-downloads-0/withdrawswitch',
-  waivers:'https://intranet.maastrichtuniversity.nl/en/msp-students/waivers',
-  transcript:'https://intranet.maastrichtuniversity.nl/en/msp-students/forms-and-downloads/forms/transcript-request',
-  additionalModule:'https://intranet.maastrichtuniversity.nl/en/msp-students/forms-and-downloads/forms/additional-module',
-  esd:'mailto:msp-educationsupport@maastrichtuniversity.nl'
-};
+const DESC_FILE='MSP_P5_Course_Descriptions.md';
+const DEADLINES={switch:'Friday 6 March 2026, 17:00',withdrawal:'Friday 3 April 2026, 17:00',period:'5',year:'2025\u20132026'};
+const LINKS={switchForm:'https://intranet.maastrichtuniversity.nl/en/msp-students/forms-and-downloads-0/withdrawswitch',waivers:'https://intranet.maastrichtuniversity.nl/en/msp-students/waivers',transcript:'https://intranet.maastrichtuniversity.nl/en/msp-students/forms-and-downloads/forms/transcript-request',additionalModule:'https://intranet.maastrichtuniversity.nl/en/msp-students/forms-and-downloads/forms/additional-module',esd:'mailto:msp-educationsupport@maastrichtuniversity.nl'};
+const HUMANITIES_CODES=['INT2007','INT3001','HUM2051','INT2013','INT3012'];
+const CORE_CODES=['BIO1101','CHE1101','PHY1101','INT1101','PRA1101','PRA1102','PRO1101'];
+
 let courses=[],labs=[],cfgV='',cfgP='',cfgY='';
+let descriptions={};
 const PLANS={A:emptyPlan(),B:emptyPlan(),C:emptyPlan()};
 let act='A',cmpMode=false;
+let activeView='dashboard';
+let catFilter='all';
+
+const APP={
+  config:null,
+  transcript:null
+};
+
 function emptyPlan(){return{c1:'',c2:'',lab:'',ack:{}};}
 
-// ── CSV / Config ──
-window.addEventListener('DOMContentLoaded',()=>{
-  fetch(AUTO).then(r=>{if(!r.ok)throw 0;return r.text();}).then(load).catch(()=>showScreen('err'));
-});
-document.getElementById('csvf').addEventListener('change',e=>{
-  const f=e.target.files[0];if(!f)return;
-  const r=new FileReader();r.onload=ev=>load(ev.target.result);r.readAsText(f);e.target.value='';
-});
+// ═══════════════════════════════════════════════════
+// TRANSCRIPT PARSER
+// ═══════════════════════════════════════════════════
+async function parseTranscriptPDF(file){
+  const arrayBuffer=await file.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data:arrayBuffer}).promise;
+  let fullText='';
+  for(let i=1;i<=pdf.numPages;i++){
+    const page=await pdf.getPage(i);
+    const content=await page.getTextContent();
+    const pageText=content.items.map(it=>it.str).join(' ');
+    fullText+=pageText+'\n';
+  }
+  if(fullText.trim().length<50){
+    throw new Error('SCAN');
+  }
+  if(!fullText.includes('Maastricht Science Programme')&&!fullText.includes('Liberal Arts and Sciences')){
+    throw new Error('NOT_MSP');
+  }
+  return parseTranscriptText(fullText);
+}
+
+function parseTranscriptText(text){
+  const result={student:{},semesters:[],computed:{}};
+
+  // Parse student info
+  const snMatch=text.match(/Student\s*number\s*\/\s*Studentnummer\s*:\s*(\d+)/i);
+  if(snMatch)result.student.studentNumber=snMatch[1];
+
+  const nameMatch=text.match(/Name\s*\/\s*Naam\s*:\s*([^\n]+?)(?=\s*Date\s*of\s*birth)/i);
+  if(nameMatch)result.student.name=nameMatch[1].trim();
+
+  const dobMatch=text.match(/Date\s*of\s*birth\s*\/\s*Geboortedatum\s*:\s*([^\n]+?)(?=\s*Place\s*of\s*birth)/i);
+  if(dobMatch)result.student.dateOfBirth=dobMatch[1].trim().split('/')[0].trim();
+
+  const pobMatch=text.match(/Place\s*of\s*birth\s*\/\s*Geboorteplaats\s*:\s*([^\n]+?)(?=\s*Programme)/i);
+  if(pobMatch)result.student.placeOfBirth=pobMatch[1].trim();
+
+  result.student.programme='Maastricht Science Programme';
+
+  // Parse print date
+  const printMatch=text.match(/Print\s*date\s*\/\s*Printdatum\s*:\s*([^\n]+)/i);
+  if(printMatch)result.student.printDate=printMatch[1].trim().split('/')[0].trim();
+
+  // Split into semester blocks
+  const semPattern=/Semester\s+(\d+)\s+(\d+\s+\w+\s+\d{4}\s*-\s*\d+\s+\w+\s+\d{4})/gi;
+  const semMatches=[...text.matchAll(semPattern)];
+
+  for(let si=0;si<semMatches.length;si++){
+    const semNum=parseInt(semMatches[si][1]);
+    const semPeriod=semMatches[si][2].trim();
+    const startIdx=semMatches[si].index+semMatches[si][0].length;
+    const endIdx=si+1<semMatches.length?semMatches[si+1].index:text.length;
+    const block=text.substring(startIdx,endIdx);
+
+    const semester={number:semNum,period:semPeriod,modules:[],semGPA:null,progressRate:null,cumGPA:null};
+
+    // Parse modules: CODE Title ECTS_attempted ECTS_earned Grade [Resit]
+    const codePattern=/([A-Z]{2,4}\d{4})\s+/g;
+    let match;
+    const codePositions=[];
+    while((match=codePattern.exec(block))!==null){
+      codePositions.push({code:match[1],index:match.index,fullMatch:match[0]});
+    }
+
+    for(let ci=0;ci<codePositions.length;ci++){
+      const cp=codePositions[ci];
+      const nextStart=ci+1<codePositions.length?codePositions[ci+1].index:block.length;
+      const segment=block.substring(cp.index+cp.fullMatch.length,nextStart).trim();
+
+      // Extract numbers from the segment - grades and ECTS use comma as decimal
+      const numbers=[];
+      const numPattern=/(\d+[.,]\d+|\d+)/g;
+      let nm;
+      const titleParts=[];
+      let foundFirstNum=false;
+      const tokens=segment.split(/\s+/);
+
+      for(const tok of tokens){
+        if(!foundFirstNum&&!/^\d/.test(tok)&&tok!=='NG'&&tok!=='NVD'){
+          titleParts.push(tok);
+        }else{
+          foundFirstNum=true;
+          if(tok==='NG'||tok==='NVD'){
+            numbers.push(0);
+          }else{
+            const cleaned=tok.replace(',','.');
+            const n=parseFloat(cleaned);
+            if(!isNaN(n))numbers.push(n);
+          }
+        }
+      }
+
+      // Filter out page numbers and other noise
+      if(numbers.length<2)continue;
+      // Also skip if this looks like a GPA line
+      const title=titleParts.join(' ').replace(/\s+/g,' ').trim();
+      if(!title||title.length<3)continue;
+
+      const ectsAttempted=numbers[0]||0;
+      const ectsEarned=numbers.length>1?numbers[1]:0;
+      const grade=numbers.length>2?numbers[2]:0;
+      const resit=numbers.length>3?numbers[3]:null;
+
+      const prefix=cp.code.replace(/\d+/,'');
+      const levelDigit=parseInt(cp.code.match(/\d/)[0]);
+      const level=levelDigit*1000;
+      let type='course';
+      if(prefix==='PRA')type='skill';
+      else if(prefix==='PRO')type='project';
+
+      const passed=ectsEarned>0&&(grade>=5.5||grade===0);
+
+      semester.modules.push({
+        code:cp.code,title,ectsAttempted,ectsEarned,grade,resit,
+        passed:ectsEarned>0,type,level,prefix
+      });
+    }
+
+    // Parse GPA/PR lines
+    const gpaMatch=block.match(/Sem\s*GPA\s+(\d+[.,]\d+)/i);
+    if(gpaMatch)semester.semGPA=parseFloat(gpaMatch[1].replace(',','.'));
+
+    const prMatch=block.match(/PR\s+[\d.,]+\s*\/\s*[\d.,]+\s*=\s*([\d.,]+)/i);
+    if(prMatch)semester.progressRate=parseFloat(prMatch[1].replace(',','.'));
+
+    const cumMatch=block.match(/Cum\s*GPA\s+([\d.,]+)/i);
+    if(cumMatch)semester.cumGPA=parseFloat(cumMatch[1].replace(',','.'));
+
+    result.semesters.push(semester);
+  }
+
+  // Compute aggregates
+  computeAggregates(result);
+  return result;
+}
+
+function computeAggregates(data){
+  const allModules=data.semesters.flatMap(s=>s.modules);
+  const passed=allModules.filter(m=>m.passed);
+  const passedCodes=new Set(passed.map(m=>m.code));
+
+  let totalEarned=0,totalAttempted=0;
+  allModules.forEach(m=>{totalEarned+=m.ectsEarned;totalAttempted+=m.ectsAttempted;});
+
+  const coursesP=passed.filter(m=>m.type==='course');
+  const skillsP=passed.filter(m=>m.type==='skill');
+  const projectsP=passed.filter(m=>m.type==='project');
+
+  const countByLevel=(arr,lvl)=>arr.filter(m=>m.level===lvl).length;
+
+  const lastSem=data.semesters[data.semesters.length-1];
+  const cumGPA=lastSem?.cumGPA||0;
+  const pr=lastSem?.progressRate||0;
+
+  // Core check
+  const core={};
+  let allCoreMet=true;
+  CORE_CODES.forEach(code=>{
+    const m=passed.find(p=>p.code===code);
+    core[code]={passed:!!m,grade:m?m.grade:null};
+    if(!m)allCoreMet=false;
+  });
+  core.allCoreMet=allCoreMet;
+
+  // General education
+  const mathCourse=passed.find(m=>m.prefix==='MAT'||(m.code==='SCI3003'));
+  const humCourse=passed.find(m=>HUMANITIES_CODES.includes(m.code));
+
+  // BTR eligibility: need 145 ECTS
+  const btrEligible=totalEarned>=145;
+
+  // Distinction projection
+  let distinction='';
+  if(cumGPA>=9.0)distinction='Summa Cum Laude';
+  else if(cumGPA>=8.0)distinction='Cum Laude';
+  else if(cumGPA>=7.0)distinction='Bene Meritum';
+  else distinction='';
+
+  data.computed={
+    totalECTSEarned:totalEarned,
+    totalECTSAttempted:totalAttempted,
+    currentCumGPA:cumGPA,
+    currentPR:pr,
+    passedCodes,
+    courses:{total:coursesP.length,intro:countByLevel(coursesP,1000),intermediate:countByLevel(coursesP,2000),advanced:countByLevel(coursesP,3000)},
+    skills:{total:skillsP.length,intro:countByLevel(skillsP,1000),intermediate:countByLevel(skillsP,2000),advanced:countByLevel(skillsP,3000)},
+    projects:{total:projectsP.length,intro:countByLevel(projectsP,1000),intermediate:countByLevel(projectsP,2000),advanced:countByLevel(projectsP,3000)},
+    requirements:{
+      totalECTS:{earned:totalEarned,required:180,met:totalEarned>=180},
+      core,
+      courses:{
+        total:{count:coursesP.length,required:20,met:coursesP.length>=20},
+        advanced:{count:countByLevel(coursesP,3000),required:4,met:countByLevel(coursesP,3000)>=4},
+        introMax:{count:countByLevel(coursesP,1000),max:7,met:countByLevel(coursesP,1000)<=7}
+      },
+      skills:{
+        total:{count:skillsP.length,required:10,met:skillsP.length>=10},
+        advanced:{count:countByLevel(skillsP,3000),required:2,met:countByLevel(skillsP,3000)>=2},
+        introMax:{count:countByLevel(skillsP,1000),max:4,met:countByLevel(skillsP,1000)<=4}
+      },
+      projects:{
+        total:{count:projectsP.length,required:5,met:projectsP.length>=5},
+        advanced:{count:countByLevel(projectsP,3000),required:1,met:countByLevel(projectsP,3000)>=1},
+        introMax:{count:countByLevel(projectsP,1000),max:2,met:countByLevel(projectsP,1000)<=2}
+      },
+      btr:{completed:false,eligible:btrEligible,ectsForEligibility:{current:totalEarned,required:145}},
+      generalEducation:{
+        mathematics:{met:!!mathCourse,course:mathCourse?mathCourse.code:null},
+        humanities:{met:!!humCourse,course:humCourse?humCourse.code:null}
+      },
+      gpa:{current:cumGPA,projectedDistinction:distinction},
+      bsa:{applicable:data.semesters.length<=2,met:totalEarned>=60,ectsInFirstYear:data.semesters.length>=1?data.semesters.filter(s=>s.number<=2).flatMap(s=>s.modules).reduce((a,m)=>a+m.ectsEarned,0):0}
+    }
+  };
+}
+
+// ═══════════════════════════════════════════════════
+// DASHBOARD VIEW
+// ═══════════════════════════════════════════════════
+function buildDashboard(){
+  const t=APP.transcript;
+  if(!t){
+    document.getElementById('dash-upload').style.display='';
+    document.getElementById('dash-profile').style.display='none';
+    return;
+  }
+  document.getElementById('dash-upload').style.display='none';
+  document.getElementById('dash-profile').style.display='';
+
+  const r=t.computed.requirements;
+  const c=t.computed;
+  let html='';
+
+  // ─── Profile Card ───
+  html+=`<div class="profile-card fade-in">
+    <h2>${esc(t.student.name||'Student')}</h2>
+    <div class="pc-sub">${esc(t.student.programme)}</div>
+    <div class="pc-meta">
+      <span>Student #${esc(t.student.studentNumber||'—')}</span>
+      <span>Semester ${t.semesters.length}</span>
+      ${t.student.printDate?`<span>Transcript printed: ${esc(t.student.printDate)}</span>`:''}
+    </div>
+    <div class="pc-actions">
+      <button onclick="document.getElementById('pdff').click()">&#128259; Change transcript</button>
+      <button onclick="clearTranscript()">&#10005; Clear</button>
+    </div>
+  </div>`;
+
+  // ─── Quick Stats Row ───
+  const pct=Math.round(c.totalECTSEarned/180*100);
+  const gpaLetter=c.currentCumGPA>=9?'A+':c.currentCumGPA>=8?'A':c.currentCumGPA>=7?'B':c.currentCumGPA>=6?'C':'D';
+  html+=`<div class="stats-row fade-in fade-in-d1">
+    <div class="stat-card"><div class="sc-val">${c.totalECTSEarned}</div><div class="sc-label">ECTS</div><div class="sc-sub">of 180</div></div>
+    <div class="stat-card"><div class="sc-val">${c.currentCumGPA.toFixed(1)}</div><div class="sc-label">GPA</div><div class="sc-sub">(${gpaLetter})</div></div>
+    <div class="stat-card"><div class="sc-val">${c.currentPR.toFixed(2)}</div><div class="sc-label">PR</div><div class="sc-sub">Progress Rate</div></div>
+    <div class="stat-card${pct>=75?' sc-ok':pct>=50?'':' sc-warn'}"><div class="sc-val">${pct}%</div><div class="sc-label">Done</div><div class="sc-sub">${c.totalECTSEarned} / 180</div></div>
+    <div class="stat-card${r.gpa.projectedDistinction?' sc-ok':''}"><div class="sc-val" style="font-size:16px">${r.gpa.projectedDistinction||'—'}</div><div class="sc-label">Track</div><div class="sc-sub">Distinction</div></div>
+  </div>`;
+
+  // ─── Graduation Progress ───
+  html+=`<h3 style="font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;color:var(--navy);margin:24px 0 12px">Graduation Progress</h3>`;
+
+  // Overall
+  html+=buildProgSection('Overall Progress',`${c.totalECTSEarned} / 180 ECTS`,c.totalECTSEarned/180*100,r.totalECTS.met,'',false);
+
+  // Core
+  const coreItems=CORE_CODES.map(code=>{
+    const m=r.core[code];
+    const allMods=t.semesters.flatMap(s=>s.modules);
+    const mod=allMods.find(x=>x.code===code);
+    return`<div class="prog-item"><span class="pi-code">${code}</span><span class="pi-title">${mod?mod.title:code}</span><span class="pi-grade" style="color:${m.passed?'var(--ok)':'var(--err)'}">${m.grade!==null?m.grade.toFixed(1):'—'}</span><span class="pi-status">${m.passed?'\u2705':'\u274C'}</span></div>`;
+  }).join('');
+  html+=buildProgSection('Core Curriculum',`${Object.values(r.core).filter(v=>v.passed).length-1} / 7`,r.core.allCoreMet?100:Object.values(r.core).filter(v=>v.passed).length/8*100,r.core.allCoreMet,coreItems,false);
+
+  // Courses
+  const courseDetail=`<div class="prog-sub">Advanced (min ${r.courses.advanced.required}): ${r.courses.advanced.count} ${r.courses.advanced.met?'\u2705':'\u26A0'} &nbsp; Introductory (max ${r.courses.introMax.max}): ${r.courses.introMax.count} ${r.courses.introMax.met?'\u2705':'\u26A0'}</div>${r.courses.total.met?'':'<div class="prog-sub" style="color:var(--warn)">\u2192 Need '+(r.courses.total.required-r.courses.total.count)+' more courses</div>'}`;
+  html+=buildProgSection(`Courses (${r.courses.total.required} required)`,`${r.courses.total.count} / ${r.courses.total.required}`,r.courses.total.count/r.courses.total.required*100,r.courses.total.met,courseDetail,false);
+
+  // Skills
+  const skillDetail=`<div class="prog-sub">Advanced (min ${r.skills.advanced.required}): ${r.skills.advanced.count} ${r.skills.advanced.met?'\u2705':'\u26A0'} &nbsp; Introductory (max ${r.skills.introMax.max}): ${r.skills.introMax.count} ${r.skills.introMax.met?'\u2705':'\u26A0'}</div>${r.skills.total.met?'':'<div class="prog-sub" style="color:var(--warn)">\u2192 Need '+(r.skills.total.required-r.skills.total.count)+' more skill training</div>'}`;
+  html+=buildProgSection(`Skills (${r.skills.total.required} required)`,`${r.skills.total.count} / ${r.skills.total.required}`,r.skills.total.count/r.skills.total.required*100,r.skills.total.met,skillDetail,false);
+
+  // Projects
+  const projDetail=`<div class="prog-sub">Advanced (min ${r.projects.advanced.required}): ${r.projects.advanced.count} ${r.projects.advanced.met?'\u2705':'\u26A0'} &nbsp; Introductory (max ${r.projects.introMax.max}): ${r.projects.introMax.count} ${r.projects.introMax.met?'\u2705':'\u26A0'}</div>${r.projects.total.met?'':'<div class="prog-sub" style="color:var(--warn)">\u2192 Need '+(r.projects.total.required-r.projects.total.count)+' more project</div>'}`;
+  html+=buildProgSection(`Projects (${r.projects.total.required} required)`,`${r.projects.total.count} / ${r.projects.total.required}`,r.projects.total.count/r.projects.total.required*100,r.projects.total.met,projDetail,false);
+
+  // BTR
+  const btrDetail=r.btr.eligible?'<div class="prog-sub" style="color:var(--ok)">You are eligible to start your BTR (\u2265 145 ECTS)</div>':`<div class="prog-sub" style="color:var(--warn)">\u26A0 Need ${(145-c.totalECTSEarned).toFixed(1)} more ECTS before BTR eligibility (requirement: 145 ECTS)</div>`;
+  html+=buildProgSection('BTR (30 ECTS)',r.btr.completed?'Completed':'Not started',r.btr.completed?100:0,r.btr.completed,btrDetail,false);
+
+  // General Education
+  const geDetail=`<div class="prog-sub">Mathematics: ${r.generalEducation.mathematics.met?r.generalEducation.mathematics.course+' \u2705':'Not yet met \u26A0'}</div><div class="prog-sub">Humanities: ${r.generalEducation.humanities.met?r.generalEducation.humanities.course+' \u2705':'Not yet met \u26A0'}</div>`;
+  const geMet=r.generalEducation.mathematics.met&&r.generalEducation.humanities.met;
+  html+=buildProgSection('General Education',geMet?'Complete':'Incomplete',geMet?100:r.generalEducation.mathematics.met||r.generalEducation.humanities.met?50:0,geMet,geDetail,false);
+
+  // ─── Semester History ───
+  html+=`<h3 style="font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;color:var(--navy);margin:24px 0 12px">Semester History</h3>`;
+  t.semesters.forEach((sem,i)=>{
+    const isLast=i===t.semesters.length-1;
+    const semECTS=sem.modules.reduce((a,m)=>a+m.ectsEarned,0);
+    let body=sem.modules.map(m=>`<div class="prog-item"><span class="pi-code">${m.code}</span><span class="pi-title">${esc(m.title)}</span><span class="pi-grade" style="color:${m.passed?'var(--ok)':'var(--err)'};">${m.grade>0?m.grade.toFixed(1):'NG'}</span><span class="pi-status">${m.passed?'\u2705':'\u274C'}</span></div>`).join('');
+    html+=`<div class="sem-acc fade-in${isLast?' open':''}">
+      <div class="sem-header" onclick="this.parentElement.classList.toggle('open')">
+        <span class="sem-arrow">\u25B6</span>
+        <h3>Semester ${sem.number} &mdash; ${esc(sem.period)}</h3>
+        <span class="sem-info">${semECTS.toFixed(1)} ECTS &nbsp; GPA ${sem.semGPA?sem.semGPA.toFixed(1):'—'}</span>
+      </div>
+      <div class="sem-body" style="padding-top:12px">${body}</div>
+    </div>`;
+  });
+
+  // ─── What You Still Need ───
+  const needed=[];
+  if(!r.courses.total.met)needed.push(`${r.courses.total.required-r.courses.total.count} more course${r.courses.total.required-r.courses.total.count>1?'s':''}`);
+  if(!r.skills.total.met)needed.push(`${r.skills.total.required-r.skills.total.count} more skill training`);
+  if(!r.projects.total.met)needed.push(`${r.projects.total.required-r.projects.total.count} more project${r.projects.total.required-r.projects.total.count>1?'s':''}`);
+  if(!r.btr.completed)needed.push('Bachelor Thesis Research (30 ECTS)');
+  const remaining=180-c.totalECTSEarned;
+
+  html+=`<div class="action-card fade-in" style="margin-top:24px">
+    <h3>&#128203; What You Still Need</h3>
+    <ul>${needed.map(n=>`<li>${n}</li>`).join('')}<li>Total: ${remaining.toFixed(1)} ECTS remaining</li></ul>`;
+  if(!r.btr.eligible){
+    html+=`<div class="ac-warn">\u26A0 You need ${(145-c.totalECTSEarned).toFixed(1)} more ECTS before you're eligible to start your BTR (requirement: 145 ECTS).</div>`;
+  }
+  // Pace projection
+  const semCount=t.semesters.length;
+  const avgPerSem=semCount>0?c.totalECTSEarned/semCount:30;
+  const semsLeft=Math.ceil(remaining/avgPerSem);
+  html+=`<div class="ac-tip">&#128161; At your current pace (~${avgPerSem.toFixed(0)} ECTS/semester), you can graduate after approximately ${semsLeft} more semester${semsLeft!==1?'s':''}${r.btr.completed?'':' (including BTR)'}.</div>`;
+  html+=`<div style="text-align:center;margin-top:4px"><a href="#planner" class="btn btn-or" onclick="switchView('planner')" style="text-decoration:none">\u2192 Go to Course Planner</a></div>`;
+
+  // Credit sourcing disclaimer
+  html+=`<div style="margin-top:12px;padding:8px 12px;background:var(--g0);border-radius:var(--rs);font-size:11px;color:var(--g4)">&#9888; We can't verify credit sourcing rules (90 MSP / 120 catalogue) from the transcript alone. Check with your advisor.</div>`;
+  html+=`</div>`;
+
+  document.getElementById('dashContent').innerHTML=html;
+
+  // Animate progress bars after render
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('.prog-bar').forEach(bar=>{
+      const w=bar.dataset.width;
+      bar.style.width='0%';
+      requestAnimationFrame(()=>{bar.style.width=w+'%';});
+    });
+  });
+}
+
+function buildProgSection(title,summary,pct,met,body,startOpen){
+  pct=Math.min(pct,100);
+  const barClass=met?'bar-ok':pct>60?'':'bar-warn';
+  return`<div class="prog-section${startOpen?' open':''}">
+    <div class="prog-header" onclick="this.parentElement.classList.toggle('open')">
+      <span class="prog-arrow">\u25B6</span>
+      <h3>${title}</h3>
+      <div class="prog-bar-wrap"><div class="prog-bar ${barClass}" data-width="${pct.toFixed(0)}" style="width:${pct.toFixed(0)}%"></div></div>
+      <span class="prog-summary">${summary} ${met?'\u2705':''}</span>
+    </div>
+    <div class="prog-body" style="padding-top:12px">${body}</div>
+  </div>`;
+}
+
+function clearTranscript(){
+  APP.transcript=null;
+  buildDashboard();
+  // Reset planner prereq auto-checks
+  if(courses.length)switchPlan(act);
+}
+
+// ═══════════════════════════════════════════════════
+// VIEW ROUTING
+// ═══════════════════════════════════════════════════
+function switchView(view){
+  activeView=view;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const el=document.getElementById('view-'+view);
+  if(el)el.classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l=>{
+    l.classList.toggle('active',l.dataset.view===view);
+  });
+  // Adjust container width
+  const m=document.getElementById('mainEl');
+  m.classList.toggle('wide',view==='catalogue');
+  // Build views on demand
+  if(view==='catalogue'&&catBuilt)applyCatFilters();
+  if(view==='info')buildInfoScreen();
+  if(view==='dashboard')buildDashboard();
+  if(view==='planner')buildAdvicePanel();
+  window.location.hash=view;
+}
 
 function showScreen(s){
   document.getElementById('loading').style.display=s==='ld'?'flex':'none';
   document.getElementById('errscr').style.display=s==='err'?'flex':'none';
-  document.getElementById('planner').style.display=s==='pl'?'block':'none';
-  document.getElementById('infoscreen').style.display='none';
+  if(s==='pl'){
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    const target=window.location.hash.replace('#','')||'dashboard';
+    switchView(['dashboard','planner','catalogue','info'].includes(target)?target:'dashboard');
+  }
 }
 
+// ═══════════════════════════════════════════════════
+// CSV / CONFIG LOADING
+// ═══════════════════════════════════════════════════
 function parseRow(row){
   const res=[];let q=false,c='';
   for(let i=0;i<row.length;i++){const ch=row[i];if(ch==='"'){q=!q;continue;}if(ch===','&&!q){res.push(c.trim());c='';continue;}c+=ch;}
@@ -396,7 +996,9 @@ function load(text){
   switchPlan('A');showScreen('pl');
 }
 
-// ── Plan switching ──
+// ═══════════════════════════════════════════════════
+// PLANNER — PLAN SWITCHING & COURSE SELECTION
+// ═══════════════════════════════════════════════════
 function switchPlan(k){
   if(cmpMode)toggleCmp();
   act=k;
@@ -414,25 +1016,64 @@ function switchPlan(k){
   document.getElementById('lab').value=p.lab;
   showPanel(cv1,'pi1',false);showPanel(cv2,'pi2',false);
   showPanel(labs.find(l=>l.Code===p.lab)||null,'pil',true);
-  checkPrereqs();buildSummary();buildNextSteps();buildTT();
+  checkPrereqs();buildSummary();buildNextSteps();buildTT();buildAdvicePanel();
 }
 
 function save(){const p=PLANS[act];p.c1=document.getElementById('c1').value;p.c2=document.getElementById('c2').value;p.lab=document.getElementById('lab').value;}
 
-function buildCourse1(){const s=document.getElementById('c1');s.innerHTML='<option value="">\u2014 Select a course \u2014</option>';addGroupedOptions(s,groupBySlot(courses,null));}
-function buildCourse2(ex){const s=document.getElementById('c2'),pv=s.value;s.innerHTML='<option value="">\u2014 Select a course \u2014</option>';addGroupedOptions(s,groupBySlot(courses,ex));if(pv&&[...s.options].some(o=>o.value===pv))s.value=pv;}
+function prereqIndicator(code){
+  if(!APP.transcript)return'';
+  const pc=APP.transcript.computed.passedCodes;
+  if(pc.has(code))return' \u2705 passed';
+  return'';
+}
+
+function buildCourse1(){
+  const s=document.getElementById('c1');
+  s.innerHTML='<option value="">\u2014 Select a course \u2014</option>';
+  addGroupedOptions(s,groupBySlot(courses,null));
+}
+function buildCourse2(ex){
+  const s=document.getElementById('c2'),pv=s.value;
+  s.innerHTML='<option value="">\u2014 Select a course \u2014</option>';
+  addGroupedOptions(s,groupBySlot(courses,ex));
+  if(pv&&[...s.options].some(o=>o.value===pv))s.value=pv;
+}
 function groupBySlot(arr,ex){const g={};arr.forEach(c=>{if(c.Slot===ex&&ex)return;if(!g[c.Slot])g[c.Slot]=[];g[c.Slot].push(c);});return g;}
 
 function addGroupedOptions(s,g){
+  const t=APP.transcript;
   Object.keys(g).sort().forEach(sl=>{
     const og=document.createElement('optgroup');
     og.label=sl?`Slot ${sl}`:'Other';
     g[sl].forEach(c=>{
-      const flags=[c.Corequisite?'\u25ca':'',c.Prerequisite?'\u25b2':''].filter(Boolean).join(' ');
-      const opt=new Option(`${c.Code} \u2014 ${c.Title}${flags?'  '+flags:''}`,c.Code);
+      let flags=[c.Corequisite?'\u25ca':'',c.Prerequisite?'\u25b2':''].filter(Boolean).join(' ');
+      let extra='';
+      if(t){
+        const pc=t.computed.passedCodes;
+        if(pc.has(c.Code)){
+          const mod=t.semesters.flatMap(s=>s.modules).find(m=>m.code===c.Code);
+          extra=` \u2705 already passed${mod?' ('+mod.grade.toFixed(1)+')':''}`;
+        }else if(c.Prerequisite&&c.PrerequisiteCodes){
+          const met=checkPrereqsMet(c.PrerequisiteCodes,pc);
+          extra=met?' \u2705 prereqs met':' \u274C missing prereqs';
+        }else if(!c.Prerequisite){
+          extra=' \u25CF no prereqs';
+        }
+      }
+      const opt=new Option(`${c.Code} \u2014 ${c.Title}${flags?'  '+flags:''}${extra}`,c.Code);
       og.appendChild(opt);
     });
     s.appendChild(og);
+  });
+}
+
+function checkPrereqsMet(prereqStr,passedCodes){
+  // Format: CODE1+CODE2 (AND), CODE1/CODE2 (OR)
+  const andGroups=prereqStr.split('+').map(g=>g.trim());
+  return andGroups.every(group=>{
+    const orCodes=group.split('/').map(c=>c.trim());
+    return orCodes.some(code=>passedCodes.has(code));
   });
 }
 
@@ -440,9 +1081,20 @@ function buildLabs(used){
   const s=document.getElementById('lab'),pv=s.value;
   s.innerHTML='<option value="">\u2014 Select a practical \u2014</option>';
   const ok=labs.filter(l=>!l.Days.some(d=>used.has(d)));
+  const t=APP.transcript;
   ok.forEach(l=>{
-    const f=[l.Corequisite?'\u25ca':'',l.Prerequisite?'\u25b2':''].filter(Boolean).join(' ');
-    const opt=new Option(`${l.Code} \u2014 ${l.Title}${f?'  '+f:''}`,l.Code);
+    let f=[l.Corequisite?'\u25ca':'',l.Prerequisite?'\u25b2':''].filter(Boolean).join(' ');
+    let extra='';
+    if(t){
+      const pc=t.computed.passedCodes;
+      if(pc.has(l.Code)){
+        extra=' \u2705 already passed';
+      }else if(l.Prerequisite&&l.PrerequisiteCodes){
+        const met=checkPrereqsMet(l.PrerequisiteCodes,pc);
+        extra=met?' \u2705 prereqs met':' \u274C missing prereqs';
+      }
+    }
+    const opt=new Option(`${l.Code} \u2014 ${l.Title}${f?'  '+f:''}${extra}`,l.Code);
     s.appendChild(opt);
   });
   if(pv&&[...s.options].some(o=>o.value===pv))s.value=pv;
@@ -453,17 +1105,30 @@ const getCourse1=()=>courses.find(c=>c.Code===document.getElementById('c1').valu
 const getCourse2=()=>courses.find(c=>c.Code===document.getElementById('c2').value)||null;
 const getLab=()=>labs.find(l=>l.Code===document.getElementById('lab').value)||null;
 function formatDay(d){return d.replace('AM',' AM').replace('PM',' PM');}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 function showPanel(item,id,isLab){
   const el=document.getElementById(id);
   if(!item){el.classList.remove('show');return;}
   const chips=item.Days.map(d=>`<span class="daychip">${formatDay(d)}</span>`).join('');
   const tags=[item.Corequisite?'<span class="tg tg-co">\u25ca Co-req</span>':'',item.Prerequisite?'<span class="tg tg-pre">\u25b2 Pre-req</span>':''].filter(Boolean).join('');
-  el.innerHTML=`<div class="crow">${!isLab?`<span class="slotb sl-${item.Slot}">SLOT ${item.Slot}</span>`:''}<div class="days">${chips}</div>${tags}</div><div class="crow"><span class="coord">Coordinator: ${item.Coordinator}</span></div>`;
+  let prereqStatus='';
+  if(APP.transcript&&item.Prerequisite&&item.PrerequisiteCodes){
+    const met=checkPrereqsMet(item.PrerequisiteCodes,APP.transcript.computed.passedCodes);
+    prereqStatus=met?'<div style="margin-top:4px"><span style="color:var(--ok);font-size:11px;font-weight:600">\u2705 Prerequisites met (verified from transcript)</span></div>':'<div style="margin-top:4px"><span style="color:var(--err);font-size:11px;font-weight:600">\u274C Missing prerequisite: '+item.PrerequisiteCodes+'</span></div>';
+  }
+  let passedBadge='';
+  if(APP.transcript&&APP.transcript.computed.passedCodes.has(item.Code)){
+    const mod=APP.transcript.semesters.flatMap(s=>s.modules).find(m=>m.code===item.Code);
+    passedBadge=`<div style="margin-top:4px"><span style="color:var(--warn);font-size:11px;font-weight:600">\u26A0 You already passed this course${mod?' (grade: '+mod.grade.toFixed(1)+')':''}</span></div>`;
+  }
+  el.innerHTML=`<div class="crow">${!isLab?`<span class="slotb sl-${item.Slot}">SLOT ${item.Slot}</span>`:''}<div class="days">${chips}</div>${tags}</div><div class="crow"><span class="coord">Coordinator: ${item.Coordinator}</span></div>${prereqStatus}${passedBadge}`;
   el.classList.add('show');
 }
 
-// ── Weekly Timetable ──
+// ═══════════════════════════════════════════════════
+// WEEKLY TIMETABLE
+// ═══════════════════════════════════════════════════
 const DAYS=['Mon','Tue','Wed','Thu','Fri'];
 const TIMES=['AM','PM'];
 
@@ -471,26 +1136,15 @@ function buildTT(){
   const c1=getCourse1(),c2=getCourse2(),lab=getLab();
   const sel=[c1,c2].filter(Boolean);
   const bd=document.getElementById('ttbd');
-
-  if(!sel.length){
-    bd.innerHTML='<div class="emptys"><span class="ei">\u{1F4C5}</span><p>Select courses to see your weekly timetable.</p></div>';
-    return;
-  }
+  if(!sel.length){bd.innerHTML='<div class="emptys"><span class="ei">\u{1F4C5}</span><p>Select courses to see your weekly timetable.</p></div>';return;}
   bd.innerHTML=buildTTHTML(c1,c2,lab,false);
 }
 
 function buildTTHTML(c1,c2,lab,compact){
   const grid={};
   DAYS.forEach(d=>TIMES.forEach(t=>{grid[d+t]=[];}));
-
   const items=[[c1,'course'],[c2,'course'],[lab,'lab']];
-  items.forEach(([it,type])=>{
-    if(!it)return;
-    it.Days.forEach(d=>{
-      if(grid[d])grid[d].push({item:it,type});
-    });
-  });
-
+  items.forEach(([it,type])=>{if(!it)return;it.Days.forEach(d=>{if(grid[d])grid[d].push({item:it,type});});});
   let html='<table class="timetable"><thead><tr><th></th>';
   DAYS.forEach(d=>{html+=`<th>${d}</th>`;});
   html+='</tr></thead><tbody>';
@@ -503,9 +1157,7 @@ function buildTTHTML(c1,c2,lab,compact){
         const cls=e.type==='lab'?'tt-lab':`tt-course sl-${e.item.Slot||''}`;
         const shortName=compact?'':`<div class="tt-name">${e.item.Title}</div>`;
         html+=`<td><div class="tt-cell ${cls}"><div class="tt-code">${e.item.Code}</div>${shortName}</div></td>`;
-      }else{
-        html+='<td></td>';
-      }
+      }else{html+='<td></td>';}
     });
     html+='</tr>';
   });
@@ -513,7 +1165,9 @@ function buildTTHTML(c1,c2,lab,compact){
   return html;
 }
 
-// ── Plan status ──
+// ═══════════════════════════════════════════════════
+// PLAN STATUS & CHECKS
+// ═══════════════════════════════════════════════════
 function planStatus(k){
   const p=PLANS[k];
   const c1=courses.find(c=>c.Code===p.c1)||null,c2=courses.find(c=>c.Code===p.c2)||null;
@@ -522,7 +1176,15 @@ function planStatus(k){
   const iss=[];
   for(const c of sel)if(c.Corequisite&&c.CorequisiteOf&&(!lab||lab.Code!==c.CorequisiteOf))iss.push('co');
   if(lab&&lab.Corequisite&&lab.CorequisiteOf&&!sel.some(c=>c.Code===lab.CorequisiteOf))iss.push('co');
-  for(const it of [...sel,lab].filter(Boolean))if(it.Prerequisite&&it.PrerequisiteCodes&&!p.ack[it.Code])iss.push('pre');
+  for(const it of [...sel,lab].filter(Boolean)){
+    if(it.Prerequisite&&it.PrerequisiteCodes){
+      if(APP.transcript){
+        if(!checkPrereqsMet(it.PrerequisiteCodes,APP.transcript.computed.passedCodes)&&!p.ack[it.Code])iss.push('pre');
+      }else{
+        if(!p.ack[it.Code])iss.push('pre');
+      }
+    }
+  }
   if(sel.length===2&&lab&&!iss.length)return'ok';
   if(iss.includes('co'))return'err';if(iss.includes('pre'))return'warn';return'inc';
 }
@@ -539,26 +1201,52 @@ function updateTabIcons(){
   });
 }
 
-// ── Checks ──
 function checkPrereqs(){
   const c1=getCourse1(),c2=getCourse2(),lab=getLab(),sel=[c1,c2].filter(Boolean);
   const p=PLANS[act],sEl=document.getElementById('chkst'),bEl=document.getElementById('chkbd');
   if(!sel.length){sEl.className='spill sp-pend';sEl.textContent='\u2014 Select courses first';bEl.innerHTML='<div class="emptys"><span class="ei">\u2713</span><p>Select your courses to see checks.</p></div>';return;}
   let html='',badCo=false,unPre=false,coI=[];
-  for(const c of sel){if(c.Corequisite&&c.CorequisiteOf){const rc=c.CorequisiteOf,rebuildLabs=labs.find(l=>l.Code===rc);const rn=rebuildLabs?.Title||courses.find(x=>x.Code===rc)?.Title||rc;coI.push({from:c,rc,rn,rt:rebuildLabs?'practical':'course',ok:lab&&lab.Code===rc});}}
-  if(lab&&lab.Corequisite&&lab.CorequisiteOf){const rc=lab.CorequisiteOf,rn=courses.find(c=>c.Code===rc)?.Title||rc,sat=sel.some(c=>c.Code===rc);if(!coI.some(i=>i.from.Code===rc&&i.rc===lab.Code))coI.push({from:lab,rc,rn,rt:'course',ok:sat});}
-  if(coI.length){html+='<p class="seclbl">Co-requisites</p>';coI.forEach(i=>{if(i.ok)html+=`<div class="alrt a-ok"><span class="aico">\u2713</span><div class="abdy"><strong>Co-requisite satisfied</strong><p><em>${i.from.Code}</em> requires <em>${i.rc} \u2014 ${i.rn}</em>. Already selected.</p></div></div>`;else{badCo=true;html+=`<div class="alrt a-err"><span class="aico">\u26a0</span><div class="abdy"><strong>Missing co-requisite</strong><p><em>${i.from.Code} \u2014 ${i.from.Title}</em> must be taken with <strong>${i.rc} \u2014 ${i.rn}</strong>.</p><div class="guidance"><strong>Add the co-requisite</strong> to your plan, or contact the module coordinator to <a href="${LINKS.waivers}" target="_blank">request a waiver</a>. If you have already passed the co-requisite in a previous period, it is automatically waived.</div></div></div>`;}});}
+  const t=APP.transcript;
+  const pc=t?t.computed.passedCodes:null;
+
+  for(const c of sel){if(c.Corequisite&&c.CorequisiteOf){const rc=c.CorequisiteOf,rl=labs.find(l=>l.Code===rc);const rn=rl?.Title||courses.find(x=>x.Code===rc)?.Title||rc;
+    // Auto-waive if already passed
+    const autoWaived=pc&&pc.has(rc);
+    coI.push({from:c,rc,rn,rt:rl?'practical':'course',ok:(lab&&lab.Code===rc)||autoWaived,autoWaived});}}
+  if(lab&&lab.Corequisite&&lab.CorequisiteOf){const rc=lab.CorequisiteOf,rn=courses.find(c=>c.Code===rc)?.Title||rc,sat=sel.some(c=>c.Code===rc);
+    const autoWaived=pc&&pc.has(rc);
+    if(!coI.some(i=>i.from.Code===rc&&i.rc===lab.Code))coI.push({from:lab,rc,rn,rt:'course',ok:sat||autoWaived,autoWaived});}
+
+  if(coI.length){html+='<p class="seclbl">Co-requisites</p>';coI.forEach(i=>{if(i.ok)html+=`<div class="alrt a-ok"><span class="aico">\u2713</span><div class="abdy"><strong>Co-requisite satisfied</strong><p><em>${i.from.Code}</em> requires <em>${i.rc} \u2014 ${i.rn}</em>. ${i.autoWaived?'Already passed in a previous period (auto-waived).':'Already selected.'}</p></div></div>`;else{badCo=true;html+=`<div class="alrt a-err"><span class="aico">\u26a0</span><div class="abdy"><strong>Missing co-requisite</strong><p><em>${i.from.Code} \u2014 ${i.from.Title}</em> must be taken with <strong>${i.rc} \u2014 ${i.rn}</strong>.</p><div class="guidance"><strong>Add the co-requisite</strong> to your plan, or contact the module coordinator to <a href="${LINKS.waivers}" target="_blank">request a waiver</a>. If you have already passed the co-requisite in a previous period, it is automatically waived.</div></div></div>`;}});}
+
   const preI=[];
-  for(const it of [...sel,lab].filter(Boolean)){if(it.Prerequisite&&it.PrerequisiteCodes){if(!(it.Code in p.ack))p.ack[it.Code]=false;preI.push(it);}}
+  for(const it of [...sel,lab].filter(Boolean)){
+    if(it.Prerequisite&&it.PrerequisiteCodes){
+      // If transcript loaded and prereqs met, auto-acknowledge
+      if(pc&&checkPrereqsMet(it.PrerequisiteCodes,pc)){
+        p.ack[it.Code]=true;
+      }else if(!(it.Code in p.ack)){
+        p.ack[it.Code]=false;
+      }
+      preI.push(it);
+    }
+  }
+
   if(preI.length){
     if(html)html+='<div style="height:12px"></div>';
     html+='<p class="seclbl">Prerequisites</p>';
     preI.forEach(it=>{
       const ok=p.ack[it.Code];
+      const autoMet=pc&&checkPrereqsMet(it.PrerequisiteCodes,pc);
       if(!ok)unPre=true;
-      html+=`<div class="pb ${ok?'conf':''}" id="pb-${it.Code}"><input type="checkbox" id="ck-${it.Code}" ${ok?'checked':''} onchange="acknowledgeCheck('${it.Code}',this.checked)"><label for="ck-${it.Code}">To take <strong>${it.Code} \u2014 ${it.Title}</strong> you must have completed: <span class="pc">${formatPrereqs(it.PrerequisiteCodes)}</span>.<span class="ph">Check this box to confirm.</span></label></div>${!ok?'<div class="guidance">Don\u2019t have the prerequisite? You can <a href="'+LINKS.waivers+'" target="_blank"><strong>request a waiver</strong></a> from the course coordinator. Email them with a brief explanation of why you should be admitted. Submit the coordinator\u2019s approval email with your course selection form before the registration deadline. Waivers are an exception, not the norm.</div>':''}`;
+      if(autoMet){
+        html+=`<div class="alrt a-ok"><span class="aico">\u2713</span><div class="abdy"><strong>Prerequisites met</strong><p><em>${it.Code} \u2014 ${it.Title}</em> requires ${formatPrereqs(it.PrerequisiteCodes)}. Verified from your transcript.</p></div></div>`;
+      }else{
+        html+=`<div class="pb ${ok?'conf':''}" id="pb-${it.Code}"><input type="checkbox" id="ck-${it.Code}" ${ok?'checked':''} onchange="acknowledgeCheck('${it.Code}',this.checked)"><label for="ck-${it.Code}">To take <strong>${it.Code} \u2014 ${it.Title}</strong> you must have completed: <span class="pc">${formatPrereqs(it.PrerequisiteCodes)}</span>.<span class="ph">Check this box to confirm.</span></label></div>${!ok?'<div class="guidance">Don\u2019t have the prerequisite? You can <a href="'+LINKS.waivers+'" target="_blank"><strong>request a waiver</strong></a> from the course coordinator.</div>':''}`;
+      }
     });
   }
+
   if(!coI.length&&!preI.length)html='<div class="alrt a-ok"><span class="aico">\u2713</span><div class="abdy"><strong>No prerequisites or co-requisites</strong><p>Your selection has no additional requirements.</p></div></div>';
   bEl.innerHTML=html;
   if(badCo){sEl.className='spill sp-err';sEl.textContent='\u26a0 Missing co-requisite';}
@@ -568,21 +1256,68 @@ function checkPrereqs(){
 }
 
 function acknowledgeCheck(code,v){PLANS[act].ack[code]=v;checkPrereqs();buildSummary();}
-
 function formatPrereqs(s){return s.split('+').map(pt=>{const or=pt.trim().split('/').map(p=>`<strong>${p.trim()}</strong>`);return or.length>1?or.join(' <em>or</em> '):or[0];}).join(' <em>and</em> ');}
 
-// ── Summary ──
+// ═══════════════════════════════════════════════════
+// ADVICE PANEL (transcript-aware)
+// ═══════════════════════════════════════════════════
+function buildAdvicePanel(){
+  const el=document.getElementById('advicePanel');
+  if(!el)return;
+  if(!APP.transcript){el.style.display='none';return;}
+  const t=APP.transcript;
+  const r=t.computed.requirements;
+  const tips=[];
+
+  if(!r.skills.total.met){
+    const need=r.skills.total.required-r.skills.total.count;
+    tips.push(`You still need ${need} more skill training \u2014 consider selecting a PRA module this period.`);
+  }
+  if(!r.projects.total.met){
+    tips.push(`You still need ${r.projects.total.required-r.projects.total.count} more project(s).`);
+  }
+  // Intro course warning
+  const introCoursesUsed=r.courses.introMax.count;
+  const introMax=r.courses.introMax.max;
+  if(introCoursesUsed>=introMax-1&&introCoursesUsed<introMax){
+    tips.push(`You have room for only ${introMax-introCoursesUsed} more introductory course(s) (used ${introCoursesUsed} of max ${introMax}).`);
+  }
+  // GPA
+  if(r.gpa.projectedDistinction){
+    tips.push(`Your GPA is ${t.computed.currentCumGPA.toFixed(1)} \u2014 you're on track for ${r.gpa.projectedDistinction}. Choose courses strategically to maintain this.`);
+  }
+  // BTR
+  const c1=getCourse1(),c2=getCourse2(),lab=getLab();
+  const planECTS=(c1?5:0)+(c2?5:0)+(lab?2.5:0);
+  const afterPlan=t.computed.totalECTSEarned+planECTS;
+  if(!r.btr.eligible){
+    tips.push(`After this period, you'll have ${afterPlan.toFixed(1)} ECTS \u2014 ${afterPlan>=145?'enough':'not enough'} for BTR eligibility (requires 145).`);
+  }
+
+  if(!tips.length){el.style.display='none';return;}
+  el.style.display='';
+  el.innerHTML=`<h3>&#128161; Based on your transcript</h3><ul>${tips.map(t=>`<li>${t}</li>`).join('')}</ul>`;
+}
+
+// ═══════════════════════════════════════════════════
+// SUMMARY
+// ═══════════════════════════════════════════════════
 function buildSummary(){
   const c1=getCourse1(),c2=getCourse2(),lab=getLab(),sel=[c1,c2].filter(Boolean);
   const p=PLANS[act],sEl=document.getElementById('planst'),bEl=document.getElementById('sumbd'),btn=document.getElementById('btnp');
-  if(!sel.length){sEl.className='spill sp-pend';sEl.textContent='Incomplete';bEl.innerHTML='<div class="emptys"><span class="ei">\ud83d\udccb</span><p>Select courses to see your plan.</p></div>';btn.disabled=true;return;}
+  if(!sel.length){sEl.className='spill sp-pend';sEl.textContent='Incomplete';bEl.innerHTML='<div class="emptys"><span class="ei">\u{1F4CB}</span><p>Select courses to see your plan.</p></div>';btn.disabled=true;return;}
   const iss=[];
-  for(const c of sel)if(c.Corequisite&&c.CorequisiteOf&&(!lab||lab.Code!==c.CorequisiteOf))iss.push(`Missing co-req: ${c.Code}`);
-  if(lab&&lab.Corequisite&&lab.CorequisiteOf&&!sel.some(c=>c.Code===lab.CorequisiteOf))iss.push(`Missing co-req: ${lab.Code}`);
+  for(const c of sel)if(c.Corequisite&&c.CorequisiteOf&&(!lab||lab.Code!==c.CorequisiteOf)){
+    const autoWaived=APP.transcript&&APP.transcript.computed.passedCodes.has(c.CorequisiteOf);
+    if(!autoWaived)iss.push(`Missing co-req: ${c.Code}`);
+  }
+  if(lab&&lab.Corequisite&&lab.CorequisiteOf&&!sel.some(c=>c.Code===lab.CorequisiteOf)){
+    const autoWaived=APP.transcript&&APP.transcript.computed.passedCodes.has(lab.CorequisiteOf);
+    if(!autoWaived)iss.push(`Missing co-req: ${lab.Code}`);
+  }
   for(const it of [...sel,lab].filter(Boolean))if(it.Prerequisite&&it.PrerequisiteCodes&&!p.ack[it.Code])iss.push(`Unconfirmed prereq: ${it.Code}`);
   const done=sel.length===2&&lab&&!iss.length;
 
-  // Course detail rows with prerequisites
   let rows='';
   sel.forEach(c=>{
     const chips=c.Days.map(d=>`<span class="daychip">${formatDay(d)}</span>`).join(' ');
@@ -593,7 +1328,9 @@ function buildSummary(){
     }
     let coreqInfo='';
     if(c.Corequisite&&c.CorequisiteOf){
-      const ok=lab&&lab.Code===c.CorequisiteOf;
+      const labOk=lab&&lab.Code===c.CorequisiteOf;
+      const autoWaived=APP.transcript&&APP.transcript.computed.passedCodes.has(c.CorequisiteOf);
+      const ok=labOk||autoWaived;
       coreqInfo=`<div style="font-size:10.5px;margin-top:2px;color:${ok?'var(--ok)':'var(--err)'}">Co-req: ${c.CorequisiteOf} ${ok?'\u2713':'\u2717'}</div>`;
     }
     rows+=`<tr><td><span class="tchip">Course</span></td><td><div class="scode">${c.Code}</div><div class="sname">${c.Title}</div>${prereqInfo}${coreqInfo}</td><td><span class="slotb sl-${c.Slot}">SLOT ${c.Slot}</span></td><td><div class="days">${chips}</div></td><td class="scoord">${c.Coordinator}</td></tr>`;
@@ -601,138 +1338,90 @@ function buildSummary(){
   if(lab){
     const chips=lab.Days.map(d=>`<span class="daychip">${formatDay(d)}</span>`).join(' ');
     let prereqInfo='';
-    if(lab.Prerequisite&&lab.PrerequisiteCodes){
-      const met=p.ack[lab.Code];
-      prereqInfo=`<div style="font-size:10.5px;margin-top:3px;color:${met?'var(--ok)':'var(--warn)'}">Prereq: ${lab.PrerequisiteCodes} ${met?'\u2713':'\u26a0'}</div>`;
-    }
+    if(lab.Prerequisite&&lab.PrerequisiteCodes){const met=p.ack[lab.Code];prereqInfo=`<div style="font-size:10.5px;margin-top:3px;color:${met?'var(--ok)':'var(--warn)'}">Prereq: ${lab.PrerequisiteCodes} ${met?'\u2713':'\u26a0'}</div>`;}
     let coreqInfo='';
-    if(lab.Corequisite&&lab.CorequisiteOf){
-      const ok=sel.some(c=>c.Code===lab.CorequisiteOf);
-      coreqInfo=`<div style="font-size:10.5px;margin-top:2px;color:${ok?'var(--ok)':'var(--err)'}">Co-req: ${lab.CorequisiteOf} ${ok?'\u2713':'\u2717'}</div>`;
-    }
+    if(lab.Corequisite&&lab.CorequisiteOf){const ok=sel.some(c=>c.Code===lab.CorequisiteOf)||(APP.transcript&&APP.transcript.computed.passedCodes.has(lab.CorequisiteOf));coreqInfo=`<div style="font-size:10.5px;margin-top:2px;color:${ok?'var(--ok)':'var(--err)'}">Co-req: ${lab.CorequisiteOf} ${ok?'\u2713':'\u2717'}</div>`;}
     rows+=`<tr><td><span class="tchip">Practical</span></td><td><div class="scode">${lab.Code}</div><div class="sname">${lab.Title}</div>${prereqInfo}${coreqInfo}</td><td>\u2014</td><td><div class="days">${chips}</div></td><td class="scoord">${lab.Coordinator}</td></tr>`;
-  }
-  else rows+='<tr><td><span class="tchip">Practical</span></td><td colspan="4" style="color:var(--g4);font-style:italic;font-size:12px">No practical selected yet</td></tr>';
+  }else rows+='<tr><td><span class="tchip">Practical</span></td><td colspan="4" style="color:var(--g4);font-style:italic;font-size:12px">No practical selected yet</td></tr>';
 
-  // Status banner (hidden in print)
   let sb='';
   if(done)sb='<div class="alrt a-ok sum-status-alert" style="margin-top:16px"><span class="aico">\u2713</span><div class="abdy"><strong>Plan complete \u2014 ready to print</strong><p>All checks passed. Save as PDF to bring to your advising session.</p></div></div>';
   else if(iss.length)sb=`<div class="alrt a-warn sum-status-alert" style="margin-top:16px"><span class="aico">\u26a0</span><div class="abdy"><strong>Outstanding issues</strong><p>${iss.join(' \u00b7 ')}</p></div></div>`;
 
-  // Weekly timetable for print
   const ttHtml=buildTTHTML(c1,c2,lab,false);
 
-  // Checks summary for print
   let checksHtml='';
   const allItems=[...sel,lab].filter(Boolean);
   const preItems=allItems.filter(it=>it.Prerequisite&&it.PrerequisiteCodes);
   const coItems=[];
-  for(const c of sel){if(c.Corequisite&&c.CorequisiteOf)coItems.push({from:c.Code,req:c.CorequisiteOf,ok:lab&&lab.Code===c.CorequisiteOf});}
-  if(lab&&lab.Corequisite&&lab.CorequisiteOf)coItems.push({from:lab.Code,req:lab.CorequisiteOf,ok:sel.some(c=>c.Code===lab.CorequisiteOf)});
+  for(const c of sel){if(c.Corequisite&&c.CorequisiteOf)coItems.push({from:c.Code,req:c.CorequisiteOf,ok:(lab&&lab.Code===c.CorequisiteOf)||(APP.transcript&&APP.transcript.computed.passedCodes.has(c.CorequisiteOf))});}
+  if(lab&&lab.Corequisite&&lab.CorequisiteOf)coItems.push({from:lab.Code,req:lab.CorequisiteOf,ok:sel.some(c=>c.Code===lab.CorequisiteOf)||(APP.transcript&&APP.transcript.computed.passedCodes.has(lab.CorequisiteOf))});
 
   if(preItems.length||coItems.length){
     checksHtml='<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--g2)"><p class="seclbl" style="margin-bottom:8px">Prerequisite &amp; Co-requisite Summary</p>';
-    preItems.forEach(it=>{
-      const met=p.ack[it.Code];
-      checksHtml+=`<div style="font-size:12px;padding:4px 0;color:${met?'var(--ok)':'var(--warn)'}"><strong>${it.Code}</strong> requires ${it.PrerequisiteCodes} \u2014 ${met?'Confirmed \u2713':'Unconfirmed \u26a0'}</div>`;
-    });
-    coItems.forEach(ci=>{
-      checksHtml+=`<div style="font-size:12px;padding:4px 0;color:${ci.ok?'var(--ok)':'var(--err)'}"><strong>${ci.from}</strong> co-requisite ${ci.req} \u2014 ${ci.ok?'Satisfied \u2713':'Missing \u2717'}</div>`;
-    });
+    preItems.forEach(it=>{const met=p.ack[it.Code];checksHtml+=`<div style="font-size:12px;padding:4px 0;color:${met?'var(--ok)':'var(--warn)'}"><strong>${it.Code}</strong> requires ${it.PrerequisiteCodes} \u2014 ${met?'Confirmed \u2713':'Unconfirmed \u26a0'}</div>`;});
+    coItems.forEach(ci=>{checksHtml+=`<div style="font-size:12px;padding:4px 0;color:${ci.ok?'var(--ok)':'var(--err)'}"><strong>${ci.from}</strong> co-requisite ${ci.req} \u2014 ${ci.ok?'Satisfied \u2713':'Missing \u2717'}</div>`;});
     checksHtml+='</div>';
   }
 
-  // Print-only reminders
+  // Transcript summary in print
+  let transcriptSummary='';
+  if(APP.transcript){
+    const tc=APP.transcript.computed;
+    transcriptSummary=`<div class="printonly" style="margin-top:16px;padding:14px;background:var(--g0);border:1px solid var(--g2);border-radius:var(--rs)"><p class="seclbl" style="margin-bottom:6px">Transcript Summary</p><div style="font-size:12px;color:var(--g7)">Current ECTS: ${tc.totalECTSEarned} / 180 &nbsp;&bull;&nbsp; After this plan: ${(tc.totalECTSEarned+(c1?5:0)+(c2?5:0)+(lab?2.5:0)).toFixed(1)} &nbsp;&bull;&nbsp; GPA: ${tc.currentCumGPA.toFixed(1)} &nbsp;&bull;&nbsp; Courses: ${tc.courses.total}/20 &nbsp;&bull;&nbsp; Skills: ${tc.skills.total}/10 &nbsp;&bull;&nbsp; Projects: ${tc.projects.total}/5</div></div>`;
+  }
+
   let printReminders=`<div class="printonly" style="margin-top:16px;padding:14px;background:var(--g0);border:1px solid var(--g2);border-radius:var(--rs)"><p class="seclbl" style="margin-bottom:6px">Important Reminders</p><ul style="margin:0 0 0 16px;font-size:11.5px;color:var(--g5);line-height:1.7"><li>This plan is for self-preparation only. <strong>Confirm all registrations with your academic advisor.</strong></li><li>If you need prerequisite waivers, contact the course coordinator <strong>before the registration deadline</strong>.</li><li>Period ${DEADLINES.period} switch deadline: <strong>${DEADLINES.switch}</strong></li><li>Period ${DEADLINES.period} withdrawal deadline: <strong>${DEADLINES.withdrawal}</strong></li></ul></div>`;
 
-  bEl.innerHTML=`<div style="overflow-x:auto"><table class="stbl"><thead><tr><th>Type</th><th>Course / Practical</th><th>Slot</th><th>Schedule</th><th>Coordinator</th></tr></thead><tbody>${rows}</tbody></table></div><div style="margin-top:18px"><p class="seclbl" style="margin-bottom:8px">Weekly Timetable</p>${ttHtml}</div>${checksHtml}${printReminders}${sb}`;
+  bEl.innerHTML=`<div style="overflow-x:auto"><table class="stbl"><thead><tr><th>Type</th><th>Course / Practical</th><th>Slot</th><th>Schedule</th><th>Coordinator</th></tr></thead><tbody>${rows}</tbody></table></div><div style="margin-top:18px"><p class="seclbl" style="margin-bottom:8px">Weekly Timetable</p>${ttHtml}</div>${checksHtml}${transcriptSummary}${printReminders}${sb}`;
   if(done){sEl.className='spill sp-ok';sEl.textContent='\u2713 Ready to print';}
   else if(iss.length){sEl.className='spill sp-warn';sEl.textContent='\u26a0 Issues to resolve';}
   else{sEl.className='spill sp-pend';sEl.textContent='Incomplete';}
   btn.disabled=!sel.length;
 }
 
-// ── Comparison View ──
+// ═══════════════════════════════════════════════════
+// COMPARISON VIEW
+// ═══════════════════════════════════════════════════
 function toggleCmp(){
   cmpMode=!cmpMode;
-  const cmpBtn=document.getElementById('tab-cmp');
-  const planView=document.getElementById('planview');
-  const cmpView=document.getElementById('cmpview');
-
-  if(cmpMode){
-    cmpBtn.classList.add('active');
-    document.querySelectorAll('.ptab:not(.ptab-cmp)').forEach(t=>t.classList.remove('active'));
-    planView.style.display='none';
-    cmpView.classList.add('show');
-    buildCmp();
-  }else{
-    cmpBtn.classList.remove('active');
-    planView.style.display='block';
-    cmpView.classList.remove('show');
-    document.getElementById('tab-'+act).classList.add('active');
-  }
+  const cmpBtn=document.getElementById('tab-cmp'),planView=document.getElementById('planview'),cmpView=document.getElementById('cmpview');
+  if(cmpMode){cmpBtn.classList.add('active');document.querySelectorAll('.ptab:not(.ptab-cmp)').forEach(t=>t.classList.remove('active'));planView.style.display='none';cmpView.classList.add('show');buildCmp();}
+  else{cmpBtn.classList.remove('active');planView.style.display='block';cmpView.classList.remove('show');document.getElementById('tab-'+act).classList.add('active');}
 }
-
 function buildCmp(){
   const el=document.getElementById('cmpview');
   let html='<div class="cmp-grid">';
   ['A','B','C'].forEach(k=>{
-    const p=PLANS[k];
-    const c1=courses.find(c=>c.Code===p.c1)||null;
-    const c2=courses.find(c=>c.Code===p.c2)||null;
-    const lab=labs.find(l=>l.Code===p.lab)||null;
-    const sel=[c1,c2].filter(Boolean);
-    const st=planStatus(k);
-
+    const p=PLANS[k],c1=courses.find(c=>c.Code===p.c1)||null,c2=courses.find(c=>c.Code===p.c2)||null;
+    const lab=labs.find(l=>l.Code===p.lab)||null,sel=[c1,c2].filter(Boolean),st=planStatus(k);
     let stCls='',stTxt='';
-    if(st==='ok'){stCls='cmp-st-ok';stTxt='\u2713 Ready';}
-    else if(st==='warn'){stCls='cmp-st-warn';stTxt='\u26a0 Warnings';}
-    else if(st==='err'){stCls='cmp-st-err';stTxt='\u26a0 Issues';}
-    else if(st==='empty'){stTxt='Empty';}
-    else{stTxt='Incomplete';}
-
-    html+=`<div class="cmp-col">`;
-    html+=`<div class="cmp-col-h">Plan ${k}<span class="cmp-st ${stCls}">${stTxt}</span></div>`;
-    html+=`<div class="cmp-col-b">`;
-
-    if(!sel.length){
-      html+='<div class="cmp-empty">No courses selected</div>';
-    }else{
-      sel.forEach(c=>{
-        const chips=c.Days.map(d=>`<span class="daychip">${formatDay(d)}</span>`).join('');
-        html+=`<div class="cmp-item"><div class="ci-type">Course &middot; <span class="slotb sl-${c.Slot}">SLOT ${c.Slot}</span></div><div class="ci-code">${c.Code}</div><div class="ci-title">${c.Title}</div><div class="ci-days">${chips}</div></div>`;
-      });
-      if(lab){
-        const chips=lab.Days.map(d=>`<span class="daychip">${formatDay(d)}</span>`).join('');
-        html+=`<div class="cmp-item"><div class="ci-type">Practical</div><div class="ci-code">${lab.Code}</div><div class="ci-title">${lab.Title}</div><div class="ci-days">${chips}</div></div>`;
-      }else{
-        html+='<div class="cmp-item" style="opacity:.5"><div class="ci-type">Practical</div><div class="ci-title" style="font-style:italic">Not selected</div></div>';
-      }
-      // Mini timetable
+    if(st==='ok'){stCls='cmp-st-ok';stTxt='\u2713 Ready';}else if(st==='warn'){stCls='cmp-st-warn';stTxt='\u26a0 Warnings';}else if(st==='err'){stCls='cmp-st-err';stTxt='\u26a0 Issues';}else if(st==='empty'){stTxt='Empty';}else{stTxt='Incomplete';}
+    html+=`<div class="cmp-col"><div class="cmp-col-h">Plan ${k}<span class="cmp-st ${stCls}">${stTxt}</span></div><div class="cmp-col-b">`;
+    if(!sel.length){html+='<div class="cmp-empty">No courses selected</div>';}else{
+      sel.forEach(c=>{const chips=c.Days.map(d=>`<span class="daychip">${formatDay(d)}</span>`).join('');html+=`<div class="cmp-item"><div class="ci-type">Course &middot; <span class="slotb sl-${c.Slot}">SLOT ${c.Slot}</span></div><div class="ci-code">${c.Code}</div><div class="ci-title">${c.Title}</div><div class="ci-days">${chips}</div></div>`;});
+      if(lab){const chips=lab.Days.map(d=>`<span class="daychip">${formatDay(d)}</span>`).join('');html+=`<div class="cmp-item"><div class="ci-type">Practical</div><div class="ci-code">${lab.Code}</div><div class="ci-title">${lab.Title}</div><div class="ci-days">${chips}</div></div>`;}
+      else{html+='<div class="cmp-item" style="opacity:.5"><div class="ci-type">Practical</div><div class="ci-title" style="font-style:italic">Not selected</div></div>';}
       html+=`<div class="cmp-tt">${buildTTHTML(c1,c2,lab,true)}</div>`;
     }
     html+='</div></div>';
   });
-  html+='</div>';
-  // Back button
-  html+=`<div style="text-align:center"><button class="btn btn-gh" onclick="toggleCmp()">\u2190 Back to plan editor</button></div>`;
+  html+='</div><div style="text-align:center"><button class="btn btn-gh" onclick="toggleCmp()">\u2190 Back to plan editor</button></div>';
   el.innerHTML=html;
 }
 
-// ── Next Steps ──
+// ═══════════════════════════════════════════════════
+// NEXT STEPS
+// ═══════════════════════════════════════════════════
 function buildNextSteps(){
   const c1=getCourse1(),c2=getCourse2(),lab=getLab(),sel=[c1,c2].filter(Boolean);
   const el=document.getElementById('nextsteps'),bd=document.getElementById('nsbd');
-  const p=PLANS[act];
-  const done=sel.length===2&&lab&&planStatus(act)==='ok';
   if(!sel.length){el.style.display='none';return;}
   el.style.display='';
-
-  // Check if switch deadline is near or past
+  const done=sel.length===2&&lab&&planStatus(act)==='ok';
   const switchDate=new Date('2026-03-06T17:00:00');
   const now=new Date();
   const switchUrgent=now>new Date(switchDate.getTime()-7*24*60*60*1000);
-
   let html='';
   if(done){
     html+=`<div class="alrt a-ok"><span class="aico">\u2713</span><div class="abdy"><strong>Your plan looks good!</strong><p>Here\u2019s what to do next:</p></div></div>`;
@@ -740,34 +1429,163 @@ function buildNextSteps(){
   }else{
     html+=`<div class="alrt a-inf"><span class="aico">\u2139</span><div class="abdy"><strong>Almost there</strong><p>Resolve the outstanding issues above, then follow these steps to finalise your registration.</p></div></div>`;
   }
-
-  // Deadline boxes
   html+=`<div class="dl-grid"><div class="dl-box${switchUrgent?' dl-urgent':''}"><div class="dl-lbl">Switch deadline \u2014 Period ${DEADLINES.period}</div><div class="dl-val">${DEADLINES.switch}</div></div><div class="dl-box"><div class="dl-lbl">Withdrawal deadline \u2014 Period ${DEADLINES.period}</div><div class="dl-val">${DEADLINES.withdrawal}</div></div></div>`;
-
-  // Useful links
   html+=`<div class="links-row"><a href="${LINKS.switchForm}" target="_blank">\u{1F4DD} Switch/withdraw form</a></div>`;
-
   bd.innerHTML=html;
 }
 
-// ── Information screen ──
-function toggleInfo(){
-  const info=document.getElementById('infoscreen');
-  const planner=document.getElementById('planner');
-  const navLinks=document.querySelectorAll('.nav-link');
-  const showing=info.style.display!=='none';
-  if(showing){
-    info.style.display='none';planner.style.display='block';
-    navLinks.forEach(l=>{l.classList.toggle('active',l.textContent.includes('Planner'));});
-  }else{
-    info.style.display='block';planner.style.display='none';
-    navLinks.forEach(l=>{l.classList.toggle('active',l.textContent.includes('Information'));});
-    buildInfoScreen();
-  }
+// ═══════════════════════════════════════════════════
+// CATALOGUE VIEW
+// ═══════════════════════════════════════════════════
+let catBuilt=false;
+const SLOT_META={
+  'A':{label:'Slot A',schedule:'Monday AM & Tuesday AM'},
+  'B':{label:'Slot B',schedule:'Monday PM & Tuesday PM'},
+  'C':{label:'Slot C',schedule:'Tuesday AM & Wednesday AM'},
+  'D':{label:'Slot D',schedule:'Tuesday PM & Wednesday PM'},
+  'E':{label:'Slot E',schedule:'Wednesday AM & Thursday AM'},
+  'PRA':{label:'Practicals & Skills',schedule:'Various days'}
+};
+
+function parseMD(text){
+  descriptions={};
+  const blocks=text.split(/^---$/m).map(b=>b.trim()).filter(b=>b&&!b.startsWith('#')&&!b.startsWith('Source:'));
+  blocks.forEach(block=>{
+    if(/^##\s+SLOT\s+[A-E]/i.test(block)||/^##\s+PRACTICALS/i.test(block))return;
+    const cleaned=block.replace(/^##\s+.*\n*/m,'').trim();
+    if(!cleaned)return;
+    const firstLine=cleaned.split('\n')[0].trim();
+    const codeMatch=firstLine.match(/^([A-Z]{2,4}\d{4})\s+(.+)$/);
+    if(!codeMatch)return;
+    const code=codeMatch[1],title=codeMatch[2];
+    const rest=cleaned.substring(firstLine.length).trim();
+    const desc={title,raw:rest,sections:{}};
+    let currentSection='',currentContent=[];
+    rest.split('\n').forEach(line=>{
+      const trimmed=line.trim();
+      const sectionNames=['Course coordinator','Coordinator','Practical coordinator','Contact','Pre-requisites','Prerequisites','Co-requisites','Corequisites','Objectives','Description of the course','Description of the skill','Description of the practical','Literature','Recommended reading','Recommended','Instructional format','Assessment','Note'];
+      const matchedSection=sectionNames.find(s=>trimmed.toLowerCase().startsWith(s.toLowerCase()));
+      if(matchedSection&&trimmed.length<matchedSection.length+3){
+        if(currentSection)desc.sections[currentSection]=currentContent.join('\n').trim();
+        currentSection=matchedSection;currentContent=[];
+      }else if(matchedSection&&trimmed.length>=matchedSection.length+3){
+        if(currentSection)desc.sections[currentSection]=currentContent.join('\n').trim();
+        currentSection=matchedSection;currentContent=[trimmed.substring(matchedSection.length).replace(/^[:\s]+/,'')];
+      }else{currentContent.push(line);}
+    });
+    if(currentSection)desc.sections[currentSection]=currentContent.join('\n').trim();
+    descriptions[code]=desc;
+  });
 }
+
+function buildFilterChips(){
+  const el=document.getElementById('filterChips');
+  const slots=['all','A','B','C','D','E','PRA'];
+  const labels={'all':'All','A':'Slot A','B':'Slot B','C':'Slot C','D':'Slot D','E':'Slot E','PRA':'Practicals'};
+  el.innerHTML=slots.map(s=>`<button class="fchip${s===catFilter?' active':''}" onclick="setCatFilter('${s}')">${labels[s]}</button>`).join('');
+}
+function setCatFilter(f){catFilter=f;buildFilterChips();applyCatFilters();}
+
+function applyCatFilters(){
+  const query=document.getElementById('searchInput').value.toLowerCase().trim();
+  const all=[...courses,...labs];
+  const groups={};
+  const t=APP.transcript;
+  const pc=t?t.computed.passedCodes:null;
+
+  all.forEach(item=>{
+    const slot=item.Slot||'PRA';
+    if(catFilter!=='all'&&slot!==catFilter)return;
+    if(query){
+      const desc=descriptions[item.Code];
+      const searchable=(item.Code+' '+item.Title+' '+(item.Coordinator||'')+' '+(desc?.sections?.['Description of the course']||'')+' '+(desc?.sections?.['Description of the skill']||'')+' '+(desc?.sections?.['Description of the practical']||'')+' '+(desc?.sections?.['Objectives']||'')).toLowerCase();
+      if(!searchable.includes(query))return;
+    }
+    if(!groups[slot])groups[slot]=[];
+    groups[slot].push(item);
+  });
+
+  const order=['A','B','C','D','E','PRA'];
+  let html='';let total=0;
+  order.forEach(sl=>{
+    if(!groups[sl])return;
+    const items=groups[sl];total+=items.length;
+    const meta=SLOT_META[sl];
+    html+=`<div class="slot-section"><div class="slot-header"><div class="slot-badge sl-${sl}">${sl==='PRA'?'P':sl}</div><div><h2>${meta.label}</h2><span class="slot-info">${meta.schedule}</span></div><span class="slot-count">${items.length} course${items.length!==1?'s':''}</span></div><div class="cards-grid">`;
+
+    items.forEach(item=>{
+      const desc=descriptions[item.Code];
+      const days=item.Days.map(d=>`<span class="daychip">${formatDay(d)}</span>`).join('');
+      const tags=[];
+      if(item.Slot)tags.push(`<span class="cc-slot sl-${item.Slot}">SLOT ${item.Slot}</span>`);
+      if(item.Prerequisite)tags.push('<span class="tag tag-pre">\u25b2 Pre-req</span>');
+      if(item.Corequisite)tags.push('<span class="tag tag-co">\u25ca Co-req</span>');
+      if(pc&&pc.has(item.Code))tags.push('<span class="tag tag-passed">\u2705 Passed</span>');
+
+      // Prereq indicator for catalogue
+      let prereqBadge='';
+      if(pc&&item.Prerequisite&&item.PrerequisiteCodes){
+        const met=checkPrereqsMet(item.PrerequisiteCodes,pc);
+        prereqBadge=met?'<span class="tag tag-passed">\u2705 Prereqs met</span>':'<span class="tag tag-pre">\u274C Missing prereqs</span>';
+        tags.push(prereqBadge);
+      }
+
+      html+=`<div class="ccard card-${item.Slot||'PRA'}" id="card-${item.Code}" onclick="toggleCard('${item.Code}',event)"><div class="ccard-top"><div class="ccard-row1"><span class="cc-code">${item.Code}</span>${tags.join('')}</div><div class="cc-title">${esc(item.Title)}</div><div class="cc-coord">${esc(item.Coordinator)}</div></div><div class="ccard-meta">${days}</div><div class="ccard-expand">\u25B6 Click to view full course description</div>`;
+
+      // Detail panel
+      html+='<div class="ccard-detail">';
+      if(desc){
+        html+='<div class="detail-grid">';
+        const descText=desc.sections['Description of the course']||desc.sections['Description of the skill']||desc.sections['Description of the practical']||'';
+        if(descText)html+=`<div class="detail-section detail-full"><h4>Description</h4><p>${esc(descText).replace(/\n/g,'<br>')}</p></div>`;
+        const obj=desc.sections['Objectives']||'';
+        if(obj){const objItems=obj.split(/\n/).map(l=>l.replace(/^[•✓\-\d.]+\s*/,'').trim()).filter(Boolean);html+=`<div class="detail-section"><h4>Objectives</h4><ul>${objItems.map(o=>`<li>${esc(o)}</li>`).join('')}</ul></div>`;}
+        const pre=desc.sections['Pre-requisites']||desc.sections['Prerequisites']||'';
+        const coreq=desc.sections['Co-requisites']||desc.sections['Corequisites']||'';
+        const rec=desc.sections['Recommended']||'';
+        if(pre||coreq||rec){
+          html+='<div class="detail-section"><h4>Requirements</h4>';
+          if(pre){const pItems=pre.split(/\n/).map(l=>l.replace(/^[•✓\-]+\s*/,'').trim()).filter(Boolean);html+=`<p style="font-size:11px;font-weight:700;color:var(--warn);margin-bottom:2px;text-transform:uppercase;letter-spacing:.06em">Prerequisites</p><ul>${pItems.map(p=>`<li>${esc(p)}</li>`).join('')}</ul>`;}
+          if(coreq&&!coreq.toLowerCase().includes('none')){const cItems=coreq.split(/\n/).map(l=>l.replace(/^[•✓\-]+\s*/,'').trim()).filter(Boolean);html+=`<p style="font-size:11px;font-weight:700;color:var(--inf);margin-bottom:2px;margin-top:8px;text-transform:uppercase;letter-spacing:.06em">Co-requisites</p><ul>${cItems.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>`;}
+          if(rec&&!rec.toLowerCase().includes('none')){const rItems=rec.split(/\n/).map(l=>l.replace(/^[•✓\-]+\s*/,'').trim()).filter(Boolean);html+=`<p style="font-size:11px;font-weight:700;color:var(--ok);margin-bottom:2px;margin-top:8px;text-transform:uppercase;letter-spacing:.06em">Recommended</p><ul>${rItems.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`;}
+          html+='</div>';
+        }
+        const lit=desc.sections['Literature']||desc.sections['Recommended reading']||'';
+        if(lit)html+=`<div class="detail-section"><h4>Literature</h4><div class="detail-lit">${esc(lit).replace(/\n/g,'<br>')}</div></div>`;
+        const fmt=desc.sections['Instructional format']||'';
+        if(fmt)html+=`<div class="detail-section"><h4>Instructional Format</h4><p>${esc(fmt).replace(/\n/g,'<br>')}</p></div>`;
+        const assess=desc.sections['Assessment']||'';
+        if(assess){const aItems=assess.split(/\n/).map(l=>l.replace(/^[•✓\-\d.]+\s*/,'').trim()).filter(Boolean);html+=`<div class="detail-section"><h4>Assessment</h4><ul>${aItems.map(a=>`<li>${esc(a)}</li>`).join('')}</ul></div>`;}
+        const contact=desc.sections['Contact']||'';
+        const coordinator=desc.sections['Course coordinator']||desc.sections['Coordinator']||desc.sections['Practical coordinator']||'';
+        if(coordinator||contact){html+='<div class="detail-section"><h4>Contact</h4>';if(coordinator)html+=`<p>${esc(coordinator)}</p>`;if(contact)html+=`<p style="margin-top:2px"><a href="mailto:${esc(contact.trim())}" style="color:var(--sa);font-size:12.5px">${esc(contact.trim())}</a></p>`;html+='</div>';}
+        html+='</div>';
+      }else{html+='<p style="color:var(--g4);font-size:13px;padding-top:14px;font-style:italic">No detailed description available for this course.</p>';}
+      html+=`<button class="detail-close" onclick="event.stopPropagation();closeCard('${item.Code}')">\u2190 Collapse details</button></div></div>`;
+    });
+    html+='</div></div>';
+  });
+
+  if(!total)html='<div class="no-results"><span>\uD83D\uDD0D</span><p>No courses match your search. Try a different keyword.</p></div>';
+  document.getElementById('catalogue').innerHTML=html;
+  document.getElementById('resultCount').textContent=`Showing ${total} course${total!==1?'s':''}`;
+}
+
+function toggleCard(code,event){
+  if(event&&event.target.closest('.detail-close'))return;
+  const el=document.getElementById('card-'+code);
+  if(!el)return;
+  const wasExpanded=el.classList.contains('expanded');
+  document.querySelectorAll('.ccard.expanded').forEach(c=>c.classList.remove('expanded'));
+  if(!wasExpanded){el.classList.add('expanded');setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),50);}
+}
+function closeCard(code){const el=document.getElementById('card-'+code);if(el)el.classList.remove('expanded');}
+
+// ═══════════════════════════════════════════════════
+// INFO SCREEN
+// ═══════════════════════════════════════════════════
 function buildInfoScreen(){
   document.getElementById('infobd').innerHTML=`
-
     <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Prerequisite Waivers</h3>
     <p style="font-size:13px;color:var(--g5);margin-bottom:4px;font-style:italic">Legal basis: EER Article 4.3</p>
     <p style="font-size:13px;color:var(--g7);margin-bottom:8px">A student can only start a module if they meet the prerequisites. All 3000-level modules must have prerequisites; 2000-level modules may have them; 1000-level modules do not.</p>
@@ -779,16 +1597,16 @@ function buildInfoScreen(){
       <li style="margin-bottom:4px">Hand in this approval email with your course selection form</li>
       <li>You will <strong>not</strong> be registered without the waiver, or with a waiver handed in after the deadline</li>
     </ol>
-    <p style="font-size:13px;color:var(--g7);margin-bottom:8px"><strong>When:</strong> Waivers can be requested twice a year &mdash; November and May &mdash; during course registration. Both student and coordinator need to handle requests with urgency due to strict deadlines.</p>
-    <p style="font-size:13px;color:var(--warn);margin-bottom:12px"><strong>Important:</strong> Waivers should only be requested as an exception. Prerequisites and co-requisites are important elements of the open curriculum.</p>
+    <p style="font-size:13px;color:var(--g7);margin-bottom:8px"><strong>When:</strong> Waivers can be requested twice a year &mdash; November and May &mdash; during course registration.</p>
+    <p style="font-size:13px;color:var(--warn);margin-bottom:12px"><strong>Important:</strong> Waivers should only be requested as an exception.</p>
 
     <details style="margin-bottom:16px;border:1px solid var(--g2);border-radius:var(--rs);overflow:hidden">
       <summary style="padding:10px 14px;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;background:var(--g0)">Course-specific waiver notes</summary>
       <div style="padding:12px 14px;font-size:12.5px;color:var(--g7);line-height:1.7">
-        <p><strong>BIO3004 Animal Behaviour</strong> (prereq: BIO2004 + BIO2005) &mdash; Students without BIO2004 General Zoology but with sufficient biology background may be able to take this course with a waiver. Contact the coordinator.</p>
-        <p style="margin-top:6px"><strong>CHE3009 Crystallography</strong> (prereq: PRO1002) &mdash; Not recommended for first-year students. If you haven\u2019t taken at least two semesters at MSP, waivers are unlikely.</p>
-        <p style="margin-top:6px"><strong>PRA2007 Physics Laboratory</strong> (prereq: PRA1003) &mdash; Waivers are unlikely unless you can show equivalent experimental physics experience.</p>
-        <p style="margin-top:6px"><strong>MAT2004 Linear Algebra</strong> &mdash; Requires substantial high-school mathematics experience. Contact the coordinator if unsure.</p>
+        <p><strong>BIO3004 Animal Behaviour</strong> (prereq: BIO2004 + BIO2005) &mdash; Students without BIO2004 General Zoology but with sufficient biology background may be able to take this course with a waiver.</p>
+        <p style="margin-top:6px"><strong>CHE3009 Crystallography</strong> (prereq: PRO1002) &mdash; Not recommended for first-year students.</p>
+        <p style="margin-top:6px"><strong>PRA2007 Physics Laboratory</strong> (prereq: PRA1003) &mdash; Waivers unlikely without equivalent experimental physics experience.</p>
+        <p style="margin-top:6px"><strong>MAT2004 Linear Algebra</strong> &mdash; Requires substantial high-school mathematics experience.</p>
       </div>
     </details>
 
@@ -796,8 +1614,8 @@ function buildInfoScreen(){
 
     <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Co-requisite Waivers</h3>
     <p style="font-size:13px;color:var(--g5);margin-bottom:4px;font-style:italic">Legal basis: EER Article 4.3.5\u20134.3.8</p>
-    <p style="font-size:13px;color:var(--g7);margin-bottom:8px">Co-requisites require the student to take two or more modules in the same period. A co-requisite can be waived with <strong>written consent from the module coordinator</strong> (EER Art. 4.3.7).</p>
-    <p style="font-size:13px;color:var(--g7);margin-bottom:12px"><strong>Automatic waiver:</strong> A co-requisite is automatically waived if you have already passed the co-requisite module in a previous period (EER Art. 4.3.8).</p>
+    <p style="font-size:13px;color:var(--g7);margin-bottom:8px">Co-requisites require taking two or more modules in the same period. A co-requisite can be waived with <strong>written consent from the module coordinator</strong>.</p>
+    <p style="font-size:13px;color:var(--g7);margin-bottom:12px"><strong>Automatic waiver:</strong> A co-requisite is automatically waived if you have already passed the co-requisite module in a previous period.</p>
 
     <details style="margin-bottom:16px;border:1px solid var(--g2);border-radius:var(--rs);overflow:hidden">
       <summary style="padding:10px 14px;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;background:var(--g0)">P5 2025\u20132026 co-requisite pairs</summary>
@@ -813,110 +1631,32 @@ function buildInfoScreen(){
     <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Registration</h3>
     <p style="font-size:13px;color:var(--g5);margin-bottom:4px;font-style:italic">Legal basis: EER Article 4.4, R&amp;R Article 7</p>
     <ul style="font-size:13px;color:var(--g7);padding-left:20px;margin-bottom:12px;line-height:1.7">
-      <li>You can only participate in a module after registering by the deadline via the registration form submitted to OSA</li>
+      <li>You can only participate after registering by the deadline via the registration form</li>
       <li>If you miss the deadline, registration cannot be guaranteed</li>
       <li>Upon registration you are automatically registered for the first exam and resit</li>
-      <li>You are responsible for checking your own registration</li>
     </ul>
+
+    <hr style="border:none;border-top:1px solid var(--g2);margin:20px 0">
+
+    <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Switches &amp; Withdrawals</h3>
+    <p style="font-size:13px;color:var(--g5);margin-bottom:4px;font-style:italic">Legal basis: R&amp;R Article 8</p>
+    <p style="font-size:13px;color:var(--g7);margin-bottom:8px">Complete the online <a href="${LINKS.switchForm}" target="_blank" style="color:var(--inf);font-weight:500">withdraw/switch form</a>. Must be supported by your academic advisor and approved by Dr. Chris Pawley.</p>
     <div class="dl-grid" style="margin-bottom:16px">
-      <div class="dl-box"><div class="dl-lbl">Spring semester (P4 &amp; P4\u2013P5)</div><div class="dl-val">14 November 2025</div></div>
-      <div class="dl-box"><div class="dl-lbl">Fall semester</div><div class="dl-val">18 May 2026</div></div>
+      <div class="dl-box"><div class="dl-lbl">Switch deadline \u2014 P${DEADLINES.period}</div><div class="dl-val">${DEADLINES.switch}</div></div>
+      <div class="dl-box"><div class="dl-lbl">Withdrawal deadline \u2014 P${DEADLINES.period}</div><div class="dl-val">${DEADLINES.withdrawal}</div></div>
     </div>
-
-    <hr style="border:none;border-top:1px solid var(--g2);margin:20px 0">
-
-    <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Switches (Late Enrolments)</h3>
-    <p style="font-size:13px;color:var(--g5);margin-bottom:4px;font-style:italic">Legal basis: R&amp;R Article 8</p>
-    <p style="font-size:13px;color:var(--g7);margin-bottom:8px">A switch is a withdrawal from one module combined with late enrolment in an alternative module for the same period.</p>
-    <ol style="font-size:13px;color:var(--g7);padding-left:20px;margin-bottom:10px">
-      <li style="margin-bottom:4px">Complete the online <a href="${LINKS.switchForm}" target="_blank" style="color:var(--inf);font-weight:500">withdraw/switch form</a></li>
-      <li style="margin-bottom:4px">The switch must be supported by your academic advisor</li>
-      <li style="margin-bottom:4px">Must be approved by Dr. Chris Pawley (coordinator of Academic Advising)</li>
-      <li>Inform your Academic Adviser (AA), the Office of Academic Advising (OAA), and the Office of Student Affairs (OSA)</li>
-    </ol>
-    <p style="font-size:13px;color:var(--g7);margin-bottom:12px"><strong>Restrictions:</strong> No switching to external modules. Alternatives may be limited by capacity.</p>
-
-    <details style="margin-bottom:16px;border:1px solid var(--g2);border-radius:var(--rs);overflow:hidden">
-      <summary style="padding:10px 14px;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;background:var(--g0)">Switch deadlines 2025\u20132026 (all at 17:00)</summary>
-      <div style="padding:12px 14px;font-size:12.5px;color:var(--g7);line-height:1.7">
-        <p>Period 1: <strong>Friday 8 August 2025</strong></p>
-        <p>Period 2: <strong>Friday 3 October 2025</strong></p>
-        <p>Period 4: <strong>Friday 9 January 2026</strong></p>
-        <p>Period 5: <strong>Friday 6 March 2026</strong></p>
-      </div>
-    </details>
-
-    <hr style="border:none;border-top:1px solid var(--g2);margin:20px 0">
-
-    <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Withdrawals</h3>
-    <p style="font-size:13px;color:var(--g5);margin-bottom:4px;font-style:italic">Legal basis: R&amp;R Article 8</p>
-    <p style="font-size:13px;color:var(--g7);margin-bottom:8px">Withdrawing from a module without switching to another. Same process as switches &mdash; complete the <a href="${LINKS.switchForm}" target="_blank" style="color:var(--inf);font-weight:500">online form</a> and inform AA, OAA, and OSA.</p>
-    <p style="font-size:13px;color:var(--g7);margin-bottom:12px"><strong>Key fact:</strong> If you withdraw before the deadline, the module does not appear on your transcript.</p>
-
-    <details style="margin-bottom:16px;border:1px solid var(--g2);border-radius:var(--rs);overflow:hidden">
-      <summary style="padding:10px 14px;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;background:var(--g0)">Withdrawal deadlines 2025\u20132026 (all at 17:00)</summary>
-      <div style="padding:12px 14px;font-size:12.5px;color:var(--g7);line-height:1.7">
-        <p>Period 1: <strong>Friday 5 September 2025</strong></p>
-        <p>Period 2: <strong>Friday 31 October 2025</strong></p>
-        <p>Period 4: <strong>Friday 30 January 2026</strong></p>
-        <p>Period 5: <strong>Friday 3 April 2026</strong></p>
-      </div>
-    </details>
-    <p style="font-size:12px;color:var(--g4);margin-bottom:4px">Note: Withdrawal deadlines are always later than switch deadlines for the same period.</p>
 
     <hr style="border:none;border-top:1px solid var(--g2);margin:20px 0">
 
     <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Exemptions</h3>
     <p style="font-size:13px;color:var(--g5);margin-bottom:4px;font-style:italic">Legal basis: R&amp;R Article 12, EER Article 5.13</p>
-    <p style="font-size:13px;color:var(--g7);margin-bottom:8px">An exemption means you don\u2019t have to take a mandatory module at all. This is different from a prerequisite waiver.</p>
     <ul style="font-size:13px;color:var(--g7);padding-left:20px;margin-bottom:12px;line-height:1.7">
-      <li>Only possible for mandatory modules of the Programme</li>
-      <li>Submit a motivated request to the <strong>Board of Examiners</strong> no later than <strong>three weeks before the module starts</strong></li>
-      <li>Must include sufficient written documentation</li>
-      <li>Granted if you passed a similar exam elsewhere or have equivalent professional experience</li>
-      <li>May only pertain to an entire module, not a component</li>
+      <li>Only possible for mandatory modules</li>
+      <li>Submit a motivated request to the Board of Examiners no later than 3 weeks before the module starts</li>
       <li>BTR/Capstone is excluded from exemption</li>
     </ul>
 
     <hr style="border:none;border-top:1px solid var(--g2);margin:20px 0">
-
-    <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Additional Modules (Overload)</h3>
-    <p style="font-size:13px;color:var(--g5);margin-bottom:4px;font-style:italic">Legal basis: R&amp;R Article 10</p>
-    <ul style="font-size:13px;color:var(--g7);padding-left:20px;margin-bottom:12px;line-height:1.7">
-      <li>Requires a motivated request to the <strong>Board of Examiners</strong> before the registration deadline via the <a href="${LINKS.additionalModule}" target="_blank" style="color:var(--inf);font-weight:500">online form</a></li>
-      <li>Only allowed if GPA and progress rate show sufficient capacity, max 10 ECTS per semester</li>
-      <li><strong>Not allowed</strong> in the first year or first two semesters</li>
-      <li>Only one additional module alongside BTR</li>
-      <li>Without prior BoE approval, no ECTS will be granted</li>
-      <li>Cannot be external modules</li>
-    </ul>
-
-    <hr style="border:none;border-top:1px solid var(--g2);margin:20px 0">
-
-    <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">External Credits</h3>
-    <p style="font-size:13px;color:var(--g5);margin-bottom:4px;font-style:italic">Legal basis: R&amp;R Articles 11A and 11B</p>
-    <ul style="font-size:13px;color:var(--g7);padding-left:20px;margin-bottom:12px;line-height:1.7">
-      <li>Motivated request to BoE via the applicable online form</li>
-      <li><strong>Not allowed</strong> in the first year or first two semesters</li>
-      <li>Cannot be followed as additional workload</li>
-      <li>Preferred at advanced level</li>
-      <li>External credits count towards GPA and progress rate (except transferred credits)</li>
-      <li>Maximum 30 external credits, or 35 if the Education Minor is followed in full</li>
-      <li>Credit transfer requests must be submitted before the end of the first year</li>
-    </ul>
-
-    <hr style="border:none;border-top:1px solid var(--g2);margin:20px 0">
-
-    <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Transcripts</h3>
-    <p style="font-size:13px;color:var(--g7);margin-bottom:12px">Official transcripts are issued by the Education Support Department. A certified transcript is downloadable from the Student Portal: <strong>My Courses \u2192 Grade list</strong>.</p>
-
-    <hr style="border:none;border-top:1px solid var(--g2);margin:20px 0">
-
-    <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Period ${DEADLINES.period} Deadlines</h3>
-    <div class="dl-grid" style="margin-bottom:16px">
-      <div class="dl-box"><div class="dl-lbl">Switch deadline</div><div class="dl-val">${DEADLINES.switch}</div></div>
-      <div class="dl-box"><div class="dl-lbl">Withdrawal deadline</div><div class="dl-val">${DEADLINES.withdrawal}</div></div>
-    </div>
 
     <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Key Contacts &amp; Forms</h3>
     <div style="overflow-x:auto">
@@ -925,15 +1665,12 @@ function buildInfoScreen(){
         <tbody>
           <tr><td>Prerequisite waiver</td><td>Email the course coordinator directly</td></tr>
           <tr><td>Co-requisite waiver</td><td>Email the module coordinator directly</td></tr>
-          <tr><td>Exemption</td><td>Motivated request to Board of Examiners (3 weeks before module start)</td></tr>
+          <tr><td>Exemption</td><td>Motivated request to Board of Examiners</td></tr>
           <tr><td>Switch / Withdrawal</td><td>Online form, approved by Dr. Chris Pawley</td></tr>
-          <tr><td>Additional module</td><td>Online form to BoE before registration deadline</td></tr>
-          <tr><td>External credits</td><td>Online form to BoE before registration deadline</td></tr>
           <tr><td>ESD contact</td><td><a href="${LINKS.esd}" style="color:var(--inf);font-weight:500">msp-educationsupport@maastrichtuniversity.nl</a></td></tr>
         </tbody>
       </table>
     </div>
-
     <div class="links-row" style="margin-top:16px">
       <a href="${LINKS.waivers}" target="_blank">\u{1F4CB} Waivers</a>
       <a href="${LINKS.switchForm}" target="_blank">\u{1F4DD} Switch/withdraw form</a>
@@ -943,12 +1680,85 @@ function buildInfoScreen(){
   `;
 }
 
-// ── Event listeners ──
-document.getElementById('c1').addEventListener('change',()=>{save();const c1=getCourse1();showPanel(c1,'pi1',false);buildCourse2(c1?.Slot||null);if(!getCourse2())document.getElementById('pi2').classList.remove('show');rebuildLabs();checkPrereqs();buildSummary();buildNextSteps();buildTT();});
-document.getElementById('c2').addEventListener('change',()=>{save();showPanel(getCourse2(),'pi2',false);rebuildLabs();checkPrereqs();buildSummary();buildNextSteps();buildTT();});
-document.getElementById('lab').addEventListener('change',()=>{save();showPanel(getLab(),'pil',true);checkPrereqs();buildSummary();buildNextSteps();buildTT();});
+// ═══════════════════════════════════════════════════
+// EVENT LISTENERS & INIT
+// ═══════════════════════════════════════════════════
 function rebuildLabs(){const c1=getCourse1(),c2=getCourse2();const u=new Set([...(c1?.Days||[]),...(c2?.Days||[])]);buildLabs(u);showPanel(getLab(),'pil',true);}
 function resetPlan(){PLANS[act]=emptyPlan();switchPlan(act);updateTabIcons();}
+
+// Transcript upload
+document.getElementById('pdff').addEventListener('change',async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{
+    APP.transcript=await parseTranscriptPDF(f);
+    buildDashboard();
+    // Refresh planner if already loaded
+    if(courses.length)switchPlan(act);
+    if(catBuilt)applyCatFilters();
+  }catch(err){
+    let msg='We couldn\u2019t read this transcript.';
+    if(err.message==='SCAN')msg='This looks like a scanned document. Please download a digital copy from the Student Portal.';
+    else if(err.message==='NOT_MSP')msg='This doesn\u2019t appear to be an MSP transcript.';
+    alert(msg+' You can still use the Course Planner without transcript data.');
+    console.error('Transcript parse error:',err);
+  }
+  e.target.value='';
+});
+
+// Drag and drop
+const dz=document.getElementById('dropZone');
+if(dz){
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+  dz.addEventListener('drop',e=>{
+    e.preventDefault();dz.classList.remove('drag-over');
+    const f=e.dataTransfer.files[0];
+    if(f&&f.type==='application/pdf'){
+      const dt=new DataTransfer();dt.items.add(f);
+      document.getElementById('pdff').files=dt.files;
+      document.getElementById('pdff').dispatchEvent(new Event('change'));
+    }
+  });
+}
+
+// CSV upload
+document.getElementById('csvf').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();r.onload=ev=>load(ev.target.result);r.readAsText(f);e.target.value='';
+});
+
+// Course selection listeners
+document.getElementById('c1').addEventListener('change',()=>{save();const c1=getCourse1();showPanel(c1,'pi1',false);buildCourse2(c1?.Slot||null);if(!getCourse2())document.getElementById('pi2').classList.remove('show');rebuildLabs();checkPrereqs();buildSummary();buildNextSteps();buildTT();buildAdvicePanel();});
+document.getElementById('c2').addEventListener('change',()=>{save();showPanel(getCourse2(),'pi2',false);rebuildLabs();checkPrereqs();buildSummary();buildNextSteps();buildTT();buildAdvicePanel();});
+document.getElementById('lab').addEventListener('change',()=>{save();showPanel(getLab(),'pil',true);checkPrereqs();buildSummary();buildNextSteps();buildTT();buildAdvicePanel();});
+
+// Init
+window.addEventListener('DOMContentLoaded',async()=>{
+  // Configure pdf.js worker
+  if(typeof pdfjsLib!=='undefined'){
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+
+  // Load CSV + descriptions in parallel
+  try{
+    const [csvRes,mdRes]=await Promise.all([
+      fetch(AUTO).then(r=>{if(!r.ok)throw new Error('CSV');return r.text();}),
+      fetch(DESC_FILE).then(r=>{if(!r.ok)return'';return r.text();}).catch(()=>'')
+    ]);
+    load(csvRes);
+    if(mdRes){parseMD(mdRes);catBuilt=true;}
+    buildFilterChips();
+  }catch(err){
+    console.error('Load error:',err);
+    showScreen('err');
+  }
+});
+
+// Hash routing
+window.addEventListener('hashchange',()=>{
+  const h=window.location.hash.replace('#','');
+  if(['dashboard','planner','catalogue','info'].includes(h)&&h!==activeView)switchView(h);
+});
 </script>
 </body>
 </html>
