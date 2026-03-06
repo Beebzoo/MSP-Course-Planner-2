@@ -229,8 +229,22 @@ footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:
 .skip-link:hover{color:var(--navy)}
 
 /* Dashboard profile card */
-.profile-card{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 40%,var(--navy3) 100%);color:#fff;border-radius:16px;padding:32px 36px;margin-bottom:20px;box-shadow:0 8px 32px rgba(1,27,60,.18),0 2px 8px rgba(0,0,0,.08);display:flex;align-items:center;gap:24px;position:relative;overflow:hidden}
+.profile-card{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 40%,var(--navy3) 100%);color:#fff;border-radius:16px;padding:32px 36px;margin-bottom:20px;box-shadow:0 8px 32px rgba(1,27,60,.18),0 2px 8px rgba(0,0,0,.08);display:flex;align-items:center;gap:24px;position:relative;overflow:hidden;border:2.5px solid transparent}
 .profile-card::before{content:'';position:absolute;top:-60px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(110,210,236,.08) 0%,transparent 70%);pointer-events:none}
+/* Bene Meritum: subtle silver border */
+.profile-card.dist-bm{border-color:rgba(148,163,184,.4);box-shadow:0 8px 32px rgba(1,27,60,.18),0 0 0 1px rgba(148,163,184,.15)}
+/* Cum Laude: gold border + glow */
+.profile-card.dist-cl{border-color:#D4A843;box-shadow:0 8px 32px rgba(1,27,60,.18),0 0 20px rgba(212,168,67,.2),0 0 0 1px rgba(212,168,67,.3)}
+.profile-card.dist-cl::after{content:'';position:absolute;inset:0;border-radius:14px;background:linear-gradient(135deg,rgba(212,168,67,.06) 0%,transparent 40%,transparent 60%,rgba(212,168,67,.04) 100%);pointer-events:none}
+/* Summa Cum Laude: gold border + gold name + shimmer */
+.profile-card.dist-scl{border-color:#D4A843;box-shadow:0 8px 32px rgba(1,27,60,.18),0 0 30px rgba(212,168,67,.25),0 0 0 1px rgba(212,168,67,.4)}
+.profile-card.dist-scl::after{content:'';position:absolute;inset:0;border-radius:14px;background:linear-gradient(135deg,rgba(212,168,67,.1) 0%,transparent 30%,transparent 70%,rgba(212,168,67,.08) 100%);pointer-events:none}
+.profile-card.dist-scl h2{background:linear-gradient(90deg,#F5D77A 0%,#D4A843 30%,#F5E6A3 50%,#D4A843 70%,#F5D77A 100%);background-size:200% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:goldShimmer 4s ease infinite}
+@keyframes goldShimmer{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.profile-card .pc-distinction{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.pc-dist-bm{background:rgba(148,163,184,.15);color:rgba(255,255,255,.7);border:1px solid rgba(148,163,184,.2)}
+.pc-dist-cl{background:rgba(212,168,67,.15);color:#F5D77A;border:1px solid rgba(212,168,67,.25)}
+.pc-dist-scl{background:rgba(212,168,67,.2);color:#F5E6A3;border:1px solid rgba(212,168,67,.35)}
 .profile-card .pc-left{flex:1}
 .profile-card h2{font-family:'DM Sans',sans-serif;font-size:26px;font-weight:700;margin-bottom:4px;letter-spacing:-.02em}
 .profile-card .pc-sub{font-size:13px;opacity:.7;margin-bottom:6px}
@@ -873,7 +887,10 @@ function buildDashboard(){
   let html='';
 
   // ─── Profile Card ───
-  html+=`<div class="profile-card fade-in">
+  const dist=r.gpa.projectedDistinction;
+  const distClass=dist==='Summa Cum Laude'?' dist-scl':dist==='Cum Laude'?' dist-cl':dist==='Bene Meritum'?' dist-bm':'';
+  const distBadge=dist==='Summa Cum Laude'?`<div class="pc-distinction pc-dist-scl"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg> Summa Cum Laude</div>`:dist==='Cum Laude'?`<div class="pc-distinction pc-dist-cl"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg> Cum Laude</div>`:dist==='Bene Meritum'?`<div class="pc-distinction pc-dist-bm"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg> Bene Meritum</div>`:'';
+  html+=`<div class="profile-card${distClass} fade-in">
     <div class="pc-left">
       <h2>${esc(t.student.name||'Student')}</h2>
       <div class="pc-sub">${esc(t.student.programme)}</div>
@@ -882,6 +899,7 @@ function buildDashboard(){
         <span>Semester ${t.semesters.length}</span>
         ${t.student.printDate?`<span>Transcript printed: ${esc(t.student.printDate)}</span>`:''}
       </div>
+      ${distBadge}
       <div class="pc-actions">
         <button onclick="document.getElementById('pdff').click()">&#128259; Change transcript</button>
         <button onclick="clearTranscript()">&#10005; Clear</button>
