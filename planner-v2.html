@@ -372,6 +372,18 @@ footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:
 .ccard-expand{font-size:11px;color:var(--navy);font-weight:600;padding:10px 20px;background:rgba(0,0,0,.03);border-top:1px solid rgba(0,0,0,.06);display:flex;align-items:center;gap:5px;transition:all .15s}
 .ccard:hover .ccard-expand{background:rgba(0,0,0,.06)}
 .ccard.expanded .ccard-expand{display:none}
+.star-btn{margin-left:auto;background:none;border:none;cursor:pointer;font-size:16px;padding:2px 6px;border-radius:4px;transition:all .15s;color:var(--g3);line-height:1}
+.star-btn:hover{color:#f5a623;transform:scale(1.2)}
+.star-btn.starred{color:#f5a623}
+.starred-panel{background:linear-gradient(135deg,#fff8e1,#fff3cd);border:1px solid #f5d77a;border-radius:var(--r);padding:16px 20px;margin-bottom:16px}
+.starred-panel h3{font-size:13px;font-weight:700;color:#b8860b;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.starred-chips{display:flex;flex-wrap:wrap;gap:8px}
+.starred-chip{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #f0d060;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--g8);box-shadow:0 1px 3px rgba(0,0,0,.06);transition:all .15s}
+.starred-chip:hover{box-shadow:0 2px 6px rgba(0,0,0,.1)}
+.starred-chip .sc-code{color:var(--navy);font-weight:700;font-size:11px}
+.starred-chip .sc-slot{font-size:10px;color:var(--g4);font-weight:600}
+.starred-chip .sc-remove{background:none;border:none;cursor:pointer;color:var(--g4);font-size:14px;padding:0 2px;line-height:1;transition:color .15s}
+.starred-chip .sc-remove:hover{color:var(--warn)}
 .ccard-detail{display:none;padding:0 20px 20px;border-top:1.5px solid var(--g1)}
 .ccard.expanded .ccard-detail{display:block}
 .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:16px}
@@ -555,6 +567,7 @@ footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:
   <!-- ═══ VIEW: PLANNER ═══ -->
   <div id="view-planner" class="view">
     <div id="advicePanel" class="advice-panel" style="display:none"></div>
+    <div id="starredPanel" class="starred-panel" style="display:none"></div>
     <div class="plan-tabs">
       <button class="ptab active" id="tab-A" onclick="switchPlan('A')"><span class="tlbl">Plan A</span><span class="tst" id="ts-A"></span></button>
       <button class="ptab" id="tab-B" onclick="switchPlan('B')"><span class="tlbl">Plan B</span><span class="tst" id="ts-B"></span></button>
@@ -640,7 +653,7 @@ footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:
 const AUTO='FrameSchedule_P5_v1.csv';
 const DESC_FILE='MSP_P5_Course_Descriptions.md';
 const DEADLINES={switch:'Friday 6 March 2026, 17:00',withdrawal:'Friday 3 April 2026, 17:00',period:'5',year:'2025\u20132026'};
-const LINKS={switchForm:'https://intranet.maastrichtuniversity.nl/en/msp-students/forms-and-downloads-0/withdrawswitch',waivers:'https://intranet.maastrichtuniversity.nl/en/msp-students/waivers',transcript:'https://intranet.maastrichtuniversity.nl/en/msp-students/forms-and-downloads/forms/transcript-request',additionalModule:'https://intranet.maastrichtuniversity.nl/en/msp-students/forms-and-downloads/forms/additional-module',esd:'mailto:msp-educationsupport@maastrichtuniversity.nl'};
+const LINKS={switchForm:'https://intranet.maastrichtuniversity.nl/en/msp-students/forms-and-downloads-0/withdrawswitch',waivers:'https://intranet.maastrichtuniversity.nl/en/msp-students/exams-rules-and-regulations/waivers',transcript:'https://intranet.maastrichtuniversity.nl/en/msp-students/forms-and-downloads/forms/transcript-request',additionalModule:'https://intranet.maastrichtuniversity.nl/en/msp-students/forms-and-downloads/forms/additional-module',esd:'mailto:msp-educationsupport@maastrichtuniversity.nl'};
 const HUMANITIES_CODES=['INT2007','INT3001','HUM2051','INT2013','INT3012'];
 const CORE_CODES=['BIO1101','CHE1101','PHY1101','INT1101','PRA1101','PRA1102','PRO1101'];
 
@@ -650,6 +663,7 @@ const PLANS={A:emptyPlan(),B:emptyPlan(),C:emptyPlan()};
 let act='A',cmpMode=false;
 let activeView='dashboard';
 let catFilter='all';
+let starredCourses=new Set(JSON.parse(localStorage.getItem('msp-starred')||'[]'));
 
 const APP={
   config:null,
@@ -1211,7 +1225,7 @@ function switchView(view){
   if(view==='catalogue'&&catBuilt)applyCatFilters();
   if(view==='info')buildInfoScreen();
   if(view==='dashboard')buildDashboard();
-  if(view==='planner')buildAdvicePanel();
+  if(view==='planner'){buildAdvicePanel();buildStarredPanel();}
   window.location.hash=view;
 }
 
@@ -1807,7 +1821,8 @@ function applyCatFilters(){
         tags.push(prereqBadge);
       }
 
-      html+=`<div class="ccard card-${item.Slot||'PRA'}" id="card-${item.Code}" onclick="toggleCard('${item.Code}',event)"><div class="ccard-top"><div class="ccard-row1"><span class="cc-code">${item.Code}</span>${tags.join('')}</div><div class="cc-title">${esc(item.Title)}</div><div class="cc-coord">${esc(item.Coordinator)}</div></div><div class="ccard-meta">${days}</div><div class="ccard-expand">\u25B6 Click to view full course description</div>`;
+      const isStarred=starredCourses.has(item.Code);
+      html+=`<div class="ccard card-${item.Slot||'PRA'}" id="card-${item.Code}" onclick="toggleCard('${item.Code}',event)"><div class="ccard-top"><div class="ccard-row1"><span class="cc-code">${item.Code}</span>${tags.join('')}</div><div class="cc-title">${esc(item.Title)}</div><div class="cc-coord">${esc(item.Coordinator)}</div></div><div class="ccard-meta">${days}</div><div class="ccard-expand">\u25B6 Click to view full course description<button class="star-btn${isStarred?' starred':''}" onclick="toggleStar('${item.Code}',event)" title="${isStarred?'Unstar':'Star'} this course">${isStarred?'\u2605':'\u2606'}</button></div>`;
 
       // Detail panel
       html+='<div class="ccard-detail">';
@@ -1849,7 +1864,7 @@ function applyCatFilters(){
 }
 
 function toggleCard(code,event){
-  if(event&&event.target.closest('.detail-close'))return;
+  if(event&&(event.target.closest('.detail-close')||event.target.closest('.star-btn')))return;
   const el=document.getElementById('card-'+code);
   if(!el)return;
   const wasExpanded=el.classList.contains('expanded');
@@ -1857,6 +1872,51 @@ function toggleCard(code,event){
   if(!wasExpanded){el.classList.add('expanded');setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),50);}
 }
 function closeCard(code){const el=document.getElementById('card-'+code);if(el)el.classList.remove('expanded');}
+
+// ═══════════════════════════════════════════════════
+// STARRED COURSES
+// ═══════════════════════════════════════════════════
+function saveStarred(){localStorage.setItem('msp-starred',JSON.stringify([...starredCourses]));}
+
+function toggleStar(code,event){
+  event.stopPropagation();
+  if(starredCourses.has(code)){starredCourses.delete(code);}else{starredCourses.add(code);}
+  saveStarred();
+  // Update the star button in catalogue
+  const card=document.getElementById('card-'+code);
+  if(card){
+    const btn=card.querySelector('.star-btn');
+    if(btn){btn.classList.toggle('starred');btn.textContent=starredCourses.has(code)?'\u2605':'\u2606';btn.title=(starredCourses.has(code)?'Unstar':'Star')+' this course';}
+  }
+  buildStarredPanel();
+}
+
+function removeStar(code){
+  starredCourses.delete(code);
+  saveStarred();
+  // Update catalogue star button if visible
+  const card=document.getElementById('card-'+code);
+  if(card){
+    const btn=card.querySelector('.star-btn');
+    if(btn){btn.classList.remove('starred');btn.textContent='\u2606';btn.title='Star this course';}
+  }
+  buildStarredPanel();
+}
+
+function buildStarredPanel(){
+  const el=document.getElementById('starredPanel');
+  if(!el)return;
+  if(!starredCourses.size){el.style.display='none';return;}
+  const allCourses=[...courses,...labs];
+  const chips=[...starredCourses].map(code=>{
+    const c=allCourses.find(x=>x.Code===code);
+    if(!c)return '';
+    const slot=c.Slot?`<span class="sc-slot">Slot ${c.Slot}</span>`:'<span class="sc-slot">PRA</span>';
+    return `<div class="starred-chip"><span class="sc-code">${esc(c.Code)}</span><span>${esc(c.Title)}</span>${slot}<button class="sc-remove" onclick="removeStar('${c.Code}')" title="Remove">\u2715</button></div>`;
+  }).filter(Boolean).join('');
+  el.style.display='';
+  el.innerHTML=`<h3>\u2B50 Your Starred Courses</h3><div class="starred-chips">${chips}</div>`;
+}
 
 // ═══════════════════════════════════════════════════
 // INFO SCREEN
