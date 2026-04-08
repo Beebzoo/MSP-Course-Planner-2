@@ -658,6 +658,7 @@ const HUMANITIES_CODES=['INT2007','INT3001','HUM2051','INT2013','INT3012'];
 const CORE_CODES=['BIO1101','CHE1101','PHY1101','INT1101','PRA1101','PRA1102','PRO1101'];
 
 let courses=[],labs=[],cfgV='',cfgP='',cfgY='';
+let reversePrereqIndex={};
 let descriptions={};
 const PLANS={A:emptyPlan(),B:emptyPlan(),C:emptyPlan()};
 let act='A',cmpMode=false;
@@ -807,13 +808,107 @@ function parseTranscriptText(text){
     result.semesters.push(semester);
   }
 
+  // Detect study-abroad entries (single 30-ECTS lump credits that need manual breakdown)
+  const ABROAD_RE=/abroad|exchange|uitwisseling|erasmus/i;
+  result.abroadModules=result.semesters
+    .flatMap(s=>s.modules)
+    .filter(m=>ABROAD_RE.test(m.title));
+
+  // Attach any previously-saved manual modules and prompt-dismissal state for this student
+  result.manualModules=loadManualModules(result.student.studentNumber);
+  if(result.student.studentNumber){
+    try{result.abroadDismissed=localStorage.getItem('msp-abroad-dismissed-'+result.student.studentNumber)==='1';}catch(_){}
+  }
+
   // Compute aggregates
   computeAggregates(result);
   return result;
 }
 
+// ═══════════════════════════════════════════════════
+// MANUAL COURSE ENTRY (for semester-abroad students etc.)
+// ═══════════════════════════════════════════════════
+function loadManualModules(studentNumber){
+  if(!studentNumber)return[];
+  try{const raw=localStorage.getItem('msp-manual-'+studentNumber);return raw?JSON.parse(raw):[];}catch(_){return[];}
+}
+function saveManualModules(studentNumber,mods){
+  if(!studentNumber)return;
+  try{localStorage.setItem('msp-manual-'+studentNumber,JSON.stringify(mods));}catch(_){}
+}
+
+function addManualModule(input){
+  const t=APP.transcript;if(!t)return;
+  if(!t.manualModules)t.manualModules=[];
+  // Synthetic code so it doesn't collide with real codes
+  let n=1;while(t.manualModules.some(m=>m.code==='MAN'+n))n++;
+  const ects=Number(input.ects)||0;
+  const grade=input.grade===''||input.grade==null?0:Number(input.grade);
+  const mod={
+    code:'MAN'+n,
+    title:input.title.trim(),
+    ectsAttempted:ects,
+    ectsEarned:ects,
+    grade:grade,
+    resit:null,
+    passed:true,
+    type:input.type,            // 'course' | 'skill' | 'project'
+    level:Number(input.level),  // 1000 | 2000 | 3000
+    prefix:input.type==='skill'?'PRA':input.type==='project'?'PRO':'MAN',
+    manual:true
+  };
+  t.manualModules.push(mod);
+  saveManualModules(t.student.studentNumber,t.manualModules);
+  computeAggregates(t);
+  buildDashboard();
+}
+
+function removeManualModule(code){
+  const t=APP.transcript;if(!t||!t.manualModules)return;
+  if(!confirm('Remove this manually-added course?'))return;
+  t.manualModules=t.manualModules.filter(m=>m.code!==code);
+  saveManualModules(t.student.studentNumber,t.manualModules);
+  computeAggregates(t);
+  buildDashboard();
+}
+
+function toggleManualForm(force){
+  const f=document.getElementById('manualForm');
+  if(!f)return;
+  const show=force!==undefined?force:f.style.display==='none';
+  f.style.display=show?'':'none';
+  if(show){const t=document.getElementById('man-title');if(t)t.focus();}
+}
+
+function submitManualModule(){
+  const title=document.getElementById('man-title').value;
+  const ects=document.getElementById('man-ects').value;
+  const level=document.getElementById('man-level').value;
+  const type=document.getElementById('man-type').value;
+  const grade=document.getElementById('man-grade').value;
+  if(!title.trim()){alert('Please enter a course title.');return;}
+  if(!ects||Number(ects)<=0){alert('Please enter a valid number of ECTS.');return;}
+  if(grade!==''&&(Number(grade)<1||Number(grade)>10)){alert('Grade must be between 1 and 10, or left blank.');return;}
+  addManualModule({title,ects,level,type,grade});
+  // Reset form
+  document.getElementById('man-title').value='';
+  document.getElementById('man-ects').value='5';
+  document.getElementById('man-grade').value='';
+  toggleManualForm(false);
+}
+
+function dismissAbroadPrompt(){
+  const t=APP.transcript;if(!t)return;
+  t.abroadDismissed=true;
+  if(t.student.studentNumber){try{localStorage.setItem('msp-abroad-dismissed-'+t.student.studentNumber,'1');}catch(_){}}
+  buildDashboard();
+}
+
 function computeAggregates(data){
-  const allModules=data.semesters.flatMap(s=>s.modules);
+  const allModules=[
+    ...data.semesters.flatMap(s=>s.modules),
+    ...(data.manualModules||[])
+  ];
   const passed=allModules.filter(m=>m.passed);
   const passedCodes=new Set(passed.map(m=>m.code));
 
@@ -1015,6 +1110,49 @@ function buildDashboard(){
       <div class="sem-body" style="padding-top:12px">${body}</div>
     </div>`;
   });
+
+  // ─── Manual Courses (for semester-abroad students etc.) ───
+  const manList=t.manualModules||[];
+  const showAbroadBanner=(t.abroadModules&&t.abroadModules.length)&&!t.abroadDismissed;
+  html+=`<div class="action-card fade-in" style="margin-top:24px" id="dash-manual">
+    <h3 style="display:flex;align-items:center;gap:8px"><span style="display:inline-flex;color:var(--navy)">${SVG_ICONS.filetext}</span> Manually Added Courses</h3>`;
+  if(showAbroadBanner){
+    const lump=t.abroadModules.map(m=>`<strong>${esc(m.title)}</strong> (${m.ectsAttempted} ECTS)`).join(', ');
+    html+=`<div style="background:var(--warn-bg);border:1px solid var(--warn-bd);border-radius:var(--rs);padding:10px 12px;margin-bottom:12px;font-size:12.5px;color:var(--warn);line-height:1.6">
+      <strong>\u26A0 Study-abroad entry detected:</strong> ${lump}. Your transcript shows this as a single lump credit, but it&rsquo;s actually multiple individual courses. For accurate progress tracking (courses vs. skills vs. projects, and level breakdown), please add each individual course below using <strong>+ Add a course</strong>.
+      <button onclick="dismissAbroadPrompt()" style="float:right;background:none;border:none;color:var(--warn);font-size:11px;cursor:pointer;font-family:inherit;text-decoration:underline">dismiss</button>
+    </div>`;
+  }
+  html+=`<p style="font-size:12.5px;color:var(--g6);margin-bottom:10px;line-height:1.6">Use this if your transcript shows a study-abroad semester as a single lump credit, or if a course is missing from your transcript. These entries feed into the requirements checker below.</p>`;
+  if(manList.length){
+    html+='<ul style="list-style:none;padding:0;margin:0 0 12px 0">';
+    manList.forEach(m=>{
+      const lvlLbl=m.level+'-level';
+      const typeLbl=m.type==='skill'?'Skill':m.type==='project'?'Project':'Course';
+      const gradeLbl=m.grade?` &middot; grade ${m.grade.toFixed(1)}`:'';
+      html+=`<li style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--g0);border-radius:var(--rs);margin-bottom:6px;font-size:13px">
+        <span style="flex:1"><strong>${esc(m.title)}</strong> <span style="color:var(--g5);font-size:12px">&mdash; ${m.ectsEarned} ECTS &middot; ${lvlLbl} &middot; ${typeLbl}${gradeLbl}</span></span>
+        <button onclick="removeManualModule('${m.code}')" style="background:none;border:1px solid var(--g2);color:var(--g6);font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer;font-family:inherit">\u2715 Remove</button>
+      </li>`;
+    });
+    html+='</ul>';
+  }
+  html+=`<button onclick="toggleManualForm()" class="btn btn-or" style="font-size:12px">+ Add a course</button>
+    <div id="manualForm" style="display:none;margin-top:14px;padding:14px;border:1px solid var(--g2);border-radius:var(--rs);background:var(--g0)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-bottom:10px">
+        <label style="font-size:12px;color:var(--g7);grid-column:1/-1">Course title<br><input id="man-title" type="text" placeholder="e.g. Quantum Mechanics" style="width:100%;padding:7px 10px;border:1px solid var(--g2);border-radius:6px;font-size:13px;font-family:inherit;margin-top:4px"></label>
+        <label style="font-size:12px;color:var(--g7)">ECTS<br><input id="man-ects" type="number" value="5" min="0.5" max="60" step="0.5" style="width:100%;padding:7px 10px;border:1px solid var(--g2);border-radius:6px;font-size:13px;font-family:inherit;margin-top:4px"></label>
+        <label style="font-size:12px;color:var(--g7)">Grade <span style="color:var(--g4)">(optional)</span><br><input id="man-grade" type="number" min="1" max="10" step="0.1" placeholder="(blank = pass)" style="width:100%;padding:7px 10px;border:1px solid var(--g2);border-radius:6px;font-size:13px;font-family:inherit;margin-top:4px"></label>
+        <label style="font-size:12px;color:var(--g7)">Level<br><select id="man-level" style="width:100%;padding:7px 10px;border:1px solid var(--g2);border-radius:6px;font-size:13px;font-family:inherit;margin-top:4px;background:#fff"><option value="1000">1000 (introductory)</option><option value="2000" selected>2000 (intermediate)</option><option value="3000">3000 (advanced)</option></select></label>
+        <label style="font-size:12px;color:var(--g7)">Category<br><select id="man-type" style="width:100%;padding:7px 10px;border:1px solid var(--g2);border-radius:6px;font-size:13px;font-family:inherit;margin-top:4px;background:#fff"><option value="course" selected>Course (theory)</option><option value="skill">Skill / Practical</option><option value="project">Project</option></select></label>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button onclick="toggleManualForm(false)" style="background:none;border:1px solid var(--g2);color:var(--g6);font-size:12px;padding:6px 14px;border-radius:6px;cursor:pointer;font-family:inherit">Cancel</button>
+        <button onclick="submitManualModule()" class="btn btn-or" style="font-size:12px">Save course</button>
+      </div>
+      <p style="font-size:11px;color:var(--g5);margin-top:10px;font-style:italic">Tip: for a 30-ECTS study-abroad semester, split it into the actual individual courses you took (e.g. 2&times; theory courses at 6 ECTS, 1 skill at 3 ECTS, etc.) and use the closest matching level/category.</p>
+    </div>
+  </div>`;
 
   // ─── What You Still Need ───
   const needed=[];
@@ -1278,6 +1416,7 @@ function load(text){
     e.PrerequisiteCodes=(e.PrerequisiteCodes||'').trim();
     if(e.Slot)courses.push(e);else labs.push(e);
   }
+  reversePrereqIndex=buildReversePrereqIndex();
   document.getElementById('mp').textContent=cfgP&&cfgY?`Period ${cfgP} \u00b7 ${cfgY}`:'Schedule loaded';
   if(cfgV){document.getElementById('mv').textContent=`v${cfgV}`;document.getElementById('mv').style.display='';}
   document.getElementById('mc').textContent=`${courses.length} courses \u00b7 ${labs.length} practicals`;
@@ -1368,6 +1507,21 @@ function checkPrereqsMet(prereqStr,passedCodes){
   });
 }
 
+// Build reverse prerequisite index: code -> list of items that require it.
+// Note: limited to courses/practicals in the loaded period (currently P5).
+function buildReversePrereqIndex(){
+  const idx={};
+  [...courses,...labs].forEach(it=>{
+    if(!it.Prerequisite||!it.PrerequisiteCodes)return;
+    const tokens=it.PrerequisiteCodes.split(/[+/]/).map(s=>s.trim()).filter(Boolean);
+    tokens.forEach(code=>{
+      if(!idx[code])idx[code]=[];
+      if(!idx[code].some(x=>x.Code===it.Code))idx[code].push(it);
+    });
+  });
+  return idx;
+}
+
 function buildLabs(used){
   const s=document.getElementById('lab'),pv=s.value;
   s.innerHTML='<option value="">\u2014 Select a practical \u2014</option>';
@@ -1413,7 +1567,13 @@ function showPanel(item,id,isLab){
     const mod=APP.transcript.semesters.flatMap(s=>s.modules).find(m=>m.code===item.Code);
     passedBadge=`<div style="margin-top:4px"><span style="color:var(--warn);font-size:11px;font-weight:600">\u26A0 You already passed this course${mod?' (grade: '+mod.grade.toFixed(1)+')':''}</span></div>`;
   }
-  el.innerHTML=`<div class="crow">${!isLab?`<span class="slotb sl-${item.Slot}">SLOT ${item.Slot}</span>`:''}<div class="days">${chips}</div>${tags}</div><div class="crow"><span class="coord">Coordinator: ${item.Coordinator}</span></div>${prereqStatus}${passedBadge}`;
+  let unlocksBadge='';
+  const unlocks=reversePrereqIndex[item.Code]||[];
+  if(unlocks.length){
+    const list=unlocks.map(u=>`${u.Code} \u2014 ${esc(u.Title)}`).join('; ');
+    unlocksBadge=`<div style="margin-top:4px"><span style="color:var(--inf);font-size:11px;font-weight:600">\u{1F511} Required for (P${cfgP||'5'}):</span> <span style="color:var(--g7);font-size:11px">${list}</span></div>`;
+  }
+  el.innerHTML=`<div class="crow">${!isLab?`<span class="slotb sl-${item.Slot}">SLOT ${item.Slot}</span>`:''}<div class="days">${chips}</div>${tags}</div><div class="crow"><span class="coord">Coordinator: ${item.Coordinator}</span></div>${prereqStatus}${passedBadge}${unlocksBadge}`;
   el.classList.add('show');
 }
 
@@ -1835,11 +1995,13 @@ function applyCatFilters(){
         const pre=desc.sections['Pre-requisites']||desc.sections['Prerequisites']||'';
         const coreq=desc.sections['Co-requisites']||desc.sections['Corequisites']||'';
         const rec=desc.sections['Recommended']||'';
-        if(pre||coreq||rec){
+        const unlocks=reversePrereqIndex[item.Code]||[];
+        if(pre||coreq||rec||unlocks.length){
           html+='<div class="detail-section"><h4>Requirements</h4>';
           if(pre){const pItems=pre.split(/\n/).map(l=>l.replace(/^[•✓\-]+\s*/,'').trim()).filter(Boolean);html+=`<p style="font-size:11px;font-weight:700;color:var(--warn);margin-bottom:2px;text-transform:uppercase;letter-spacing:.06em">Prerequisites</p><ul>${pItems.map(p=>`<li>${esc(p)}</li>`).join('')}</ul>`;}
           if(coreq&&!coreq.toLowerCase().includes('none')){const cItems=coreq.split(/\n/).map(l=>l.replace(/^[•✓\-]+\s*/,'').trim()).filter(Boolean);html+=`<p style="font-size:11px;font-weight:700;color:var(--inf);margin-bottom:2px;margin-top:8px;text-transform:uppercase;letter-spacing:.06em">Co-requisites</p><ul>${cItems.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>`;}
           if(rec&&!rec.toLowerCase().includes('none')){const rItems=rec.split(/\n/).map(l=>l.replace(/^[•✓\-]+\s*/,'').trim()).filter(Boolean);html+=`<p style="font-size:11px;font-weight:700;color:var(--ok);margin-bottom:2px;margin-top:8px;text-transform:uppercase;letter-spacing:.06em">Recommended</p><ul>${rItems.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`;}
+          if(unlocks.length){html+=`<p style="font-size:11px;font-weight:700;color:var(--inf);margin-bottom:2px;margin-top:8px;text-transform:uppercase;letter-spacing:.06em">Required for</p><ul>${unlocks.map(u=>`<li><strong>${u.Code}</strong> &mdash; ${esc(u.Title)}</li>`).join('')}</ul><p style="font-size:10.5px;color:var(--g5);font-style:italic;margin-top:4px">Only courses offered in Period ${cfgP||'5'} are listed. Courses in other periods may also list this as a prerequisite.</p>`;}
           html+='</div>';
         }
         const lit=desc.sections['Literature']||desc.sections['Recommended reading']||'';
