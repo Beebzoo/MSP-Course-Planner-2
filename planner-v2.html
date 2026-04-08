@@ -919,7 +919,7 @@ function buildDashboard(){
       <div class="pc-sub">${esc(t.student.programme)}</div>
       <div class="pc-meta">
         <span>Student #${esc(t.student.studentNumber||'—')}</span>
-        <span>Semester ${t.semesters.length}</span>
+        <span>Semesters completed: ${t.semesters.length}</span>
         ${t.student.printDate?`<span>Transcript printed: ${esc(t.student.printDate)}</span>`:''}
       </div>
       ${distBadge}
@@ -1923,9 +1923,13 @@ function buildStarredPanel(){
 // ═══════════════════════════════════════════════════
 function buildInfoScreen(){
   document.getElementById('infobd').innerHTML=`
+    <div style="background:var(--warn-bg);border:1px solid var(--warn-bd);border-radius:var(--rs);padding:12px 14px;margin-bottom:18px">
+      <p style="font-size:12.5px;color:var(--warn);margin:0;line-height:1.6"><strong>Legal basis &mdash; 2025&ndash;2026 EER &amp; R&amp;R.</strong> All article numbers and wording below are taken from the 2025&ndash;2026 Education and Examination Regulations and Rules &amp; Regulations. The 2026&ndash;2027 EER &amp; R&amp;R apply from Period 1 of the 2026&ndash;2027 academic year &mdash; article numbers and content may change, so please re-check against the latest version once it is published.</p>
+    </div>
+
     <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Prerequisite Waivers</h3>
-    <p style="font-size:13px;color:var(--g5);margin-bottom:4px;font-style:italic">Legal basis: EER Article 4.3</p>
-    <p style="font-size:13px;color:var(--g7);margin-bottom:8px">A student can only start a module if they meet the prerequisites. All 3000-level modules must have prerequisites; 2000-level modules may have them; 1000-level modules do not.</p>
+    <p style="font-size:13px;color:var(--g5);margin-bottom:4px;font-style:italic">Legal basis: EER Article 4.3 (2025&ndash;2026)</p>
+    <p style="font-size:13px;color:var(--g7);margin-bottom:8px">A student can only start a module if they meet the prerequisites. 3000-level modules <em>typically</em> have prerequisites, 2000-level modules may have them, and 1000-level modules do not. <span style="color:var(--g5);font-style:italic">(The 2025&ndash;2026 EER states 3000-level modules &ldquo;must&rdquo; have prerequisites; the 2026&ndash;2027 draft softens this to &ldquo;typically&rdquo; &mdash; verify once finalised.)</span></p>
     <p style="font-size:13px;color:var(--g7);margin-bottom:8px">Prerequisites can be waived with <strong>written consent from the course coordinator</strong> of the module that requires the prerequisite (EER Art. 4.3.3).</p>
     <ol style="font-size:13px;color:var(--g7);padding-left:20px;margin-bottom:10px">
       <li style="margin-bottom:4px">Email the course coordinator with a short explanation of why you should receive a waiver</li>
