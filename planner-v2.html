@@ -481,6 +481,29 @@ footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:
 @supports not (font-family: 'Inter') {
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif !important; }
 }
+
+/* ─── Period picker (sidebar) ─── */
+.pd-hdr{display:flex;align-items:center;gap:6px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:rgba(255,255,255,.4);margin-bottom:10px}
+.pd-hdr::before{content:"";display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--sky);box-shadow:0 0 8px rgba(110,210,236,.6)}
+.pd-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.pd-btn{position:relative;display:flex;flex-direction:column;gap:1px;padding:10px 11px 9px;border-radius:10px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.025);color:rgba(255,255,255,.55);font-family:inherit;cursor:pointer;text-align:left;transition:all .22s cubic-bezier(.4,0,.2,1);overflow:hidden}
+.pd-btn::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(110,210,236,.18),transparent 50%);opacity:0;transition:opacity .25s}
+.pd-btn:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.88);border-color:rgba(255,255,255,.14);transform:translateY(-1px)}
+.pd-btn:hover::before{opacity:.4}
+.pd-btn>*{position:relative;z-index:1}
+.pd-btn .pd-num{font-family:'DM Sans','Inter',sans-serif;font-size:17px;font-weight:700;letter-spacing:.01em;line-height:1;color:rgba(255,255,255,.78)}
+.pd-btn .pd-season{font-size:10px;font-weight:600;color:rgba(255,255,255,.42);margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
+.pd-btn .pd-dates{font-size:9.5px;color:rgba(255,255,255,.32);font-weight:500;margin-top:1px;letter-spacing:.01em}
+.pd-btn.active{background:linear-gradient(135deg,rgba(110,210,236,.22) 0%,rgba(110,210,236,.04) 100%);border-color:rgba(110,210,236,.55);color:#fff;box-shadow:inset 0 0 0 1px rgba(110,210,236,.15),0 6px 20px -6px rgba(110,210,236,.35)}
+.pd-btn.active .pd-num{color:var(--sky);text-shadow:0 0 12px rgba(110,210,236,.35)}
+.pd-btn.active .pd-season{color:rgba(255,255,255,.82)}
+.pd-btn.active .pd-dates{color:rgba(255,255,255,.58)}
+.pd-btn.current{box-shadow:inset 0 0 0 1px rgba(232,119,34,.15)}
+.pd-btn.current::after{content:"";position:absolute;top:7px;right:7px;width:6px;height:6px;background:var(--orange);border-radius:50%;box-shadow:0 0 0 3px rgba(232,119,34,.22);animation:pdpulse 2.2s infinite ease-in-out;z-index:2}
+.pd-btn.active.current::after{background:var(--sky);box-shadow:0 0 0 3px rgba(110,210,236,.25)}
+@keyframes pdpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(1.25)}}
+.pd-meta{font-size:10.5px;color:rgba(255,255,255,.32);line-height:1.5;padding-top:10px;border-top:1px dashed rgba(255,255,255,.06);margin-top:4px}
+.pd-meta strong{color:rgba(255,255,255,.62);font-weight:600}
 </style>
 </head>
 <body>
@@ -518,14 +541,31 @@ footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:
     </a>
   </nav>
   <div class="sb-meta">
-    <label for="periodSelect" style="display:block;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--g4);margin-bottom:4px">Active period</label>
-    <select id="periodSelect" onchange="switchPeriod(this.value)" style="width:100%;padding:6px 8px;font-size:12px;font-weight:600;background:#fff;border:1px solid var(--g3);border-radius:6px;color:var(--g7);margin-bottom:6px;cursor:pointer">
-      <option value="P1">P1 · Fall (Aug–Oct 2026)</option>
-      <option value="P2">P2 · Fall (Oct–Dec 2026)</option>
-      <option value="P4">P4 · Spring (Jan–Mar 2027)</option>
-      <option value="P5">P5 · Spring (Mar–May 2027)</option>
-    </select>
-    <span id="mp" style="display:block;font-size:11px;color:var(--g5)">Loading&hellip;</span>
+    <div class="pd-hdr">Active period</div>
+    <div class="pd-grid" id="periodGrid">
+      <button type="button" class="pd-btn" data-p="P1" onclick="switchPeriod('P1')" aria-label="Period 1, Fall 2026">
+        <div class="pd-num">P1</div>
+        <div class="pd-season">Fall 2026</div>
+        <div class="pd-dates">31 Aug – 16 Oct</div>
+      </button>
+      <button type="button" class="pd-btn" data-p="P2" onclick="switchPeriod('P2')" aria-label="Period 2, Fall 2026">
+        <div class="pd-num">P2</div>
+        <div class="pd-season">Fall 2026</div>
+        <div class="pd-dates">27 Oct – 11 Dec</div>
+      </button>
+      <button type="button" class="pd-btn" data-p="P4" onclick="switchPeriod('P4')" aria-label="Period 4, Spring 2027">
+        <div class="pd-num">P4</div>
+        <div class="pd-season">Spring 2027</div>
+        <div class="pd-dates">25 Jan – 26 Mar</div>
+      </button>
+      <button type="button" class="pd-btn" data-p="P5" onclick="switchPeriod('P5')" aria-label="Period 5, Spring 2027">
+        <div class="pd-num">P5</div>
+        <div class="pd-season">Spring 2027</div>
+        <div class="pd-dates">29 Mar – May</div>
+      </button>
+    </div>
+    <div class="pd-meta"><strong id="mc2">Loading&hellip;</strong><span id="mc2sub" style="display:block;opacity:.75;margin-top:1px"></span></div>
+    <span id="mp" style="display:none"></span>
     <span id="mv" style="display:none"></span>
     <span id="mc" style="display:none"></span>
     
@@ -1442,14 +1482,23 @@ function switchPeriod(p){
   document.querySelectorAll(".ptab:not(.ptab-cmp)").forEach(t=>t.classList.remove("active"));
   const tabA = document.getElementById("tab-A");
   if (tabA) tabA.classList.add("active");
+  // Toggle active class on the period buttons
+  document.querySelectorAll(".pd-btn").forEach(b => {
+    b.classList.toggle("active", b.getAttribute("data-p") === p);
+  });
   // Reload CSV for the new period (this wipes courses[], labs[], and rebuilds UI)
   load(BAKED_DATA[p].csv);
-  // Sync the <select>
-  const sel = document.getElementById("periodSelect");
-  if (sel && sel.value !== p) sel.value = p;
   // Rebuild catalogue filters too (so it reflects the new period)
   if (typeof applyCatFilters === "function") applyCatFilters();
   if (typeof buildFilterChips === "function") buildFilterChips();
+}
+
+// Mark the period whose date range contains today as .current (pulse dot).
+function markCurrentPeriod(){
+  const today = getDefaultPeriod();
+  document.querySelectorAll(".pd-btn").forEach(b => {
+    b.classList.toggle("current", b.getAttribute("data-p") === today);
+  });
 }
 
 function load(text){
@@ -1478,6 +1527,11 @@ function load(text){
   if(cfgV){document.getElementById('mv').textContent=`v${cfgV}`;document.getElementById('mv').style.display='';}
   document.getElementById('mc').textContent=`${courses.length} courses \u00b7 ${labs.length} practicals`;
   document.getElementById('mc').style.display='';
+  // Populate the pretty pd-meta line under the period grid
+  const mc2=document.getElementById('mc2');
+  const mc2sub=document.getElementById('mc2sub');
+  if(mc2) mc2.textContent=`${courses.length} courses \u00b7 ${labs.length} practicals`;
+  if(mc2sub) mc2sub.textContent=cfgY?`${cfgY}${cfgV?'  \u00b7  v'+cfgV:''}`:'';
   document.getElementById('pp').textContent=cfgP&&cfgY?`Period ${cfgP}, ${cfgY}`:'';
   document.getElementById('pd').textContent=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
   switchPlan('A');showScreen('pl');
@@ -2329,8 +2383,10 @@ window.addEventListener('DOMContentLoaded',async()=>{
     parseMD(BAKED_MD);
     const startP = getDefaultPeriod();
     currentPeriod = startP;
-    const sel = document.getElementById('periodSelect');
-    if (sel) sel.value = startP;
+    document.querySelectorAll('.pd-btn').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-p') === startP);
+    });
+    markCurrentPeriod();
     load(BAKED_DATA[startP].csv);
     catBuilt=true;
     buildFilterChips();
