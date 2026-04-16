@@ -1634,8 +1634,11 @@ function buildBundleCard(){
   const prereqItem=items.find(it=>it.Prerequisite&&it.PrerequisiteCodes);
   let prereqHtml='';
   if(prereqItem){
+    // Advisory: show the typical pre-req, mark whether the transcript already
+    // covers it, but don't frame it as blocking.
     const met=pc?checkPrereqsMet(prereqItem.PrerequisiteCodes,pc):null;
-    prereqHtml=`<div class="bundle-item-pre">Entry pre-requisite: ${formatPrereqs(prereqItem.PrerequisiteCodes)}${met===true?' \u2014 <span style="color:var(--ok);font-weight:600">met \u2713</span>':met===false?' \u2014 <span style="color:var(--warn);font-weight:600">not met \u26a0</span>':''}</div>`;
+    const badge=met===true?' \u2014 <span style="color:var(--ok);font-weight:600">you\u2019ve completed this</span>':met===false?' \u2014 <span style="color:var(--warn);font-weight:600">not on your transcript \u2014 ask the coordinators about approval</span>':'';
+    prereqHtml=`<div class="bundle-item-pre">Typical entry pre-requisite: ${formatPrereqs(prereqItem.PrerequisiteCodes)}${badge}</div>`;
   }
   let rows='';
   items.forEach(it=>{
@@ -1851,14 +1854,11 @@ function buildTTHTML(c1,c2,lab,compact){
 function planStatus(k){
   const p=PLANS[k];
   if(p.bundle){
-    // Bundle plans: require prereq acknowledgement if the entry module has
-    // one, otherwise they're considered complete.
+    // Bundle plans are always "ready" once a bundle is selected. The entry
+    // pre-requisite is advisory only — coordinator approval is the real gate,
+    // so the planner doesn't block or warn on it.
     const items=bundledItems.filter(it=>it.Bundle===p.bundle);
-    if(!items.length)return'empty';
-    const entry=items.find(it=>it.Prerequisite&&it.PrerequisiteCodes);
-    if(!entry)return'ok';
-    if(APP.transcript&&checkPrereqsMet(entry.PrerequisiteCodes,APP.transcript.computed.passedCodes))return'ok';
-    return p.ack[entry.Code]?'ok':'warn';
+    return items.length?'ok':'empty';
   }
   const c1=courses.find(c=>c.Code===p.c1)||null,c2=courses.find(c=>c.Code===p.c2)||null;
   const lab=labs.find(l=>l.Code===p.lab)||null,sel=[c1,c2].filter(Boolean);
@@ -1894,21 +1894,27 @@ function updateTabIcons(){
 function checkPrereqs(){
   const p=PLANS[act],sEl=document.getElementById('chkst'),bEl=document.getElementById('chkbd');
   if(p.bundle){
+    // Option C: prereq is purely advisory. Plan is always considered ready;
+    // we only surface a heads-up if the transcript shows the entry pre-req
+    // hasn't been completed.
     const items=activeBundleItems();
     const entry=items.find(it=>it.Prerequisite&&it.PrerequisiteCodes);
     const t=APP.transcript;const pc=t?t.computed.passedCodes:null;
     let html='<p class="seclbl">Field Course \u2014 approval required</p>';
-    html+=`<div class="alrt a-warn"><span class="aico">\u26a0</span><div class="abdy"><strong>Pre-registration &amp; coordinator approval</strong><p>This field course is by approval only. Confirm your place with the coordinators before relying on this plan: <em>${esc(BUNDLE_META[p.bundle]?.coordinators||'')}</em>.</p></div></div>`;
+    html+=`<div class="alrt a-inf"><span class="aico">\u2139</span><div class="abdy"><strong>Pre-registration &amp; coordinator approval</strong><p>This field course is by approval only. Confirm your place with the coordinators before relying on this plan: <em>${esc(BUNDLE_META[p.bundle]?.coordinators||'')}</em>.</p></div></div>`;
     if(entry){
       const autoMet=pc&&checkPrereqsMet(entry.PrerequisiteCodes,pc);
-      if(autoMet){p.ack[entry.Code]=true;html+=`<div class="alrt a-ok" style="margin-top:10px"><span class="aico">\u2713</span><div class="abdy"><strong>Entry prerequisite met</strong><p><em>${entry.Code}</em> requires ${formatPrereqs(entry.PrerequisiteCodes)}. Verified from your transcript.</p></div></div>`;}
-      else{
-        const ok=p.ack[entry.Code];
-        html+=`<div class="pb ${ok?'conf':''}" style="margin-top:10px" id="pb-${entry.Code}"><input type="checkbox" id="ck-${entry.Code}" ${ok?'checked':''} onchange="acknowledgeCheck('${entry.Code}',this.checked)"><label for="ck-${entry.Code}">Entry prerequisite: <strong>${entry.Code}</strong> requires <span class="pc">${formatPrereqs(entry.PrerequisiteCodes)}</span>.<span class="ph">Check this box to confirm.</span></label></div>`;
+      if(autoMet){
+        html+=`<div class="alrt a-ok" style="margin-top:10px"><span class="aico">\u2713</span><div class="abdy"><strong>Typical entry prerequisite met</strong><p><em>${entry.Code}</em> usually requires ${formatPrereqs(entry.PrerequisiteCodes)}. Verified from your transcript.</p></div></div>`;
+      }else if(pc){
+        // Transcript is loaded and shows the prereq isn't complete — nudge.
+        html+=`<div class="alrt a-warn" style="margin-top:10px"><span class="aico">\u26a0</span><div class="abdy"><strong>Heads up</strong><p>Your transcript doesn\u2019t show <em>${esc(entry.PrerequisiteCodes)}</em>, which is the usual entry prerequisite for <em>${entry.Code}</em>. You can still take this field course if you have (or will request) coordinator approval \u2014 just make sure that\u2019s sorted before relying on this plan.</p></div></div>`;
+      }else{
+        // No transcript loaded — informational only.
+        html+=`<div class="alrt a-inf" style="margin-top:10px"><span class="aico">\u2139</span><div class="abdy"><strong>Typical entry prerequisite</strong><p><em>${entry.Code}</em> usually requires ${formatPrereqs(entry.PrerequisiteCodes)}. Coordinators may approve students who haven\u2019t taken these \u2014 check with them if unsure.</p></div></div>`;
       }
-      sEl.className=(pc&&checkPrereqsMet(entry.PrerequisiteCodes,pc))||p.ack[entry.Code]?'spill sp-ok':'spill sp-warn';
-      sEl.textContent=(pc&&checkPrereqsMet(entry.PrerequisiteCodes,pc))||p.ack[entry.Code]?'\u2713 All checks passed':'! Confirm prerequisites';
-    }else{sEl.className='spill sp-ok';sEl.textContent='\u2713 All checks passed';}
+    }
+    sEl.className='spill sp-ok';sEl.textContent='\u2713 All checks passed';
     bEl.innerHTML=html;updateTabIcons();return;
   }
   const c1=getCourse1(),c2=getCourse2(),lab=getLab(),sel=[c1,c2].filter(Boolean);
@@ -2023,17 +2029,27 @@ function buildBundleSummary(){
   const meta=BUNDLE_META[p.bundle]||{label:'Field Course',subtitle:'',note:'',coordinators:''};
   const entry=items.find(it=>it.Prerequisite&&it.PrerequisiteCodes);
   const t=APP.transcript;const pc=t?t.computed.passedCodes:null;
-  const preOk=!entry||(pc&&checkPrereqsMet(entry.PrerequisiteCodes,pc))||p.ack[entry.Code];
   let rows='';
   items.forEach(it=>{
     const chip=/^PRA/.test(it.Code)?'<span class="tchip">Practical</span>':'<span class="tchip">Course</span>';
     rows+=`<tr><td>${chip}</td><td><div class="scode">${esc(it.Code)}</div><div class="sname">${esc(it.Title)}</div></td><td><span class="slotb sl-FIELD">FIELD</span></td><td><span style="font-size:11.5px;color:var(--g5)">Off-grid \u00b7 full period</span></td><td class="scoord">${esc(it.Coordinator||'')}</td></tr>`;
   });
   const ttHtml=buildBundleTTHTML();
-  const approvalBlock=`<div class="alrt a-warn" style="margin-top:16px"><span class="aico">\u26a0</span><div class="abdy"><strong>Approval required</strong><p>This plan uses the <em>${esc(meta.label)}</em> field course, which is open only to students who have pre-registered and been approved by the coordinators (${esc(meta.coordinators||'')}). This planner cannot verify approval \u2014 confirm with the coordinators before relying on this plan.</p></div></div>`;
+  const approvalBlock=`<div class="alrt a-inf" style="margin-top:16px"><span class="aico">\u2139</span><div class="abdy"><strong>Approval required</strong><p>This plan uses the <em>${esc(meta.label)}</em> field course, which is open only to students who have pre-registered and been approved by the coordinators (${esc(meta.coordinators||'')}). This planner cannot verify approval \u2014 confirm with the coordinators before relying on this plan.</p></div></div>`;
+  // Entry-prerequisite note: the prereq is advisory only (Option C). We still
+  // show a heads-up row summarising the typical requirement and, when a
+  // transcript is loaded, whether it's been completed.
   let checksHtml='';
   if(entry){
-    checksHtml=`<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--g2)"><p class="seclbl" style="margin-bottom:8px">Entry prerequisite</p><div style="font-size:12px;padding:4px 0;color:${preOk?'var(--ok)':'var(--warn)'}"><strong>${esc(entry.Code)}</strong> requires ${esc(entry.PrerequisiteCodes)} \u2014 ${preOk?'Confirmed \u2713':'Unconfirmed \u26a0'}</div></div>`;
+    let noteColor='var(--g5)',noteText='';
+    if(pc&&checkPrereqsMet(entry.PrerequisiteCodes,pc)){
+      noteColor='var(--ok)';noteText='Transcript shows this is complete \u2713';
+    }else if(pc){
+      noteColor='var(--warn)';noteText='Transcript doesn\u2019t show this \u2014 confirm approval with the coordinators \u26a0';
+    }else{
+      noteText='Coordinators may approve students who haven\u2019t taken these.';
+    }
+    checksHtml=`<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--g2)"><p class="seclbl" style="margin-bottom:8px">Typical entry prerequisite</p><div style="font-size:12px;padding:4px 0;color:${noteColor}"><strong>${esc(entry.Code)}</strong> usually requires ${esc(entry.PrerequisiteCodes)} \u2014 ${noteText}</div></div>`;
   }
   let transcriptSummary='';
   if(APP.transcript){
@@ -2043,8 +2059,7 @@ function buildBundleSummary(){
   }
   const printReminders=`<div class="printonly" style="margin-top:16px;padding:14px;background:var(--g0);border:1px solid var(--g2);border-radius:var(--rs)"><p class="seclbl" style="margin-bottom:6px">Important Reminders</p><ul style="margin:0 0 0 16px;font-size:11.5px;color:var(--g5);line-height:1.7"><li>This field course requires <strong>pre-registration and coordinator approval</strong>. Confirm before relying on this plan.</li><li>This plan is for self-preparation only. <strong>Confirm all registrations with your academic advisor.</strong></li></ul></div>`;
   bEl.innerHTML=`<div style="overflow-x:auto"><table class="stbl"><thead><tr><th>Type</th><th>Module</th><th>Slot</th><th>Schedule</th><th>Coordinator</th></tr></thead><tbody>${rows}</tbody></table></div><div style="margin-top:18px"><p class="seclbl" style="margin-bottom:8px">Weekly Timetable</p>${ttHtml}</div>${checksHtml}${approvalBlock}${transcriptSummary}${printReminders}`;
-  if(preOk){sEl.className='spill sp-ok';sEl.textContent='\u2713 Ready to print';}
-  else{sEl.className='spill sp-warn';sEl.textContent='\u26a0 Confirm prerequisite';}
+  sEl.className='spill sp-ok';sEl.textContent='\u2713 Ready to print';
   btn.disabled=false;
 }
 
