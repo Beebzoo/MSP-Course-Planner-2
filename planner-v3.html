@@ -113,6 +113,29 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .crow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px} .crow:last-child{margin-bottom:0}
 .slotb{display:inline-flex;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.05em}
 .sl-A{background:var(--sa-bg);color:var(--sa)} .sl-B{background:var(--sb-bg);color:var(--sb)} .sl-C{background:var(--sc-bg);color:var(--sc)} .sl-D{background:var(--sd-bg);color:var(--sd)} .sl-E{background:var(--se-bg);color:var(--se)}
+.sl-FIELD{background:#FEF3C7;color:#92400E}
+
+/* ── Field Course (bundle) card ── */
+.bundle-card{border:1px solid #FCD34D;background:#FFFBEB}
+.bundle-card .card-h{border-bottom-color:#FDE68A}
+.bundle-toggle-row{display:flex;align-items:center;gap:12px;padding:14px 18px;background:#FEF3C7;border-radius:var(--rs);margin-bottom:12px}
+.bundle-toggle-row input[type=checkbox]{width:18px;height:18px;accent-color:#B45309;cursor:pointer}
+.bundle-toggle-row label{font-size:13.5px;font-weight:600;color:#92400E;cursor:pointer}
+.bundle-info{padding:0 18px;margin-bottom:10px}
+.bundle-info .bundle-label{font-size:15px;font-weight:700;color:#92400E;margin-bottom:2px}
+.bundle-info .bundle-subtitle{font-size:12px;color:#B45309;margin-bottom:8px}
+.bundle-info .bundle-note{font-size:12px;color:#78350F;background:#FFF7ED;border-left:3px solid #F59E0B;padding:8px 12px;border-radius:4px;line-height:1.5}
+.bundle-info .bundle-coord{font-size:11.5px;color:#78350F;margin-top:8px}
+.bundle-components{padding:10px 18px 18px}
+.bundle-components .seclbl{margin-bottom:8px}
+.bundle-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:#fff;border:1px solid #FDE68A;border-radius:var(--rs);margin-top:6px}
+.bundle-item .tchip{flex-shrink:0;margin-top:2px}
+.bundle-item-body{flex:1;min-width:0}
+.bundle-item-code{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12.5px;color:#78350F}
+.bundle-item-title{font-size:13px;color:var(--g9);margin-top:1px}
+.bundle-item-pre{font-size:11px;color:var(--g5);margin-top:3px}
+.bundle-disabled{opacity:.45;pointer-events:none;position:relative}
+.bundle-disabled::after{content:'Disabled — Field Course is selected for this plan';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:10px 16px;border-radius:var(--rs);font-size:12px;font-weight:600;color:#78350F;border:1px solid #FDE68A;box-shadow:var(--sh-md);pointer-events:none}
 .tg{display:inline-flex;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600}
 .tg-co{background:var(--inf-bg);color:var(--inf)} .tg-pre{background:var(--warn-bg);color:var(--warn)}
 .days{display:flex;flex-wrap:wrap;gap:4px}
@@ -341,7 +364,7 @@ footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:
 .slot-section{margin-bottom:32px}
 .slot-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--g2)}
 .slot-badge{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;font-size:16px;font-weight:800;color:#fff;letter-spacing:.02em;flex-shrink:0}
-.slot-badge.sl-A{background:var(--sa)} .slot-badge.sl-B{background:var(--sb)} .slot-badge.sl-C{background:#B45309} .slot-badge.sl-D{background:var(--sd)} .slot-badge.sl-E{background:var(--se)} .slot-badge.sl-PRA{background:var(--navy)}
+.slot-badge.sl-A{background:var(--sa)} .slot-badge.sl-B{background:var(--sb)} .slot-badge.sl-C{background:#B45309} .slot-badge.sl-D{background:var(--sd)} .slot-badge.sl-E{background:var(--se)} .slot-badge.sl-PRA{background:var(--navy)} .slot-badge.sl-FIELD{background:#B45309}
 .slot-header h2{font-family:'DM Sans',sans-serif;font-size:18px;font-weight:700;color:var(--g9)}
 .slot-header .slot-info{font-size:12px;color:var(--g4);font-weight:400}
 .slot-count{margin-left:auto;font-size:11px;color:var(--g4);background:var(--g1);padding:3px 10px;border-radius:12px;font-weight:600}
@@ -360,7 +383,7 @@ footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:
 .ccard-row1{display:flex;align-items:flex-start;gap:10px}
 .ccard .cc-code{font-size:12px;font-weight:700;color:#fff;background:var(--navy);padding:3px 10px;border-radius:5px;font-family:'SF Mono',Monaco,Consolas,monospace;letter-spacing:.03em;flex-shrink:0}
 .ccard .cc-slot{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;letter-spacing:.05em}
-.cc-slot.sl-A{background:var(--sa-bg);color:var(--sa)} .cc-slot.sl-B{background:var(--sb-bg);color:var(--sb)} .cc-slot.sl-C{background:var(--sc-bg);color:var(--sc)} .cc-slot.sl-D{background:var(--sd-bg);color:var(--sd)} .cc-slot.sl-E{background:var(--se-bg);color:var(--se)}
+.cc-slot.sl-A{background:var(--sa-bg);color:var(--sa)} .cc-slot.sl-B{background:var(--sb-bg);color:var(--sb)} .cc-slot.sl-C{background:var(--sc-bg);color:var(--sc)} .cc-slot.sl-D{background:var(--sd-bg);color:var(--sd)} .cc-slot.sl-E{background:var(--se-bg);color:var(--se)} .cc-slot.sl-FIELD{background:#FEF3C7;color:#92400E}
 .ccard .cc-title{font-size:16px;font-weight:700;color:var(--g9);line-height:1.3;font-family:'DM Sans',sans-serif}
 .ccard .cc-coord{font-size:12px;color:var(--g5)}
 .ccard-meta{display:flex;align-items:center;gap:8px;padding:0 20px 14px;flex-wrap:wrap}
@@ -622,7 +645,11 @@ footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:
       <button class="ptab ptab-cmp" id="tab-cmp" onclick="toggleCmp()">&#9638; Compare</button>
     </div>
     <div id="planview">
-    <div class="card">
+    <div class="card bundle-card" id="bundlecard" style="display:none">
+      <div class="card-h"><div class="step">&#9774;</div><h2 id="bundleTitle">Field Course</h2><span class="hint" id="bundleSubtitle">By approval only</span></div>
+      <div class="card-b" id="bundlebd"></div>
+    </div>
+    <div class="card" id="coursecard">
       <div class="card-h"><div class="step">1</div><h2>Select Your Courses</h2><span class="hint">2 courses from different time slots</span></div>
       <div class="card-b">
         <div class="field"><label class="flbl">Course 1</label><div class="sw"><select id="c1"></select></div><div class="cpanel" id="pi1"></div></div>
@@ -630,7 +657,7 @@ footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:
         <div class="field"><label class="flbl">Course 2</label><div class="sw"><select id="c2"></select></div><div class="cpanel" id="pi2"></div></div>
       </div>
     </div>
-    <div class="card">
+    <div class="card" id="labcard">
       <div class="card-h"><div class="step">2</div><h2>Select Your Practical</h2><span class="hint">Must not overlap with course days</span></div>
       <div class="card-b">
         <div class="field"><label class="flbl">Practical / Skill</label><div class="sw"><select id="lab"></select></div><div id="labct" class="labct"></div><div class="cpanel" id="pil"></div></div>
@@ -704,10 +731,22 @@ const LINKS={switchForm:'https://intranet.maastrichtuniversity.nl/en/msp-student
 const HUMANITIES_CODES=['INT2007','INT3001','HUM2051','INT2013','INT3012'];
 const CORE_CODES=['BIO1101','CHE1101','PHY1101','INT1101','PRA1101','PRA1102','PRO1101'];
 
-let courses=[],labs=[],cfgV='',cfgP='',cfgY='';
+let courses=[],labs=[],bundledItems=[],cfgV='',cfgP='',cfgY='';
 let reversePrereqIndex={};
 let descriptions={};
 let currentPeriod="P5";
+
+// Field-course bundles: a Bundle ID groups several modules that must be
+// taken together. When a plan opts into a bundle, individual Course/Practical
+// dropdowns are disabled and the three components lock in as one unit.
+const BUNDLE_META={
+  'FIELD-P1-ISLAND':{
+    label:'Mediterranean Island Studies',
+    subtitle:'Field course — Period 1, by approval only',
+    note:'Pre-registration and coordinator approval are required. All three modules (INT3201, INT3202, PRA3201) must be taken together and replace your usual P1 course/practical load.',
+    coordinators:'Jesse Hennekam, Kyle Jazwa, Phil Klahs, George Mesher'
+  }
+};
 const ALL_PLANS={P1:{A:emptyPlan(),B:emptyPlan(),C:emptyPlan()},P2:{A:emptyPlan(),B:emptyPlan(),C:emptyPlan()},P4:{A:emptyPlan(),B:emptyPlan(),C:emptyPlan()},P5:{A:emptyPlan(),B:emptyPlan(),C:emptyPlan()}};
 let PLANS=ALL_PLANS.P5;
 let act='A',cmpMode=false;
@@ -720,7 +759,7 @@ const APP={
   transcript:null
 };
 
-function emptyPlan(){return{c1:'',c2:'',lab:'',ack:{}};}
+function emptyPlan(){return{c1:'',c2:'',lab:'',ack:{},bundle:''};}
 
 // ═══════════════════════════════════════════════════
 // TRANSCRIPT PARSER
@@ -1502,7 +1541,7 @@ function markCurrentPeriod(){
 }
 
 function load(text){
-  courses=[];labs=[];cfgV=cfgP=cfgY='';
+  courses=[];labs=[];bundledItems=[];cfgV=cfgP=cfgY='';
   const lines=text.split(/\r?\n/).filter(l=>l.trim());
   let hi=-1;
   for(let i=0;i<lines.length;i++){
@@ -1520,7 +1559,10 @@ function load(text){
     e.Days=e.Days?e.Days.split(/\s*,\s*/).map(d=>d.trim()).filter(Boolean):[];
     e.CorequisiteOf=(e.CorequisiteOf||'').trim();
     e.PrerequisiteCodes=(e.PrerequisiteCodes||'').trim();
-    if(e.Slot)courses.push(e);else labs.push(e);
+    e.Bundle=(e.Bundle||'').trim();
+    if(e.Bundle)bundledItems.push(e);
+    else if(e.Slot)courses.push(e);
+    else labs.push(e);
   }
   reversePrereqIndex=buildReversePrereqIndex();
   document.getElementById('mp').textContent=cfgP&&cfgY?`Period ${cfgP} \u00b7 ${cfgY}`:'Schedule loaded';
@@ -1557,10 +1599,74 @@ function switchPlan(k){
   document.getElementById('lab').value=p.lab;
   showPanel(cv1,'pi1',false);showPanel(cv2,'pi2',false);
   showPanel(labs.find(l=>l.Code===p.lab)||null,'pil',true);
+  buildBundleCard();
+  applyBundleMode();
   checkPrereqs();buildSummary();buildNextSteps();buildTT();buildAdvicePanel();
 }
 
-function save(){const p=PLANS[act];p.c1=document.getElementById('c1').value;p.c2=document.getElementById('c2').value;p.lab=document.getElementById('lab').value;}
+function save(){const p=PLANS[act];if(p.bundle)return;p.c1=document.getElementById('c1').value;p.c2=document.getElementById('c2').value;p.lab=document.getElementById('lab').value;}
+
+// ═══════════════════════════════════════════════════
+// FIELD COURSE BUNDLE
+// ═══════════════════════════════════════════════════
+function bundlesByGroup(){
+  const g={};bundledItems.forEach(it=>{(g[it.Bundle]=g[it.Bundle]||[]).push(it);});return g;
+}
+function activeBundleItems(){
+  const bid=PLANS[act]?.bundle;if(!bid)return[];
+  return bundledItems.filter(it=>it.Bundle===bid);
+}
+function buildBundleCard(){
+  const card=document.getElementById('bundlecard');if(!card)return;
+  const groups=bundlesByGroup();
+  const ids=Object.keys(groups);
+  if(!ids.length){card.style.display='none';return;}
+  // Render the first bundle for the current period (there is only one today;
+  // extend this if multiple bundles land in the same period).
+  const bid=ids[0];
+  const items=groups[bid];
+  const meta=BUNDLE_META[bid]||{label:bid,subtitle:'',note:'',coordinators:''};
+  const active=PLANS[act].bundle===bid;
+  document.getElementById('bundleTitle').textContent=meta.label;
+  document.getElementById('bundleSubtitle').textContent=meta.subtitle||'By approval only';
+  const t=APP.transcript;
+  const pc=t?t.computed.passedCodes:null;
+  const prereqItem=items.find(it=>it.Prerequisite&&it.PrerequisiteCodes);
+  let prereqHtml='';
+  if(prereqItem){
+    // Advisory: show the typical pre-req, mark whether the transcript already
+    // covers it, but don't frame it as blocking.
+    const met=pc?checkPrereqsMet(prereqItem.PrerequisiteCodes,pc):null;
+    const badge=met===true?' \u2014 <span style="color:var(--ok);font-weight:600">you\u2019ve completed this</span>':met===false?' \u2014 <span style="color:var(--warn);font-weight:600">not on your transcript \u2014 ask the coordinators about approval</span>':'';
+    prereqHtml=`<div class="bundle-item-pre">Typical entry pre-requisite: ${formatPrereqs(prereqItem.PrerequisiteCodes)}${badge}</div>`;
+  }
+  let rows='';
+  items.forEach(it=>{
+    const chip=/^PRA/.test(it.Code)?'<span class="tchip">Practical</span>':'<span class="tchip">Course</span>';
+    rows+=`<div class="bundle-item">${chip}<div class="bundle-item-body"><div class="bundle-item-code">${esc(it.Code)}</div><div class="bundle-item-title">${esc(it.Title)}</div>${it.Prerequisite&&it.PrerequisiteCodes?`<div class="bundle-item-pre">Pre-req: ${esc(it.PrerequisiteCodes)}</div>`:''}</div></div>`;
+  });
+  document.getElementById('bundlebd').innerHTML=
+    `<div class="bundle-toggle-row"><input type="checkbox" id="bundle-toggle-${bid}" ${active?'checked':''} onchange="toggleBundle('${bid}',this.checked)"><label for="bundle-toggle-${bid}">${active?'\u2713 Enabled for this plan \u2014 individual course &amp; practical selection is disabled':'Enable for this plan (replaces your full P1 course &amp; practical load)'}</label></div>`+
+    `<div class="bundle-info"><div class="bundle-label">${esc(meta.label)}</div><div class="bundle-subtitle">${esc(meta.subtitle)}</div><div class="bundle-note">${esc(meta.note)}</div>${meta.coordinators?`<div class="bundle-coord">Coordinators: ${esc(meta.coordinators)}</div>`:''}${prereqHtml}</div>`+
+    `<div class="bundle-components"><p class="seclbl">Modules in this bundle</p>${rows}</div>`;
+  card.style.display='';
+}
+function toggleBundle(bid,on){
+  const p=PLANS[act];
+  p.bundle=on?bid:'';
+  // Keep c1/c2/lab preserved so disabling the bundle restores the previous
+  // individual selections. Bundle plans use activeBundleItems() instead.
+  switchPlan(act);
+  updateTabIcons();
+}
+function applyBundleMode(){
+  const on=!!PLANS[act].bundle;
+  ['coursecard','labcard'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.classList.toggle('bundle-disabled',on);
+    el.querySelectorAll('select').forEach(s=>{s.disabled=on;});
+  });
+}
 
 function prereqIndicator(code){
   if(!APP.transcript)return'';
@@ -1695,11 +1801,26 @@ const DAYS=['Mon','Tue','Wed','Thu','Fri'];
 const TIMES=['AM','PM'];
 
 function buildTT(){
+  const bd=document.getElementById('ttbd');
+  if(PLANS[act]?.bundle){
+    bd.innerHTML=buildBundleTTHTML();return;
+  }
   const c1=getCourse1(),c2=getCourse2(),lab=getLab();
   const sel=[c1,c2].filter(Boolean);
-  const bd=document.getElementById('ttbd');
   if(!sel.length){bd.innerHTML='<div class="emptys"><span class="ei">\u{1F4C5}</span><p>Select courses to see your weekly timetable.</p></div>';return;}
   bd.innerHTML=buildTTHTML(c1,c2,lab,false);
+}
+
+// Timetable replacement when a field-course bundle is active: a single
+// full-week block explaining the off-grid nature of the bundle.
+function buildBundleTTHTML(){
+  const items=activeBundleItems();
+  const meta=BUNDLE_META[PLANS[act].bundle]||{label:'Field Course'};
+  const codes=items.map(it=>`<span class="daychip" style="background:#FEF3C7;color:#92400E;border-color:#FDE68A">${esc(it.Code)}</span>`).join(' ');
+  return `<div style="padding:18px;text-align:center;background:#FFFBEB;border:1px dashed #FCD34D;border-radius:var(--rs)">`+
+    `<div style="font-size:13px;font-weight:700;color:#92400E;margin-bottom:4px">${esc(meta.label)}</div>`+
+    `<div style="font-size:12px;color:#78350F;margin-bottom:10px">Runs off-grid for the full period \u2014 not scheduled on the weekly Mon\u2013Fri timetable.</div>`+
+    `<div>${codes}</div></div>`;
 }
 
 function buildTTHTML(c1,c2,lab,compact){
@@ -1732,6 +1853,13 @@ function buildTTHTML(c1,c2,lab,compact){
 // ═══════════════════════════════════════════════════
 function planStatus(k){
   const p=PLANS[k];
+  if(p.bundle){
+    // Bundle plans are always "ready" once a bundle is selected. The entry
+    // pre-requisite is advisory only — coordinator approval is the real gate,
+    // so the planner doesn't block or warn on it.
+    const items=bundledItems.filter(it=>it.Bundle===p.bundle);
+    return items.length?'ok':'empty';
+  }
   const c1=courses.find(c=>c.Code===p.c1)||null,c2=courses.find(c=>c.Code===p.c2)||null;
   const lab=labs.find(l=>l.Code===p.lab)||null,sel=[c1,c2].filter(Boolean);
   if(!sel.length)return'empty';
@@ -1764,8 +1892,32 @@ function updateTabIcons(){
 }
 
 function checkPrereqs(){
-  const c1=getCourse1(),c2=getCourse2(),lab=getLab(),sel=[c1,c2].filter(Boolean);
   const p=PLANS[act],sEl=document.getElementById('chkst'),bEl=document.getElementById('chkbd');
+  if(p.bundle){
+    // Option C: prereq is purely advisory. Plan is always considered ready;
+    // we only surface a heads-up if the transcript shows the entry pre-req
+    // hasn't been completed.
+    const items=activeBundleItems();
+    const entry=items.find(it=>it.Prerequisite&&it.PrerequisiteCodes);
+    const t=APP.transcript;const pc=t?t.computed.passedCodes:null;
+    let html='<p class="seclbl">Field Course \u2014 approval required</p>';
+    html+=`<div class="alrt a-inf"><span class="aico">\u2139</span><div class="abdy"><strong>Pre-registration &amp; coordinator approval</strong><p>This field course is by approval only. Confirm your place with the coordinators before relying on this plan: <em>${esc(BUNDLE_META[p.bundle]?.coordinators||'')}</em>.</p></div></div>`;
+    if(entry){
+      const autoMet=pc&&checkPrereqsMet(entry.PrerequisiteCodes,pc);
+      if(autoMet){
+        html+=`<div class="alrt a-ok" style="margin-top:10px"><span class="aico">\u2713</span><div class="abdy"><strong>Typical entry prerequisite met</strong><p><em>${entry.Code}</em> usually requires ${formatPrereqs(entry.PrerequisiteCodes)}. Verified from your transcript.</p></div></div>`;
+      }else if(pc){
+        // Transcript is loaded and shows the prereq isn't complete — nudge.
+        html+=`<div class="alrt a-warn" style="margin-top:10px"><span class="aico">\u26a0</span><div class="abdy"><strong>Heads up</strong><p>Your transcript doesn\u2019t show <em>${esc(entry.PrerequisiteCodes)}</em>, which is the usual entry prerequisite for <em>${entry.Code}</em>. You can still take this field course if you have (or will request) coordinator approval \u2014 just make sure that\u2019s sorted before relying on this plan.</p></div></div>`;
+      }else{
+        // No transcript loaded — informational only.
+        html+=`<div class="alrt a-inf" style="margin-top:10px"><span class="aico">\u2139</span><div class="abdy"><strong>Typical entry prerequisite</strong><p><em>${entry.Code}</em> usually requires ${formatPrereqs(entry.PrerequisiteCodes)}. Coordinators may approve students who haven\u2019t taken these \u2014 check with them if unsure.</p></div></div>`;
+      }
+    }
+    sEl.className='spill sp-ok';sEl.textContent='\u2713 All checks passed';
+    bEl.innerHTML=html;updateTabIcons();return;
+  }
+  const c1=getCourse1(),c2=getCourse2(),lab=getLab(),sel=[c1,c2].filter(Boolean);
   if(!sel.length){sEl.className='spill sp-pend';sEl.textContent='\u2014 Select courses first';bEl.innerHTML='<div class="emptys"><span class="ei">\u2713</span><p>Select your courses to see checks.</p></div>';return;}
   let html='',badCo=false,unPre=false,coI=[];
   const t=APP.transcript;
@@ -1827,6 +1979,13 @@ function buildAdvicePanel(){
   const el=document.getElementById('advicePanel');
   if(!el)return;
   if(!APP.transcript){el.style.display='none';return;}
+  if(PLANS[act]?.bundle){
+    // Field-course plans are fixed bundles; the normal per-course advice
+    // doesn't apply. Surface a single note instead.
+    el.style.display='';
+    el.innerHTML='<h3>&#128161; Field course plan</h3><ul><li>This plan uses a fixed field-course bundle (see the Field Course card above). Individual course and practical advice is hidden because the selection is locked by the bundle.</li></ul>';
+    return;
+  }
   const t=APP.transcript;
   const r=t.computed.requirements;
   const tips=[];
@@ -1864,9 +2023,50 @@ function buildAdvicePanel(){
 // ═══════════════════════════════════════════════════
 // SUMMARY
 // ═══════════════════════════════════════════════════
-function buildSummary(){
-  const c1=getCourse1(),c2=getCourse2(),lab=getLab(),sel=[c1,c2].filter(Boolean);
+function buildBundleSummary(){
   const p=PLANS[act],sEl=document.getElementById('planst'),bEl=document.getElementById('sumbd'),btn=document.getElementById('btnp');
+  const items=activeBundleItems();
+  const meta=BUNDLE_META[p.bundle]||{label:'Field Course',subtitle:'',note:'',coordinators:''};
+  const entry=items.find(it=>it.Prerequisite&&it.PrerequisiteCodes);
+  const t=APP.transcript;const pc=t?t.computed.passedCodes:null;
+  let rows='';
+  items.forEach(it=>{
+    const chip=/^PRA/.test(it.Code)?'<span class="tchip">Practical</span>':'<span class="tchip">Course</span>';
+    rows+=`<tr><td>${chip}</td><td><div class="scode">${esc(it.Code)}</div><div class="sname">${esc(it.Title)}</div></td><td><span class="slotb sl-FIELD">FIELD</span></td><td><span style="font-size:11.5px;color:var(--g5)">Off-grid \u00b7 full period</span></td><td class="scoord">${esc(it.Coordinator||'')}</td></tr>`;
+  });
+  const ttHtml=buildBundleTTHTML();
+  const approvalBlock=`<div class="alrt a-inf" style="margin-top:16px"><span class="aico">\u2139</span><div class="abdy"><strong>Approval required</strong><p>This plan uses the <em>${esc(meta.label)}</em> field course, which is open only to students who have pre-registered and been approved by the coordinators (${esc(meta.coordinators||'')}). This planner cannot verify approval \u2014 confirm with the coordinators before relying on this plan.</p></div></div>`;
+  // Entry-prerequisite note: the prereq is advisory only (Option C). We still
+  // show a heads-up row summarising the typical requirement and, when a
+  // transcript is loaded, whether it's been completed.
+  let checksHtml='';
+  if(entry){
+    let noteColor='var(--g5)',noteText='';
+    if(pc&&checkPrereqsMet(entry.PrerequisiteCodes,pc)){
+      noteColor='var(--ok)';noteText='Transcript shows this is complete \u2713';
+    }else if(pc){
+      noteColor='var(--warn)';noteText='Transcript doesn\u2019t show this \u2014 confirm approval with the coordinators \u26a0';
+    }else{
+      noteText='Coordinators may approve students who haven\u2019t taken these.';
+    }
+    checksHtml=`<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--g2)"><p class="seclbl" style="margin-bottom:8px">Typical entry prerequisite</p><div style="font-size:12px;padding:4px 0;color:${noteColor}"><strong>${esc(entry.Code)}</strong> usually requires ${esc(entry.PrerequisiteCodes)} \u2014 ${noteText}</div></div>`;
+  }
+  let transcriptSummary='';
+  if(APP.transcript){
+    const tc=APP.transcript.computed;
+    const planECTS=items.reduce((a,it)=>a+(/^PRA/.test(it.Code)?2.5:5),0);
+    transcriptSummary=`<div class="printonly" style="margin-top:16px;padding:14px;background:var(--g0);border:1px solid var(--g2);border-radius:var(--rs)"><p class="seclbl" style="margin-bottom:6px">Transcript Summary</p><div style="font-size:12px;color:var(--g7)">Current ECTS: ${tc.totalECTSEarned} / 180 &nbsp;&bull;&nbsp; After this plan: ${(tc.totalECTSEarned+planECTS).toFixed(1)} &nbsp;&bull;&nbsp; GPA: ${tc.currentCumGPA.toFixed(1)}</div></div>`;
+  }
+  const printReminders=`<div class="printonly" style="margin-top:16px;padding:14px;background:var(--g0);border:1px solid var(--g2);border-radius:var(--rs)"><p class="seclbl" style="margin-bottom:6px">Important Reminders</p><ul style="margin:0 0 0 16px;font-size:11.5px;color:var(--g5);line-height:1.7"><li>This field course requires <strong>pre-registration and coordinator approval</strong>. Confirm before relying on this plan.</li><li>This plan is for self-preparation only. <strong>Confirm all registrations with your academic advisor.</strong></li></ul></div>`;
+  bEl.innerHTML=`<div style="overflow-x:auto"><table class="stbl"><thead><tr><th>Type</th><th>Module</th><th>Slot</th><th>Schedule</th><th>Coordinator</th></tr></thead><tbody>${rows}</tbody></table></div><div style="margin-top:18px"><p class="seclbl" style="margin-bottom:8px">Weekly Timetable</p>${ttHtml}</div>${checksHtml}${approvalBlock}${transcriptSummary}${printReminders}`;
+  sEl.className='spill sp-ok';sEl.textContent='\u2713 Ready to print';
+  btn.disabled=false;
+}
+
+function buildSummary(){
+  const p=PLANS[act],sEl=document.getElementById('planst'),bEl=document.getElementById('sumbd'),btn=document.getElementById('btnp');
+  if(p.bundle){buildBundleSummary();return;}
+  const c1=getCourse1(),c2=getCourse2(),lab=getLab(),sel=[c1,c2].filter(Boolean);
   if(!sel.length){sEl.className='spill sp-pend';sEl.textContent='Incomplete';bEl.innerHTML='<div class="emptys"><span class="ei">\u{1F4CB}</span><p>Select courses to see your plan.</p></div>';btn.disabled=true;return;}
   const iss=[];
   for(const c of sel)if(c.Corequisite&&c.CorequisiteOf&&(!lab||lab.Code!==c.CorequisiteOf)){
@@ -1955,16 +2155,25 @@ function buildCmp(){
   const el=document.getElementById('cmpview');
   let html='<div class="cmp-grid">';
   ['A','B','C'].forEach(k=>{
-    const p=PLANS[k],c1=courses.find(c=>c.Code===p.c1)||null,c2=courses.find(c=>c.Code===p.c2)||null;
-    const lab=labs.find(l=>l.Code===p.lab)||null,sel=[c1,c2].filter(Boolean),st=planStatus(k);
+    const p=PLANS[k];
+    const st=planStatus(k);
     let stCls='',stTxt='';
     if(st==='ok'){stCls='cmp-st-ok';stTxt='\u2713 Ready';}else if(st==='warn'){stCls='cmp-st-warn';stTxt='\u26a0 Warnings';}else if(st==='err'){stCls='cmp-st-err';stTxt='\u26a0 Issues';}else if(st==='empty'){stTxt='Empty';}else{stTxt='Incomplete';}
     html+=`<div class="cmp-col"><div class="cmp-col-h">Plan ${k}<span class="cmp-st ${stCls}">${stTxt}</span></div><div class="cmp-col-b">`;
-    if(!sel.length){html+='<div class="cmp-empty">No courses selected</div>';}else{
-      sel.forEach(c=>{const chips=c.Days.map(d=>`<span class="daychip">${formatDay(d)}</span>`).join('');html+=`<div class="cmp-item"><div class="ci-type">Course &middot; <span class="slotb sl-${c.Slot}">SLOT ${c.Slot}</span></div><div class="ci-code">${c.Code}</div><div class="ci-title">${c.Title}</div><div class="ci-days">${chips}</div></div>`;});
-      if(lab){const chips=lab.Days.map(d=>`<span class="daychip">${formatDay(d)}</span>`).join('');html+=`<div class="cmp-item"><div class="ci-type">Practical</div><div class="ci-code">${lab.Code}</div><div class="ci-title">${lab.Title}</div><div class="ci-days">${chips}</div></div>`;}
-      else{html+='<div class="cmp-item" style="opacity:.5"><div class="ci-type">Practical</div><div class="ci-title" style="font-style:italic">Not selected</div></div>';}
-      html+=`<div class="cmp-tt">${buildTTHTML(c1,c2,lab,true)}</div>`;
+    if(p.bundle){
+      const items=bundledItems.filter(it=>it.Bundle===p.bundle);
+      const meta=BUNDLE_META[p.bundle]||{label:'Field Course'};
+      html+=`<div class="cmp-item" style="background:#FFFBEB;border-color:#FDE68A"><div class="ci-type">Field course &middot; <span class="slotb sl-FIELD">FIELD</span></div><div class="ci-title" style="font-weight:700;color:#92400E">${esc(meta.label)}</div><div class="ci-days" style="font-size:11px;color:#78350F">By approval only</div></div>`;
+      items.forEach(it=>{html+=`<div class="cmp-item"><div class="ci-type">${/^PRA/.test(it.Code)?'Practical':'Course'}</div><div class="ci-code">${esc(it.Code)}</div><div class="ci-title">${esc(it.Title)}</div></div>`;});
+    }else{
+      const c1=courses.find(c=>c.Code===p.c1)||null,c2=courses.find(c=>c.Code===p.c2)||null;
+      const lab=labs.find(l=>l.Code===p.lab)||null,sel=[c1,c2].filter(Boolean);
+      if(!sel.length){html+='<div class="cmp-empty">No courses selected</div>';}else{
+        sel.forEach(c=>{const chips=c.Days.map(d=>`<span class="daychip">${formatDay(d)}</span>`).join('');html+=`<div class="cmp-item"><div class="ci-type">Course &middot; <span class="slotb sl-${c.Slot}">SLOT ${c.Slot}</span></div><div class="ci-code">${c.Code}</div><div class="ci-title">${c.Title}</div><div class="ci-days">${chips}</div></div>`;});
+        if(lab){const chips=lab.Days.map(d=>`<span class="daychip">${formatDay(d)}</span>`).join('');html+=`<div class="cmp-item"><div class="ci-type">Practical</div><div class="ci-code">${lab.Code}</div><div class="ci-title">${lab.Title}</div><div class="ci-days">${chips}</div></div>`;}
+        else{html+='<div class="cmp-item" style="opacity:.5"><div class="ci-type">Practical</div><div class="ci-title" style="font-style:italic">Not selected</div></div>';}
+        html+=`<div class="cmp-tt">${buildTTHTML(c1,c2,lab,true)}</div>`;
+      }
     }
     html+='</div></div>';
   });
@@ -1976,11 +2185,18 @@ function buildCmp(){
 // NEXT STEPS
 // ═══════════════════════════════════════════════════
 function buildNextSteps(){
-  const c1=getCourse1(),c2=getCourse2(),lab=getLab(),sel=[c1,c2].filter(Boolean);
   const el=document.getElementById('nextsteps'),bd=document.getElementById('nsbd');
-  if(!sel.length){el.style.display='none';return;}
-  el.style.display='';
-  const done=sel.length===2&&lab&&planStatus(act)==='ok';
+  const p=PLANS[act];
+  let done;
+  if(p.bundle){
+    done=planStatus(act)==='ok';
+    el.style.display='';
+  }else{
+    const c1=getCourse1(),c2=getCourse2(),lab=getLab(),sel=[c1,c2].filter(Boolean);
+    if(!sel.length){el.style.display='none';return;}
+    el.style.display='';
+    done=sel.length===2&&lab&&planStatus(act)==='ok';
+  }
   const switchDate=new Date('2026-03-06T17:00:00');
   const now=new Date();
   const switchUrgent=now>new Date(switchDate.getTime()-7*24*60*60*1000);
@@ -2006,7 +2222,8 @@ const SLOT_META={
   'C':{label:'Slot C',schedule:'Tuesday AM & Wednesday AM'},
   'D':{label:'Slot D',schedule:'Tuesday PM & Wednesday PM'},
   'E':{label:'Slot E',schedule:'Wednesday AM & Thursday AM'},
-  'PRA':{label:'Practicals & Skills',schedule:'Various days'}
+  'PRA':{label:'Practicals & Skills',schedule:'Various days'},
+  'FIELD':{label:'Field Courses',schedule:'Off-grid \u00b7 full period'}
 };
 
 function parseMD(text){
@@ -2044,19 +2261,21 @@ function buildFilterChips(){
   const el=document.getElementById('filterChips');
   const slots=['all','A','B','C','D','E','PRA'];
   const labels={'all':'All','A':'Slot A','B':'Slot B','C':'Slot C','D':'Slot D','E':'Slot E','PRA':'Practicals'};
+  // Only show the Field filter when the active period actually has a bundle.
+  if(bundledItems.length){slots.push('FIELD');labels.FIELD='Field Course';}
   el.innerHTML=slots.map(s=>`<button class="fchip${s===catFilter?' active':''}" onclick="setCatFilter('${s}')">${labels[s]}</button>`).join('');
 }
 function setCatFilter(f){catFilter=f;buildFilterChips();applyCatFilters();}
 
 function applyCatFilters(){
   const query=document.getElementById('searchInput').value.toLowerCase().trim();
-  const all=[...courses,...labs];
+  const all=[...courses,...labs,...bundledItems];
   const groups={};
   const t=APP.transcript;
   const pc=t?t.computed.passedCodes:null;
 
   all.forEach(item=>{
-    const slot=item.Slot||'PRA';
+    const slot=item.Bundle?'FIELD':(item.Slot||'PRA');
     if(catFilter!=='all'&&slot!==catFilter)return;
     if(query){
       const desc=descriptions[item.Code];
@@ -2067,19 +2286,22 @@ function applyCatFilters(){
     groups[slot].push(item);
   });
 
-  const order=['A','B','C','D','E','PRA'];
+  const order=['A','B','C','D','E','PRA','FIELD'];
   let html='';let total=0;
   order.forEach(sl=>{
     if(!groups[sl])return;
     const items=groups[sl];total+=items.length;
     const meta=SLOT_META[sl];
-    html+=`<div class="slot-section"><div class="slot-header"><div class="slot-badge sl-${sl}">${sl==='PRA'?'P':sl}</div><div><h2>${meta.label}</h2><span class="slot-info">${meta.schedule}</span></div><span class="slot-count">${items.length} course${items.length!==1?'s':''}</span></div><div class="cards-grid">`;
+    const badgeLbl=sl==='PRA'?'P':sl==='FIELD'?'F':sl;
+    const cntNoun=sl==='FIELD'?'module':'course';
+    html+=`<div class="slot-section"><div class="slot-header"><div class="slot-badge sl-${sl}">${badgeLbl}</div><div><h2>${meta.label}</h2><span class="slot-info">${meta.schedule}</span></div><span class="slot-count">${items.length} ${cntNoun}${items.length!==1?'s':''}</span></div><div class="cards-grid">`;
 
     items.forEach(item=>{
       const desc=descriptions[item.Code];
-      const days=item.Days.map(d=>`<span class="daychip">${formatDay(d)}</span>`).join('');
+      const days=item.Bundle?'<span class="daychip" style="background:#FEF3C7;color:#92400E;border-color:#FDE68A">Off-grid \u00b7 full period</span>':item.Days.map(d=>`<span class="daychip">${formatDay(d)}</span>`).join('');
       const tags=[];
       if(item.Slot)tags.push(`<span class="cc-slot sl-${item.Slot}">SLOT ${item.Slot}</span>`);
+      else if(item.Bundle)tags.push(`<span class="cc-slot sl-FIELD">FIELD COURSE</span><span class="tag tag-pre" style="background:#FEF3C7;color:#92400E;border-color:#FDE68A">\u2693 By approval</span>`);
       if(item.Prerequisite)tags.push('<span class="tag tag-pre">\u25b2 Pre-req</span>');
       if(item.Corequisite)tags.push('<span class="tag tag-co">\u25ca Co-req</span>');
       if(pc&&pc.has(item.Code))tags.push('<span class="tag tag-passed">\u2705 Passed</span>');
@@ -2093,7 +2315,8 @@ function applyCatFilters(){
       }
 
       const isStarred=starredCourses.has(item.Code);
-      html+=`<div class="ccard card-${item.Slot||'PRA'}" id="card-${item.Code}" onclick="toggleCard('${item.Code}',event)"><div class="ccard-top"><div class="ccard-row1"><span class="cc-code">${item.Code}</span>${tags.join('')}</div><div class="cc-title">${esc(item.Title)}</div><div class="cc-coord">${esc(item.Coordinator)}</div></div><div class="ccard-meta">${days}</div><div class="ccard-expand">\u25B6 Click to view full course description<button class="star-btn${isStarred?' starred':''}" onclick="toggleStar('${item.Code}',event)" title="${isStarred?'Unstar':'Star'} this course">${isStarred?'\u2605':'\u2606'}</button></div>`;
+      const cardTag=item.Bundle?'FIELD':(item.Slot||'PRA');
+      html+=`<div class="ccard card-${cardTag}" id="card-${item.Code}" onclick="toggleCard('${item.Code}',event)"><div class="ccard-top"><div class="ccard-row1"><span class="cc-code">${item.Code}</span>${tags.join('')}</div><div class="cc-title">${esc(item.Title)}</div><div class="cc-coord">${esc(item.Coordinator)}</div></div><div class="ccard-meta">${days}</div><div class="ccard-expand">\u25B6 Click to view full course description<button class="star-btn${isStarred?' starred':''}" onclick="toggleStar('${item.Code}',event)" title="${isStarred?'Unstar':'Star'} this course">${isStarred?'\u2605':'\u2606'}</button></div>`;
 
       // Detail panel
       html+='<div class="ccard-detail">';
@@ -2180,11 +2403,11 @@ function buildStarredPanel(){
   const el=document.getElementById('starredPanel');
   if(!el)return;
   if(!starredCourses.size){el.style.display='none';return;}
-  const allCourses=[...courses,...labs];
+  const allCourses=[...courses,...labs,...bundledItems];
   const chips=[...starredCourses].map(code=>{
     const c=allCourses.find(x=>x.Code===code);
     if(!c)return '';
-    const slot=c.Slot?`<span class="sc-slot">Slot ${c.Slot}</span>`:'<span class="sc-slot">PRA</span>';
+    const slot=c.Bundle?'<span class="sc-slot" style="background:#FEF3C7;color:#92400E">Field</span>':c.Slot?`<span class="sc-slot">Slot ${c.Slot}</span>`:'<span class="sc-slot">PRA</span>';
     return `<div class="starred-chip"><span class="sc-code">${esc(c.Code)}</span><span>${esc(c.Title)}</span>${slot}<button class="sc-remove" onclick="removeStar('${c.Code}')" title="Remove">\u2715</button></div>`;
   }).filter(Boolean).join('');
   el.style.display='';
@@ -2355,7 +2578,7 @@ document.getElementById('lab').addEventListener('change',()=>{save();showPanel(g
 // Init
 // Baked-in config data (no external files needed)
 const BAKED_DATA = {
-  "P1": { label: "Period 1 · Fall (31 Aug – 16 Oct 2026)", csv: "Version,Period,ValidFrom,,,,,,\n1.0,1,2026-2027,,,,,,\nSlot,Code,Title,Coordinator,Corequisite,Prerequisite,Days,CorequisiteOf,PrerequisiteCodes\nA,BIO2001,Cell Biology,Aart van Apeldoorn,FALSE,FALSE,\"MonAM, TueAM\",,\nA,CHE1101,CORE: Introduction to Chemistry,Chris Bahn,TRUE,FALSE,\"MonAM, TueAM\",PRA1101,\nA,CHE2004,Spectroscopy,Annelies van der Bok,FALSE,TRUE,\"MonAM, TueAM\",,CHE2009+CHE2001\nA,INT3014,Conservation Palaeobiology,Frank Wesselingh & Jesse Hennekam,FALSE,TRUE,\"MonAM, TueAM\",,\nA,PHY2009,Stellar Astronomy,Chad Ellington,FALSE,FALSE,\"MonAM, TueAM\",,\nB,CHE3010,Inorganic Chemistry,Giuditta Perversi,TRUE,TRUE,\"MonPM, TuePM\",PRA3028,CHE2010\nB,INT3001,The Philosophy of Technology,Massimiliano Simons,FALSE,TRUE,\"MonPM, TuePM\",,PRO1002\nB,NEU2003,Neuroethology,Linnea van Griethuijsen,FALSE,TRUE,\"MonPM, TuePM\",,NEU1001/NEU1002/BIO3004\nB,MAT2007,Introduction to Programming,Panos Christakoglou,FALSE,FALSE,\"MonPM, TuePM\",,\nC,BIO2007,Genetics,Leon de Windt,TRUE,TRUE,\"TueAM, WedAM\",PRA2014,BIO2001\nC,CHE2009,Fundamentals of Organic Chemistry,Hanne Diliën,TRUE,FALSE,\"TueAM, WedAM\",PRA2032,\nC,PHY1101,CORE: Introduction to Physics,Lorenzo Reverberi,FALSE,FALSE,\"TueAM, WedAM\",,\nC,PHY3001,Quantum Mechanics,Keri Vos,TRUE,TRUE,\"TueAM, WedAM\",MAT2006,PHY2005\nD,INT3002,Advanced Microscopy: Theory and Applications,Dimitris Kapsokalyvas,FALSE,TRUE,\"TuePM, WedPM\",,PHY1001/PHY1101\nD,NEU2005,Systems Neuroscience,Daan van Beek,FALSE,TRUE,\"TuePM, WedPM\",,NEU1001/BIO2007\nD,PHY3009,Hamiltonian and Lagrangian Mechanics,Gideon Koekoek,TRUE,TRUE,\"TuePM, WedPM\",PHY2011,PHY2001/PHY1003\nD,PHY2012,Structure of Matter,Alex Amato,TRUE,TRUE,\"TuePM, WedPM\",PHY2012,PHY2002\nE,BIO2004,General Zoology,John Sloggett,FALSE,FALSE,\"WedAM, ThuAM\",,\nE,CHE3006,Quantum Chemistry,Slava Vieru,TRUE,TRUE,\"WedAM, ThuAM\",PRA3018,MAT2006/MAT2009\nE,INT2013,Fundamentals of Science Education,May Lee,FALSE,TRUE,\"WedAM, ThuAM\",,PRO1002\nE,PHY2006,Electronics,Bart van Grinsven,TRUE,FALSE,\"WedAM, ThuAM\",,\nS,INT3201,Island Studies: Life and Landscape,,TRUE,TRUE,,INT3202,PRA2009/INT1007/INT2012\nS,INT3202,Island Studies: The Mediterranean Region,,TRUE,FALSE,,INT3201,\n,PRA1101,Introduction to Scientific Research I,Chris Pawley & Erik Steen Redeker,TRUE,TRUE,\"FriAM, FriPM\",CHE1101,MSP1000\n,PRA2003,Programming Skill,Panos Christakoglou,TRUE,FALSE,\"WedAM, WedPM\",MAT2007,\n,PRA2006,Electronics Lab,Bart van Grinsven,TRUE,FALSE,\"TueAM, TuePM, ThuAM, ThuPM\",,\n,PRA2014,Genetics,David Cortens & Servé Olieslagers,TRUE,TRUE,\"MonAM, MonPM, WedAM, WedPM, FriAM, FriPM\",BIO2007,BIO2001\n,PRA2015,Advanced Academic Skills,Kyle Jazwa,FALSE,FALSE,\"MonAM, MonPM, ThuAM, ThuPM\",,\n,PRA2019,Natural Science Illustration,Phil Klahs,TRUE,FALSE,\"ThuAM, ThuPM\",PRA2015,\n,PRA2026,R Programming Language,Phil Klahs,FALSE,FALSE,\"MonAM, MonPM, WedAM, WedPM\",,\n,PRA2027,Fundamentals of Science Communication,May Lee,FALSE,TRUE,\"TueAM, TuePM, ThuAM, ThuPM\",,PRO1002\n,PRA2030,Introduction to Mycology **,Alexandr Umanets,FALSE,FALSE,\"TueAM, TuePM\",,\n,PRA2032,Fundamentals of Organic Chemistry Laboratory,Hanne Diliën,TRUE,FALSE,\"MonAM, MonPM, FriAM, FriPM\",CHE2009,\n,PRA3018,Molecular Modelling,Slava Vieru,TRUE,FALSE,\"TueAM, TuePM\",CHE3006,\n,PRA3021,Topics in Scientific Computing,Marcin Pietrasik,FALSE,TRUE,\"MonAM, MonPM\",,MAT2004+MAT2006+MAT2007+KEN1540\n,PRA3028,Inorganic Synthesis,Giuditta Perversi,TRUE,TRUE,\"TueAM, TuePM, WedAM, WedPM\",CHE3010,PRA2034+CHE2004\n,PRA3030,Finite Element Method,Harm Askes & Gerco Onderwater,FALSE,FALSE,\"WedAM, WedPM\",,\n,PRA3503,Microbiome Analysis **,Alexander Umanets,TRUE,TRUE,\"ThuAM, ThuPM\",BIO3003,INT3007+MAT2007\n,PRA3201,Island Studies: Fieldwork and Data Collection,,TRUE,FALSE,,INT3201,\n" },
+  "P1": { label: "Period 1 · Fall (31 Aug – 16 Oct 2026)", csv: "Version,Period,ValidFrom,,,,,,\n1.0,1,2026-2027,,,,,,\nSlot,Code,Title,Coordinator,Corequisite,Prerequisite,Days,CorequisiteOf,PrerequisiteCodes,Bundle\nA,BIO2001,Cell Biology,Aart van Apeldoorn,FALSE,FALSE,\"MonAM, TueAM\",,\nA,CHE1101,CORE: Introduction to Chemistry,Chris Bahn,TRUE,FALSE,\"MonAM, TueAM\",PRA1101,\nA,CHE2004,Spectroscopy,Annelies van der Bok,FALSE,TRUE,\"MonAM, TueAM\",,CHE2009+CHE2001\nA,INT3014,Conservation Palaeobiology,Frank Wesselingh & Jesse Hennekam,FALSE,TRUE,\"MonAM, TueAM\",,\nA,PHY2009,Stellar Astronomy,Chad Ellington,FALSE,FALSE,\"MonAM, TueAM\",,\nB,CHE3010,Inorganic Chemistry,Giuditta Perversi,TRUE,TRUE,\"MonPM, TuePM\",PRA3028,CHE2010\nB,INT3001,The Philosophy of Technology,Massimiliano Simons,FALSE,TRUE,\"MonPM, TuePM\",,PRO1002\nB,NEU2003,Neuroethology,Linnea van Griethuijsen,FALSE,TRUE,\"MonPM, TuePM\",,NEU1001/NEU1002/BIO3004\nB,MAT2007,Introduction to Programming,Panos Christakoglou,FALSE,FALSE,\"MonPM, TuePM\",,\nC,BIO2007,Genetics,Leon de Windt,TRUE,TRUE,\"TueAM, WedAM\",PRA2014,BIO2001\nC,CHE2009,Fundamentals of Organic Chemistry,Hanne Diliën,TRUE,FALSE,\"TueAM, WedAM\",PRA2032,\nC,PHY1101,CORE: Introduction to Physics,Lorenzo Reverberi,FALSE,FALSE,\"TueAM, WedAM\",,\nC,PHY3001,Quantum Mechanics,Keri Vos,TRUE,TRUE,\"TueAM, WedAM\",MAT2006,PHY2005\nD,INT3002,Advanced Microscopy: Theory and Applications,Dimitris Kapsokalyvas,FALSE,TRUE,\"TuePM, WedPM\",,PHY1001/PHY1101\nD,NEU2005,Systems Neuroscience,Daan van Beek,FALSE,TRUE,\"TuePM, WedPM\",,NEU1001/BIO2007\nD,PHY3009,Hamiltonian and Lagrangian Mechanics,Gideon Koekoek,TRUE,TRUE,\"TuePM, WedPM\",PHY2011,PHY2001/PHY1003\nD,PHY2012,Structure of Matter,Alex Amato,TRUE,TRUE,\"TuePM, WedPM\",PHY2012,PHY2002\nE,BIO2004,General Zoology,John Sloggett,FALSE,FALSE,\"WedAM, ThuAM\",,\nE,CHE3006,Quantum Chemistry,Slava Vieru,TRUE,TRUE,\"WedAM, ThuAM\",PRA3018,MAT2006/MAT2009\nE,INT2013,Fundamentals of Science Education,May Lee,FALSE,TRUE,\"WedAM, ThuAM\",,PRO1002\nE,PHY2006,Electronics,Bart van Grinsven,TRUE,FALSE,\"WedAM, ThuAM\",,\n,INT3201,Island Studies: Life and Landscape,\"Jesse Hennekam, Kyle Jazwa, Phil Klahs, George Mesher\",TRUE,TRUE,,INT3202,PRA2009/INT1007/INT2012,FIELD-P1-ISLAND\n,INT3202,Island Studies: The Mediterranean Region,\"Jesse Hennekam, Kyle Jazwa, Phil Klahs, George Mesher\",TRUE,FALSE,,INT3201,,FIELD-P1-ISLAND\n,PRA1101,Introduction to Scientific Research I,Chris Pawley & Erik Steen Redeker,TRUE,TRUE,\"FriAM, FriPM\",CHE1101,MSP1000\n,PRA2003,Programming Skill,Panos Christakoglou,TRUE,FALSE,\"WedAM, WedPM\",MAT2007,\n,PRA2006,Electronics Lab,Bart van Grinsven,TRUE,FALSE,\"TueAM, TuePM, ThuAM, ThuPM\",,\n,PRA2014,Genetics,David Cortens & Servé Olieslagers,TRUE,TRUE,\"MonAM, MonPM, WedAM, WedPM, FriAM, FriPM\",BIO2007,BIO2001\n,PRA2015,Advanced Academic Skills,Kyle Jazwa,FALSE,FALSE,\"MonAM, MonPM, ThuAM, ThuPM\",,\n,PRA2019,Natural Science Illustration,Phil Klahs,TRUE,FALSE,\"ThuAM, ThuPM\",PRA2015,\n,PRA2026,R Programming Language,Phil Klahs,FALSE,FALSE,\"MonAM, MonPM, WedAM, WedPM\",,\n,PRA2027,Fundamentals of Science Communication,May Lee,FALSE,TRUE,\"TueAM, TuePM, ThuAM, ThuPM\",,PRO1002\n,PRA2030,Introduction to Mycology **,Alexandr Umanets,FALSE,FALSE,\"TueAM, TuePM\",,\n,PRA2032,Fundamentals of Organic Chemistry Laboratory,Hanne Diliën,TRUE,FALSE,\"MonAM, MonPM, FriAM, FriPM\",CHE2009,\n,PRA3018,Molecular Modelling,Slava Vieru,TRUE,FALSE,\"TueAM, TuePM\",CHE3006,\n,PRA3021,Topics in Scientific Computing,Marcin Pietrasik,FALSE,TRUE,\"MonAM, MonPM\",,MAT2004+MAT2006+MAT2007+KEN1540\n,PRA3028,Inorganic Synthesis,Giuditta Perversi,TRUE,TRUE,\"TueAM, TuePM, WedAM, WedPM\",CHE3010,PRA2034+CHE2004\n,PRA3030,Finite Element Method,Harm Askes & Gerco Onderwater,FALSE,FALSE,\"WedAM, WedPM\",,\n,PRA3503,Microbiome Analysis **,Alexander Umanets,TRUE,TRUE,\"ThuAM, ThuPM\",BIO3003,INT3007+MAT2007\n,PRA3201,Island Studies: Fieldwork and Data Collection,\"Jesse Hennekam, Kyle Jazwa, Phil Klahs, George Mesher\",TRUE,FALSE,,INT3201,,FIELD-P1-ISLAND" },
   "P2": { label: "Period 2 · Fall (27 Oct – 11 Dec 2026)", csv: "Version,Period,ValidFrom,,,,,,\n1.0,2,2026-2027,,,,,,\nSlot,Code,Title,Coordinator,Corequisite,Prerequisite,Days,CorequisiteOf,PrerequisiteCodes\nA,BIO1101,CORE: Introduction to Biology,David Cortens,TRUE,FALSE,\"MonAM, TueAM\",PRA1102,\nA,BIO3007,Tropical Biology,Roy Erkens,FALSE,TRUE,\"MonAM, TueAM\",,BIO2002\nA,CHE2011,Organic Chemistry,Hanne Diliën,TRUE,TRUE,\"MonAM, TueAM\",PRA2033,CHE2009\nA,INT3007,Systems Biology,Martina Summer-Kutmon & Judith Peters,FALSE,TRUE,\"MonAM, TueAM\",,PRO1002\nA,PHY3008,Cosmology,Lorenzo Reverberi,FALSE,TRUE,\"MonAM, TueAM\",,MAT2009+PHY2011+PHY2008+PHY2009+PHY2010\nB,INT3012,Science Education: Model-Based Inquiry,May Lee,TRUE,TRUE,\"MonPM, TuePM\",PRA3026,INT2013\nB,INT2007,Science in Action,Jessica Mesman,FALSE,FALSE,\"MonPM, TuePM\",,\nB,MAT2009,Multivariable Calculus,Mariet Hofstee,FALSE,TRUE,\"MonPM, TuePM\",,MAT2006+MAT2004\nB,PHY3004,Elementary Particle Physics,Marcel Merk & Jacco de Vries,TRUE,TRUE,\"MonPM, TuePM\",MAT2006,PHY2005+MAT2004\nB,NEU2004,Neural Circuits and Dynamics,Luke Edwards,FALSE,FALSE,\"MonPM, TuePM\",,\nC,BIO3001,Molecular Biology,Kathia Jimenez Monroy,TRUE,TRUE,\"TueAM, WedAM\",PRA3003,BIO2001+BIO2007\nC,INT1101,CORE: Introduction to Liberal Arts & Sciences,\"Hanne Diliën, Rocio Arreguin Campos\",TRUE,FALSE,\"TueAM, WedAM\",PRA1102,\nC,INT3005,Biobased Materials and Technology,Yvonne van der Meer & Katie Saralidze,FALSE,TRUE,\"TueAM, WedAM\",,\nC,PHY2010,Galactic Astronomy,Chad Ellington,FALSE,FALSE,\"TueAM, WedAM\",,\nD,INT3009,Chemical Ecology,John Sloggett,FALSE,TRUE,\"TuePM, WedPM\",,BIO2001/CHE2009\nD,CHE2006,Biochemistry *,Leon Schurgers & Niko Deckers,FALSE,TRUE,\"TuePM, WedPM\",,BIO1101/CHE1101\nD,CHE3013,Advanced Organic Chemistry,Matt Baker,TRUE,TRUE,\"TuePM, WedPM\",PRA3029,CHE2011\nD,PHY2003,Vibrations and Waves,Jessica Steinlechner,FALSE,TRUE,\"TuePM, WedPM\",,PHY2001\nE,BIO2008,Great Transformations in Vertebrate Evolution,Leon Claessens,TRUE,FALSE,\"WedAM, ThuAM\",PRA2025,\nE,CHE3007,Chemical Kinetics,Slava Vieru,FALSE,TRUE,\"WedAM, ThuAM\",,MAT2006+PHY2002\nE,MAT1006,Applied Statistics,Matthijs Hermeling,FALSE,FALSE,\"WedAM, ThuAM\",,\nE,NEU3003,Brain-Body Interactions,Michelle Moerel,FALSE,TRUE,\"WedAM, ThuAM\",,NEU1001+NEU2005+BIO2010\n,PRA1102,Introduction to Scientific Research II,Suzan du Pree,TRUE,TRUE,\"WedAM, WedPM\",BIO1101,MSP1000\n,PRA1003,Basic Physics Laboratory,Chris Pawley,FALSE,FALSE,\"WedAM, WedPM\",,\n,PRA2010,Synthetic Biology,Erik Steen Redeker,FALSE,TRUE,\"TueAM, TuePM, ThuAM, ThuPM\",,\n,PRA2013,Practical Zoology,John Sloggett,FALSE,TRUE,\"WedAM, WedPM, ThuAM, ThuPM\",,PRA1102+BIO2004\n,PRA2018,Capita Selecta in Modern Sciences,Panos Christakoglou,FALSE,FALSE,\"MonAM, MonPM, TueAM, TuePM\",,\n,PRA2025,Vertebrate Functional Morphology,Leon Claessens & Jesse Hennekam,TRUE,FALSE,\"ThuAM, ThuPM\",BIO2008,\n,PRA2033,Organic Chemistry Laboratory,Hanne Diliën,TRUE,TRUE,\"TueAM, TuePM, ThuAM, ThuPM\",CHE2011,PRA2032\n,PRA3029,Advanced Organic Chemistry Laboratory,Matt Baker,TRUE,TRUE,\"MonAM, MonPM\",CHE3013,CHE2011\n,PRA3002,Advanced Physics Laboratory,Chris Pawley,FALSE,TRUE,\"TueAM, TuePM\",,PRA1003/PRA2007\n,PRA3003,Molecular Biology,Kathia Jimenez Monroy,TRUE,TRUE,\"MonAM, MonPM, WedAM, WedPM\",BIO3001,PRA2014\n,PRA3005,Polymer Processing *,Eveline Maassen,FALSE,TRUE,\"MonAM, MonPM\",,CHE2001\n,PRA3006,Programming in the Life Sciences,Egon Willighagen & Rianne Fijten,FALSE,TRUE,\"FriAM, FriPM\",,MAT2007/PRA2003\n,PRA3023,Plant Physiology and Microbiomes **,Aleksandr Umanets,FALSE,TRUE,\"FriAM, FriPM\",,BIO2003\n,PRA3026,Science Teaching Skills,May Lee,TRUE,TRUE,\"WedAM, WedPM\",INT3012,INT2013\n,PRA3027,Advanced Functional Morphology,Leon Claessens & Jesse Hennekam,FALSE,TRUE,\"ThuAM, ThuPM\",,PRA2025\n,PRA3031,Statistical Modeling,Joao da Cruz Vargas,FALSE,FALSE,\"TueAM, TuePM, FriAM, FriPM\",,\n" },
   "P4": { label: "Period 4 · Spring (25 Jan – 26 Mar 2027)", csv: "Version,Period,ValidFrom,,,,,,\n1.0,4,2026-2027,,,,,,\nSlot,Code,Title,Coordinator,Corequisite,Prerequisite,Days,CorequisiteOf,PrerequisiteCodes\nA,BIO2003,General Botany,Phil Klahs,TRUE,FALSE,\"MonAM, TueAM\",PRA2011,\nA,BIO3010,\"Genomics, Proteomics and Other Omics Technologies\",Birol Cabukusta,FALSE,TRUE,\"MonAM, TueAM\",,BIO1101+BIO2007+BIO3001+CHE2006\nA,CHE2009,Fundamentals of Organic Chemistry *,Hanne Diliën,TRUE,FALSE,\"MonAM, TueAM\",PRA2032,\nA,CHE3009,Crystallography,Giuditta Perversi,FALSE,TRUE,\"MonAM, TueAM\",,PRO1002+CHE2007+CHE2002+MAT2004\nA,PHY3010,Lasers and Applications,Anna Green,FALSE,TRUE,\"MonAM, TueAM\",,PHY2005+MAT2006+MAT2004+PHY2007\nB,BIO2005,Evolutionary Biology,Linnea van Griethuijsen,TRUE,FALSE,\"MonPM, TuePM\",BIO2007,\nB,BIO2010,Human Anatomy & Physiology,Aaron Isaacs,FALSE,FALSE,\"MonPM, TuePM\",,\nB,MAT2006,Calculus,Niloufar Yousefimanesh,FALSE,FALSE,\"MonPM, TuePM\",,\nB,MAT2008,Differential Equations,Mariët Hofstee,FALSE,TRUE,\"MonPM, TuePM\",,\nB,NEU3002,Brain-Inspired Engineering,Renaud Jolivet,FALSE,TRUE,\"MonPM, TuePM\",,NEU1003/INT1003\nC,BIO2007,Genetics,Leon de Windt,TRUE,TRUE,\"TueAM, WedAM\",PRA2014,BIO2001\nC,INT2010,Principles of Mass Spectrometry,Ian Anthony,FALSE,FALSE,\"TueAM, WedAM\",,\nC,NEU1001,Introduction to Neuroscience,Laurence de Nijs,FALSE,FALSE,\"TueAM, WedAM\",,\nC,INT2012,Archaeological Science,Kyle Jazwa,FALSE,FALSE,\"TueAM, WedAM\",,\nC,PHY2004,Electricity and Magnetism,Stefan Danilishin,FALSE,TRUE,\"TueAM, WedAM\",,MAT2009/MAT1002/MAT2004/PHY1001\nD,BIO2001,Cell Biology,Martijn van Griensven,FALSE,FALSE,\"TuePM, WedPM\",,\nD,INT3003,Biomaterials,C. Domingues Mota/P. Wieringa,FALSE,TRUE,\"TuePM, WedPM\",,CHE2001\nD,PHY1003,Mechanics,Lorenzo Reverberi,FALSE,TRUE,\"TuePM, WedPM\",,PHY1101\nD,PHY2011,Special Relativity,Jacco de Vries,FALSE,TRUE,\"TuePM, WedPM\",,PHY2001/PHY1003\nE,INT1003,Introduction to Biomedical Engineering,Daan van Beek,FALSE,FALSE,\"WedAM, ThuAM\",,\nE,INT1007,Introduction to Earth Sciences,Jesse Hennekam,FALSE,FALSE,\"WedAM, ThuAM\",,\nE,INT3008,Regenerative Medicine,David Kilian,FALSE,TRUE,\"WedAM, ThuAM\",,BIO2001+CHE2001\nE,CHE3011,Instrumental Analysis,Annelies van der Bok,TRUE,TRUE,\"WedAM, ThuAM\",CHE3010,CHE2004\n,PRA1008,Basics of Palaeontology,Jesse Hennekam,FALSE,FALSE,\"MonAM, MonPM\",,\n,PRA1009,Neuro Anatomy Skills,Daan van Beek,TRUE,FALSE,\"TueAM, TuePM, ThuAM, ThuPM\",NEU1001,\n,PRA2005,Advanced Molecular Laboratory Skills,Erik Steen Redeker,FALSE,TRUE,\"MonAM, MonPM, WedAM, WedPM\",,\n,PRA2011,Exploring the World of Plants,Phil Klahs,TRUE,FALSE,\"TueAM, TuePM, ThuAM, ThuPM\",BIO2003,\n,PRA2014,Genetics,S. Olieslagers / D. Cortens,TRUE,TRUE,\"MonAM, MonPM, WedAM, WedPM, FriAM, FriPM\",BIO2007,BIO2001\n,PRA2028,Mathematics and Art,Mariet Hofstee,FALSE,FALSE,\"WedAM, WedPM\",,\n,PRA2029,3D Visualizations and Transformations,May Lee,FALSE,FALSE,\"TueAM, TuePM\",,\n,PRA2031,Python Programming Language,Ruth Grosseholz,FALSE,TRUE,\"WedAM, WedPM, ThuAM, ThuPM\",,MAT2007\n,PRA2032,Fundamentals of Organic Chemistry Laboratory,Hanne Dilliën,TRUE,FALSE,\"TueAM, TuePM, ThuAM, ThuPM, FriAM, FriPM\",CHE2009,\n,PRA3012,Advanced Electronics,Bart van Grinsven,FALSE,TRUE,\"MonAM, MonPM, WedAM, WedPM\",,PRA2006+PHY2006\n,PRA3014,Spectroscopic Methods,Annelies van der Bok,FALSE,TRUE,\"MonAM, MonPM, TueAM, TuePM\",,CHE2004\n,PRA3017,Applied Cell Biology,Silvia Bolognin,FALSE,TRUE,\"TueAM, TuePM, ThuAM, ThuPM\",,PRA2014\n,PRA3024,Analysis of Big Data in Physics,Jacco de Vries & Maarten v. Veghel,FALSE,TRUE,\"WedAM, WedPM\",,MAT2007\n,PRA3504,The Academic Life Cycle,Kyle Jazwa,FALSE,TRUE,\"MonAM, MonPM\",,PRA2015\n" },
   "P5": { label: "Period 5 · Spring (29 Mar – May 2027)", csv: "Version,Period,ValidFrom,,,,,,\n1.0,5,2026-2027,,,,,,\nSlot,Code,Title,Coordinator,Corequisite,Prerequisite,Days,CorequisiteOf,PrerequisiteCodes\nA,CHE2010,General Chemistry,Chris Bahn,TRUE,TRUE,\"MonAM, TueAM\",PRA2034,CHE1101\nA,BIO3001,Molecular Biology,Kathia Jimenez Monroy,TRUE,TRUE,\"MonAM, TueAM\",PRA3003,BIO2001+BIO2007\nA,PHY2002,Thermodynamics and Statistical Mechanics,Slava Vieru,FALSE,TRUE,\"MonAM, TueAM\",,MAT2006/MAT2009\nA,INT1005,Commercializing Science & Technology,Jermain Kaminski,FALSE,FALSE,\"MonAM, TueAM\",,\nB,BIO3004,Animal Behaviour,Linnea van Griethuijsen,FALSE,TRUE,\"MonPM, TuePM\",,BIO2004+BIO2005\nB,PHY2007,Optics,Sebastian Steinlechner,FALSE,TRUE,\"MonPM, TuePM\",,PHY2003\nB,INT2008,Molecular Toxicology,Misha Vrolijk,FALSE,FALSE,\"MonPM, TuePM\",,\nB,INT3011,Landscape Archaeology,Kyla Jazwa,FALSE,TRUE,\"MonPM, TuePM\",,PRA2009/INT2012/PRA2024/PRA2015\nB,MAT2004,Linear Algebra,Martin Frohn,FALSE,FALSE,\"MonPM, TuePM\",,\nC,BIO2002,Ecology,John Sloggett,FALSE,FALSE,\"TueAM, WedAM\",,\nC,BIO2006,Biotechnology,David Cortens,FALSE,TRUE,\"TueAM, WedAM\",,BIO2007+PRA2014\nC,CHE3012,Nanomaterials and Catalysis,Annelies van der Bok,TRUE,TRUE,\"TueAM, WedAM\",CHE2009,CHE3010\nC,PHY3006,General Relativity,Gideon Koekoek,FALSE,TRUE,\"TueAM, WedAM\",,PHY3002/PHY2011\nC,MAT2005,Probability and Statistics,Otti d'Huys,FALSE,TRUE,\"TueAM, WedAM\",,MAT2006\nD,BIO3003,Medical Microbiology,Frank Stassen,TRUE,TRUE,\"TuePM, WedPM\",PRA3010,BIO2001+BIO2007\nD,MAT1007,Mathematical Tools for Scientists,Mariët Hofstee,FALSE,FALSE,\"TuePM, WedPM\",,\nD,INT2014,Imaging Engineering,Gavin Hazell,FALSE,FALSE,\"TuePM, WedPM\",,\nD,PHY2005,Fundamentals of Quantum Mechanics,Keri Vos,TRUE,TRUE,\"TuePM, WedPM\",PHY2001,MAT2004/MAT2006/MAT2008\nE,NEU1003,Computational Neuroscience,Renaud Jolivet,FALSE,FALSE,\"WedAM, ThuAM\",,\nE,PHY3005,Electrodynamics,Stefan Danilishin,FALSE,TRUE,\"WedAM, ThuAM\",,PHY2004+MAT2009+PHY2011\nE,CHE2007,Solid State Chemistry,Giuditta Perversi,FALSE,FALSE,\"WedAM, ThuAM\",,\nE,INT2009,Biophysics,Anjusha Mathew,FALSE,TRUE,\"WedAM, ThuAM\",,CHE2006+BIO2001+CHE2004+INT2010+INT2014+PRA2020+PRA2005\nE,PHY2008,Solar System Astronomy,Chad Ellington,FALSE,FALSE,\"WedAM, ThuAM\",,\n,PRA1003,Basic Physics Laboratory,Suzan du Pree,FALSE,FALSE,\"WedAM, FriAM\",,\n,PRA1005,Data Collection Techniques in Neuroscience,Mark Roberts,FALSE,FALSE,\"WedPM, ThuAM\",,\n,PRA2007,Physics Laboratory,Chris Pawley & Maarten van Veghel,FALSE,TRUE,MonAM,,PRA1003\n,PRA2008,Physical Chemistry,Slava Vieru,FALSE,TRUE,FriPM,,PRA2034+PHY2002+CHE3007\n,PRA2009,Field Skills in Biology,Phil Klahs,FALSE,TRUE,\"TuePM, WedPM\",,PRA1102\n,PRA2020,Practical Mass Spectrometry,Anjusha Mathew,FALSE,TRUE,ThuPM,,INT2010\n,PRA2023,Astronomical Observing Techniques,Chad Ellington,FALSE,TRUE,MonPM,,PRA1003/PHY2008/PHY2009/PHY2010\n,PRA2034,General Chemistry Laboratory,Chris Bahn,TRUE,TRUE,\"TueAM, FriPM\",CHE2010,PRA1101/PRA1102\n,PRA3003,Molecular Biology,Kathia Jimenez Monroy,TRUE,TRUE,\"TuePM, FriAM\",BIO3001,PRA2014+core 1000-level\n,PRA3010,Microbiology,Frank Stassen,TRUE,TRUE,\"WedAM, ThuPM\",BIO3003,BIO2001+BIO2007\n,PRA3011,The Limburg Landscape,Phil Klahs,FALSE,TRUE,FriPM,,PRA2009\n,PRA3025,Science Communication: Curating Science Exhibits,May Lee & Kyle Jazwa,FALSE,TRUE,ThuPM,,PRA2027\n" }
