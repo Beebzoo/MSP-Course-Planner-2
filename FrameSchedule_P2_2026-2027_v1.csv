@@ -9,7 +9,7 @@ A,PHY3008,Cosmology,Lorenzo Reverberi,FALSE,TRUE,"MonAM, TueAM",,MAT2009+PHY2011
 B,INT3012,Science Education: Model-Based Inquiry,May Lee,TRUE,TRUE,"MonPM, TuePM",PRA3026,INT2013
 B,INT2007,Science in Action,Jessica Mesman,FALSE,FALSE,"MonPM, TuePM",,
 B,MAT2009,Multivariable Calculus,Mariet Hofstee,FALSE,TRUE,"MonPM, TuePM",,MAT2006+MAT2004
-B,PHY3004,Elementary Particle Physics,Marcel Merk & Jacco de Vries,TRUE,TRUE,"MonPM, TuePM",MAT2006,PHY2005+MAT2004
+B,PHY3004,Elementary Particle Physics,Marcel Merk & Jacco de Vries,FALSE,TRUE,"MonPM, TuePM",,PHY2005+MAT2004
 B,NEU2004,Neural Circuits and Dynamics,Luke Edwards,FALSE,FALSE,"MonPM, TuePM",,
 C,BIO3001,Molecular Biology,Kathia Jimenez Monroy,TRUE,TRUE,"TueAM, WedAM",PRA3003,BIO2001+BIO2007
 C,INT1101,CORE: Introduction to Liberal Arts & Sciences,"Hanne Diliën, Rocio Arreguin Campos",TRUE,FALSE,"TueAM, WedAM",PRA1102,
@@ -23,7 +23,7 @@ E,BIO2008,Great Transformations in Vertebrate Evolution,Leon Claessens,TRUE,FALS
 E,CHE3007,Chemical Kinetics,Slava Vieru,FALSE,TRUE,"WedAM, ThuAM",,MAT2006+PHY2002
 E,MAT1006,Applied Statistics,Matthijs Hermeling,FALSE,FALSE,"WedAM, ThuAM",,
 E,NEU3003,Brain-Body Interactions,Michelle Moerel,FALSE,TRUE,"WedAM, ThuAM",,NEU1001+NEU2005+BIO2010
-,PRA1102,Introduction to Scientific Research II,Suzan du Pree,TRUE,TRUE,"WedAM, WedPM",BIO1101,MSP1000
+,PRA1102,Introduction to Scientific Research II,Suzan du Pree,TRUE,TRUE,"WedAM, WedPM",BIO1101+INT1101,MSP1000
 ,PRA1003,Basic Physics Laboratory,Chris Pawley,FALSE,FALSE,"WedAM, WedPM",,
 ,PRA2010,Synthetic Biology,Erik Steen Redeker,FALSE,TRUE,"TueAM, TuePM, ThuAM, ThuPM",,
 ,PRA2013,Practical Zoology,John Sloggett,FALSE,TRUE,"WedAM, WedPM, ThuAM, ThuPM",,PRA1102+BIO2004

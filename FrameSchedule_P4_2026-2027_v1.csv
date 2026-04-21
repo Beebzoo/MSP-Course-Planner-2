@@ -2,11 +2,11 @@ Version,Period,ValidFrom,,,,,,
 1.0,4,2026-2027,,,,,,
 Slot,Code,Title,Coordinator,Corequisite,Prerequisite,Days,CorequisiteOf,PrerequisiteCodes
 A,BIO2003,General Botany,Phil Klahs,TRUE,FALSE,"MonAM, TueAM",PRA2011,
-A,BIO3010,"Genomics, Proteomics and Other Omics Technologies",Birol Cabukusta,FALSE,TRUE,"MonAM, TueAM",,BIO1101+BIO2007+BIO3001+CHE2006
+A,BIO3010,"Genomics, Proteomics and Other Omics Technologies",Birol Cabukusta,FALSE,FALSE,"MonAM, TueAM",,
 A,CHE2009,Fundamentals of Organic Chemistry *,Hanne Diliën,TRUE,FALSE,"MonAM, TueAM",PRA2032,
 A,CHE3009,Crystallography,Giuditta Perversi,FALSE,TRUE,"MonAM, TueAM",,PRO1002+CHE2007+CHE2002+MAT2004
 A,PHY3010,Lasers and Applications,Anna Green,FALSE,TRUE,"MonAM, TueAM",,PHY2005+MAT2006+MAT2004+PHY2007
-B,BIO2005,Evolutionary Biology,Linnea van Griethuijsen,TRUE,FALSE,"MonPM, TuePM",BIO2007,
+B,BIO2005,Evolutionary Biology,Linnea van Griethuijsen,FALSE,FALSE,"MonPM, TuePM",,
 B,BIO2010,Human Anatomy & Physiology,Aaron Isaacs,FALSE,FALSE,"MonPM, TuePM",,
 B,MAT2006,Calculus,Niloufar Yousefimanesh,FALSE,FALSE,"MonPM, TuePM",,
 B,MAT2008,Differential Equations,Mariët Hofstee,FALSE,TRUE,"MonPM, TuePM",,
@@ -23,7 +23,7 @@ D,PHY2011,Special Relativity,Jacco de Vries,FALSE,TRUE,"TuePM, WedPM",,PHY2001/P
 E,INT1003,Introduction to Biomedical Engineering,Daan van Beek,FALSE,FALSE,"WedAM, ThuAM",,
 E,INT1007,Introduction to Earth Sciences,Jesse Hennekam,FALSE,FALSE,"WedAM, ThuAM",,
 E,INT3008,Regenerative Medicine,David Kilian,FALSE,TRUE,"WedAM, ThuAM",,BIO2001+CHE2001
-E,CHE3011,Instrumental Analysis,Annelies van der Bok,TRUE,TRUE,"WedAM, ThuAM",CHE3010,CHE2004
+E,CHE3011,Instrumental Analysis,Annelies van der Bok,FALSE,TRUE,"WedAM, ThuAM",,CHE2004
 ,PRA1008,Basics of Palaeontology,Jesse Hennekam,FALSE,FALSE,"MonAM, MonPM",,
 ,PRA1009,Neuro Anatomy Skills,Daan van Beek,TRUE,FALSE,"TueAM, TuePM, ThuAM, ThuPM",NEU1001,
 ,PRA2005,Advanced Molecular Laboratory Skills,Erik Steen Redeker,FALSE,TRUE,"MonAM, MonPM, WedAM, WedPM",,
