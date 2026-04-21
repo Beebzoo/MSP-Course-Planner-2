@@ -9,7 +9,7 @@ A,PHY3008,Cosmology,Lorenzo Reverberi,FALSE,TRUE,"MonAM, TueAM",,MAT2009+PHY2011
 B,INT3012,Science Education: Model-Based Inquiry,May Lee,TRUE,TRUE,"MonPM, TuePM",PRA3026,INT2013
 B,INT2007,Science in Action,Jessica Mesman,FALSE,FALSE,"MonPM, TuePM",,
 B,MAT2009,Multivariable Calculus,Mariet Hofstee,FALSE,TRUE,"MonPM, TuePM",,MAT2006+MAT2004
-B,PHY3004,Elementary Particle Physics,Marcel Merk & Jacco de Vries,TRUE,TRUE,"MonPM, TuePM",MAT2006,PHY2005+MAT2004
+B,PHY3004,Elementary Particle Physics,Marcel Merk & Jacco de Vries,FALSE,TRUE,"MonPM, TuePM",,PHY2005+MAT2004
 B,NEU2004,Neural Circuits and Dynamics,Luke Edwards,FALSE,FALSE,"MonPM, TuePM",,
 C,BIO3001,Molecular Biology,Kathia Jimenez Monroy,TRUE,TRUE,"TueAM, WedAM",PRA3003,BIO2001+BIO2007
 C,INT1101,CORE: Introduction to Liberal Arts & Sciences,"Hanne Diliën, Rocio Arreguin Campos",TRUE,FALSE,"TueAM, WedAM",PRA1102,
