@@ -3,7 +3,7 @@ Version,Period,ValidFrom,,,,,,
 Slot,Code,Title,Coordinator,Corequisite,Prerequisite,Days,CorequisiteOf,PrerequisiteCodes
 A,BIO2003,General Botany,Phil Klahs,TRUE,FALSE,"MonAM, TueAM",PRA2011,
 A,BIO3010,"Genomics, Proteomics and Other Omics Technologies",Birol Cabukusta,FALSE,FALSE,"MonAM, TueAM",,
-A,CHE2009,Fundamentals of Organic Chemistry *,Hanne Diliën,TRUE,FALSE,"MonAM, TueAM",PRA2032,
+A,CHE2009,Fundamentals of Organic Chemistry,Hanne Diliën,TRUE,FALSE,"MonAM, TueAM",PRA2032,
 A,CHE3009,Crystallography,Giuditta Perversi,FALSE,TRUE,"MonAM, TueAM",,PRO1002+CHE2007+CHE2002+MAT2004
 A,PHY3010,Lasers and Applications,Anna Green,FALSE,TRUE,"MonAM, TueAM",,PHY2005+MAT2006+MAT2004+PHY2007
 B,BIO2005,Evolutionary Biology,Linnea van Griethuijsen,FALSE,FALSE,"MonPM, TuePM",,
@@ -31,7 +31,7 @@ E,CHE3011,Instrumental Analysis,Annelies van der Bok,FALSE,TRUE,"WedAM, ThuAM",,
 ,PRA2014,Genetics,S. Olieslagers / D. Cortens,TRUE,TRUE,"MonAM, MonPM, WedAM, WedPM, FriAM, FriPM",BIO2007,BIO2001
 ,PRA2028,Mathematics and Art,Mariet Hofstee,FALSE,FALSE,"WedAM, WedPM",,
 ,PRA2029,3D Visualizations and Transformations,May Lee,FALSE,FALSE,"TueAM, TuePM",,
-,PRA2031,Python Programming Language,Ruth Grosseholz,FALSE,TRUE,"WedAM, WedPM, ThuAM, ThuPM",,MAT2007
+,PRA2031,Python Programming Language,Ruth Grosseholz,FALSE,FALSE,"WedAM, WedPM, ThuAM, ThuPM",,
 ,PRA2032,Fundamentals of Organic Chemistry Laboratory,Hanne Dilliën,TRUE,FALSE,"TueAM, TuePM, ThuAM, ThuPM, FriAM, FriPM",CHE2009,
 ,PRA3012,Advanced Electronics,Bart van Grinsven,FALSE,TRUE,"MonAM, MonPM, WedAM, WedPM",,PRA2006+PHY2006
 ,PRA3014,Spectroscopic Methods,Annelies van der Bok,FALSE,TRUE,"MonAM, MonPM, TueAM, TuePM",,CHE2004
