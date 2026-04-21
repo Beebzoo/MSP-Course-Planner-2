@@ -23,7 +23,7 @@ E,BIO2008,Great Transformations in Vertebrate Evolution,Leon Claessens,TRUE,FALS
 E,CHE3007,Chemical Kinetics,Slava Vieru,FALSE,TRUE,"WedAM, ThuAM",,MAT2006+PHY2002
 E,MAT1006,Applied Statistics,Matthijs Hermeling,FALSE,FALSE,"WedAM, ThuAM",,
 E,NEU3003,Brain-Body Interactions,Michelle Moerel,FALSE,TRUE,"WedAM, ThuAM",,NEU1001+NEU2005+BIO2010
-,PRA1102,Introduction to Scientific Research II,Suzan du Pree,TRUE,TRUE,"WedAM, WedPM",BIO1101,MSP1000
+,PRA1102,Introduction to Scientific Research II,Suzan du Pree,TRUE,TRUE,"WedAM, WedPM",BIO1101+INT1101,MSP1000
 ,PRA1003,Basic Physics Laboratory,Chris Pawley,FALSE,FALSE,"WedAM, WedPM",,
 ,PRA2010,Synthetic Biology,Erik Steen Redeker,FALSE,TRUE,"TueAM, TuePM, ThuAM, ThuPM",,
 ,PRA2013,Practical Zoology,John Sloggett,FALSE,TRUE,"WedAM, WedPM, ThuAM, ThuPM",,PRA1102+BIO2004

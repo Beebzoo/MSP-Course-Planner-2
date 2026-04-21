@@ -24,7 +24,7 @@ E,INT2013,Fundamentals of Science Education,May Lee,FALSE,TRUE,"WedAM, ThuAM",,P
 E,PHY2006,Electronics,Bart van Grinsven,FALSE,FALSE,"WedAM, ThuAM",,
 ,INT3201,Island Studies: Life and Landscape,"Jesse Hennekam, Kyle Jazwa, Phil Klahs, George Mesher",TRUE,TRUE,,INT3202,PRA2009/INT1007/INT2012,FIELD-P1-ISLAND
 ,INT3202,Island Studies: The Mediterranean Region,"Jesse Hennekam, Kyle Jazwa, Phil Klahs, George Mesher",TRUE,FALSE,,INT3201,,FIELD-P1-ISLAND
-,PRA1101,Introduction to Scientific Research I,Chris Pawley & Erik Steen Redeker,TRUE,TRUE,"FriAM, FriPM",CHE1101,MSP1000
+,PRA1101,Introduction to Scientific Research I,Chris Pawley & Erik Steen Redeker,TRUE,TRUE,"FriAM, FriPM",CHE1101+PHY1101,MSP1000
 ,PRA2003,Programming Skill,Panos Christakoglou,TRUE,FALSE,"WedAM, WedPM",MAT2007,
 ,PRA2006,Electronics Lab,Bart van Grinsven,FALSE,FALSE,"TueAM, TuePM, ThuAM, ThuPM",,
 ,PRA2014,Genetics,David Cortens & Servé Olieslagers,TRUE,TRUE,"MonAM, MonPM, WedAM, WedPM, FriAM, FriPM",BIO2007,BIO2001
