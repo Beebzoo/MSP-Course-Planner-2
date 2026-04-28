@@ -117,7 +117,12 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 
 /* ── Field Course (bundle) card ── */
 .bundle-card{border:1px solid #FCD34D;background:#FFFBEB}
-.bundle-card .card-h{border-bottom-color:#FDE68A}
+.bundle-card .card-h{border-bottom-color:#FDE68A;cursor:pointer;user-select:none}
+.bundle-card .card-h:hover{background:#FEF3C7}
+.bundle-card .bundle-chev{margin-left:8px;color:#B45309;font-size:11px;transition:transform .15s}
+.bundle-card.collapsed .bundle-chev{transform:rotate(-90deg)}
+.bundle-card.collapsed .card-h{border-bottom-color:transparent}
+.bundle-card.collapsed .card-b{display:none}
 .bundle-toggle-row{display:flex;align-items:center;gap:12px;padding:14px 18px;background:#FEF3C7;border-radius:var(--rs);margin-bottom:12px}
 .bundle-toggle-row input[type=checkbox]{width:18px;height:18px;accent-color:#B45309;cursor:pointer}
 .bundle-toggle-row label{font-size:13.5px;font-weight:600;color:#92400E;cursor:pointer}
@@ -645,8 +650,8 @@ footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:
       <button class="ptab ptab-cmp" id="tab-cmp" onclick="toggleCmp()">&#9638; Compare</button>
     </div>
     <div id="planview">
-    <div class="card bundle-card" id="bundlecard" style="display:none">
-      <div class="card-h"><div class="step">&#9774;</div><h2 id="bundleTitle">Field Course</h2><span class="hint" id="bundleSubtitle">By approval only</span></div>
+    <div class="card bundle-card collapsed" id="bundlecard" style="display:none">
+      <div class="card-h" onclick="toggleBundleCollapse()"><div class="step">&#9774;</div><h2 id="bundleTitle">Field Course</h2><span class="hint" id="bundleSubtitle">By approval only</span><span class="bundle-chev">&#9662;</span></div>
       <div class="card-b" id="bundlebd"></div>
     </div>
     <div class="card" id="coursecard">
@@ -1650,6 +1655,13 @@ function buildBundleCard(){
     `<div class="bundle-info"><div class="bundle-label">${esc(meta.label)}</div><div class="bundle-subtitle">${esc(meta.subtitle)}</div><div class="bundle-note">${esc(meta.note)}</div>${meta.coordinators?`<div class="bundle-coord">Coordinators: ${esc(meta.coordinators)}</div>`:''}${prereqHtml}</div>`+
     `<div class="bundle-components"><p class="seclbl">Modules in this bundle</p>${rows}</div>`;
   card.style.display='';
+  // Collapse by default; expand when the bundle is active for this plan so the
+  // student can see what they've committed to. Manual toggle via header click.
+  card.classList.toggle('collapsed',!active);
+}
+function toggleBundleCollapse(){
+  const card=document.getElementById('bundlecard');
+  if(card)card.classList.toggle('collapsed');
 }
 function toggleBundle(bid,on){
   const p=PLANS[act];
@@ -1756,25 +1768,33 @@ function buildReversePrereqIndex(){
 
 // A practical's Days field lists every half-day slot the practical is offered.
 // When multiple weekdays appear (e.g. PRA2014: Mon/Wed/Fri), each weekday is an
-// alternative session option and the student attends one of them. The practical
-// only conflicts with the selected courses if EVERY weekday option has at least
-// one half-day blocked by a course day.
-function labFitsWith(lab,used){
-  if(!lab.Days.length)return true;
+// alternative session option and the student attends one of them. A weekday is
+// "free" if none of its half-day slots are blocked by a course day, "blocked"
+// otherwise. A practical fits the schedule when at least one weekday is free.
+function labConflictInfo(lab,used){
+  if(!lab.Days.length)return{fits:true,free:[],blocked:[]};
   const byDay={};
   lab.Days.forEach(d=>{
     const wd=d.replace(/AM$|PM$/,'');
     (byDay[wd]=byDay[wd]||[]).push(d);
   });
-  return Object.values(byDay).some(slots=>slots.every(d=>!used.has(d)));
+  const free=[],blocked=[];
+  Object.keys(byDay).forEach(wd=>{
+    if(byDay[wd].every(d=>!used.has(d)))free.push(wd);else blocked.push(wd);
+  });
+  return{fits:free.length>0,free,blocked};
 }
 
 function buildLabs(used){
   const s=document.getElementById('lab'),pv=s.value;
   s.innerHTML='<option value="">\u2014 Select a practical \u2014</option>';
-  const ok=labs.filter(l=>labFitsWith(l,used));
   const t=APP.transcript;
-  ok.forEach(l=>{
+  let nFit=0,nPartial=0,nFull=0;
+  labs.forEach(l=>{
+    const ci=labConflictInfo(l,used);
+    if(ci.fits)nFit++;
+    if(ci.fits&&ci.blocked.length)nPartial++;
+    if(!ci.fits)nFull++;
     let f=[l.Corequisite?'\u25ca':'',l.Prerequisite?'\u25b2':''].filter(Boolean).join(' ');
     let extra='';
     if(t){
@@ -1786,11 +1806,24 @@ function buildLabs(used){
         extra=met?' \u2705 prereqs met':' \u274C missing prereqs';
       }
     }
-    const opt=new Option(`${l.Code} \u2014 ${l.Title}${f?'  '+f:''}${extra}`,l.Code);
+    let conflict='';
+    if(used.size){
+      if(!ci.fits)conflict=' \u26a0 no free session';
+      else if(ci.blocked.length)conflict=' \u26a0 '+ci.blocked.join('/')+' blocked';
+    }
+    const opt=new Option(`${l.Code} \u2014 ${l.Title}${f?'  '+f:''}${extra}${conflict}`,l.Code);
     s.appendChild(opt);
   });
   if(pv&&[...s.options].some(o=>o.value===pv))s.value=pv;
-  document.getElementById('labct').textContent=used.size===0?`${labs.length} practicals available`:`${ok.length} of ${labs.length} practicals compatible with your courses`;
+  const ct=document.getElementById('labct');
+  if(!used.size){
+    ct.textContent=`${labs.length} practicals available`;
+  }else{
+    const parts=[`${nFit} of ${labs.length} fit your courses`];
+    if(nPartial)parts.push(`${nPartial} partially blocked`);
+    if(nFull)parts.push(`${nFull} fully blocked`);
+    ct.textContent=parts.join(' \u00b7 ');
+  }
 }
 
 const getCourse1=()=>courses.find(c=>c.Code===document.getElementById('c1').value)||null;
@@ -1820,7 +1853,20 @@ function showPanel(item,id,isLab){
     const list=unlocks.map(u=>`${u.Code} \u2014 ${esc(u.Title)}`).join('; ');
     unlocksBadge=`<div style="margin-top:4px"><span style="color:var(--inf);font-size:11px;font-weight:600">\u{1F511} Required for (P${cfgP||'5'}):</span> <span style="color:var(--g7);font-size:11px">${list}</span></div>`;
   }
-  el.innerHTML=`<div class="crow">${!isLab?`<span class="slotb sl-${item.Slot}">SLOT ${item.Slot}</span>`:''}<div class="days">${chips}</div>${tags}</div><div class="crow"><span class="coord">Coordinator: ${item.Coordinator}</span></div>${prereqStatus}${passedBadge}${unlocksBadge}`;
+  let conflictBadge='';
+  if(isLab){
+    const c1=getCourse1(),c2=getCourse2();
+    const used=new Set([...(c1?.Days||[]),...(c2?.Days||[])]);
+    if(used.size){
+      const ci=labConflictInfo(item,used);
+      if(!ci.fits&&item.Days.length){
+        conflictBadge=`<div style="margin-top:4px"><span style="color:var(--err);font-size:11px;font-weight:600">\u26a0 No session fits \u2014 every weekday option (${item.Days.map(d=>d.replace(/AM$|PM$/,'')).filter((v,i,a)=>a.indexOf(v)===i).join('/')}) overlaps a course day. You will not be able to attend.</span></div>`;
+      }else if(ci.blocked.length){
+        conflictBadge=`<div style="margin-top:4px"><span style="color:var(--warn);font-size:11px;font-weight:600">\u26a0 Course overlap on ${ci.blocked.join('/')} \u2014 attend the ${ci.free.join('/')} session${ci.free.length>1?'s':''} instead.</span></div>`;
+      }
+    }
+  }
+  el.innerHTML=`<div class="crow">${!isLab?`<span class="slotb sl-${item.Slot}">SLOT ${item.Slot}</span>`:''}<div class="days">${chips}</div>${tags}</div><div class="crow"><span class="coord">Coordinator: ${item.Coordinator}</span></div>${prereqStatus}${passedBadge}${unlocksBadge}${conflictBadge}`;
   el.classList.add('show');
 }
 
@@ -1897,6 +1943,10 @@ function planStatus(k){
   const presentCodes=coreqPresentCodes(sel,lab);
   for(const c of sel)if(c.Corequisite&&c.CorequisiteOf&&!checkCoreqMet(c.CorequisiteOf,presentCodes))iss.push('co');
   if(lab&&lab.Corequisite&&lab.CorequisiteOf&&!checkCoreqMet(lab.CorequisiteOf,presentCodes))iss.push('co');
+  if(lab&&sel.length){
+    const used=new Set(sel.flatMap(c=>c.Days||[]));
+    if(!labConflictInfo(lab,used).fits)iss.push('co');
+  }
   for(const it of [...sel,lab].filter(Boolean)){
     if(it.Prerequisite&&it.PrerequisiteCodes){
       if(APP.transcript){
@@ -1971,6 +2021,21 @@ function checkPrereqs(){
 
   if(coI.length){html+='<p class="seclbl">Co-requisites</p>';coI.forEach(i=>{if(i.ok)html+=`<div class="alrt a-ok"><span class="aico">\u2713</span><div class="abdy"><strong>Co-requisite satisfied</strong><p><em>${i.from.Code}</em> requires ${formatPrereqs(i.expr)}. ${i.autoWaived?'Already passed in a previous period (auto-waived).':'Already selected.'}</p></div></div>`;else{badCo=true;html+=`<div class="alrt a-err"><span class="aico">\u26a0</span><div class="abdy"><strong>Missing co-requisite</strong><p><em>${i.from.Code} \u2014 ${i.from.Title}</em> must be taken with ${formatPrereqs(i.expr)}.</p><div class="guidance"><strong>Add the co-requisite</strong> to your plan, or contact the module coordinator to <a href="${LINKS.waivers}" target="_blank">request a waiver</a>. If you have already passed the co-requisite in a previous period, it is automatically waived.</div></div></div>`;}});}
 
+  let badSched=false;
+  if(lab&&sel.length){
+    const used=new Set(sel.flatMap(c=>c.Days||[]));
+    const ci=labConflictInfo(lab,used);
+    if(!ci.fits&&lab.Days.length){
+      badSched=true;
+      if(html)html+='<div style="height:12px"></div>';
+      const wds=lab.Days.map(d=>d.replace(/AM$|PM$/,'')).filter((v,i,a)=>a.indexOf(v)===i).join('/');
+      html+=`<p class="seclbl">Schedule</p><div class="alrt a-err"><span class="aico">\u26a0</span><div class="abdy"><strong>Practical conflicts with course days</strong><p><em>${lab.Code} \u2014 ${lab.Title}</em> only runs on ${wds}, and every option overlaps a day used by ${sel.map(c=>c.Code).join(' or ')}. You will not be able to attend any session.</p><div class="guidance">Pick a different practical, or change one of your courses so a session day frees up.</div></div></div>`;
+    }else if(ci.blocked.length){
+      if(html)html+='<div style="height:12px"></div>';
+      html+=`<p class="seclbl">Schedule</p><div class="alrt a-warn"><span class="aico">\u26a0</span><div class="abdy"><strong>Partial overlap \u2014 pick a non-conflicting session</strong><p><em>${lab.Code}</em> is offered on ${ci.free.concat(ci.blocked).join('/')}, but ${ci.blocked.join('/')} overlaps a course day. Attend the ${ci.free.join('/')} session${ci.free.length>1?'s':''} instead.</p></div></div>`;
+    }
+  }
+
   const preI=[];
   for(const it of [...sel,lab].filter(Boolean)){
     if(it.Prerequisite&&it.PrerequisiteCodes){
@@ -1999,9 +2064,10 @@ function checkPrereqs(){
     });
   }
 
-  if(!coI.length&&!preI.length)html='<div class="alrt a-ok"><span class="aico">\u2713</span><div class="abdy"><strong>No prerequisites or co-requisites</strong><p>Your selection has no additional requirements.</p></div></div>';
+  if(!coI.length&&!preI.length&&!html)html='<div class="alrt a-ok"><span class="aico">\u2713</span><div class="abdy"><strong>No prerequisites or co-requisites</strong><p>Your selection has no additional requirements.</p></div></div>';
   bEl.innerHTML=html;
   if(badCo){sEl.className='spill sp-err';sEl.textContent='\u26a0 Missing co-requisite';}
+  else if(badSched){sEl.className='spill sp-err';sEl.textContent='\u26a0 Schedule conflict';}
   else if(unPre){sEl.className='spill sp-warn';sEl.textContent='! Confirm prerequisites';}
   else{sEl.className='spill sp-ok';sEl.textContent='\u2713 All checks passed';}
   updateTabIcons();
