@@ -658,7 +658,7 @@ footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:
       </div>
     </div>
     <div class="card" id="labcard">
-      <div class="card-h"><div class="step">2</div><h2>Select Your Practical</h2><span class="hint">Must not overlap with course days</span></div>
+      <div class="card-h"><div class="step">2</div><h2>Select Your Practical</h2><span class="hint">A session must fit around your course days</span></div>
       <div class="card-b">
         <div class="field"><label class="flbl">Practical / Skill</label><div class="sw"><select id="lab"></select></div><div id="labct" class="labct"></div><div class="cpanel" id="pil"></div></div>
       </div>
@@ -1754,10 +1754,25 @@ function buildReversePrereqIndex(){
   return idx;
 }
 
+// A practical's Days field lists every half-day slot the practical is offered.
+// When multiple weekdays appear (e.g. PRA2014: Mon/Wed/Fri), each weekday is an
+// alternative session option and the student attends one of them. The practical
+// only conflicts with the selected courses if EVERY weekday option has at least
+// one half-day blocked by a course day.
+function labFitsWith(lab,used){
+  if(!lab.Days.length)return true;
+  const byDay={};
+  lab.Days.forEach(d=>{
+    const wd=d.replace(/AM$|PM$/,'');
+    (byDay[wd]=byDay[wd]||[]).push(d);
+  });
+  return Object.values(byDay).some(slots=>slots.every(d=>!used.has(d)));
+}
+
 function buildLabs(used){
   const s=document.getElementById('lab'),pv=s.value;
   s.innerHTML='<option value="">\u2014 Select a practical \u2014</option>';
-  const ok=labs.filter(l=>!l.Days.some(d=>used.has(d)));
+  const ok=labs.filter(l=>labFitsWith(l,used));
   const t=APP.transcript;
   ok.forEach(l=>{
     let f=[l.Corequisite?'\u25ca':'',l.Prerequisite?'\u25b2':''].filter(Boolean).join(' ');
