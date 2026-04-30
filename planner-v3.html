@@ -734,7 +734,13 @@ footer .ft-privacy{font-size:10.5px;color:var(--g4);max-width:600px;line-height:
 // ═══════════════════════════════════════════════════
 const AUTO='FrameSchedule_P5_v1.csv';
 const DESC_FILE='MSP_P5_Course_Descriptions.md';
-const DEADLINES={switch:'Friday 6 March 2026, 17:00',withdrawal:'Friday 3 April 2026, 17:00',period:'5',year:'2025\u20132026'};
+const DEADLINES_BY_PERIOD={
+  P1:{switch:'Friday 31 July 2026, 17:00',withdrawal:'Friday 4 September 2026, 17:00',switchISO:'2026-07-31T17:00:00',period:'1',year:'2026\u20132027'},
+  P2:{switch:'Friday 25 September 2026, 17:00',withdrawal:'Friday 30 October 2026, 17:00',switchISO:'2026-09-25T17:00:00',period:'2',year:'2026\u20132027'},
+  P4:{switch:'Friday 8 January 2027, 17:00',withdrawal:'Friday 29 January 2027, 17:00',switchISO:'2027-01-08T17:00:00',period:'4',year:'2026\u20132027'},
+  P5:{switch:'Friday 5 March 2027, 17:00',withdrawal:'Friday 2 April 2027, 17:00',switchISO:'2027-03-05T17:00:00',period:'5',year:'2026\u20132027'}
+};
+function getDeadlines(){return DEADLINES_BY_PERIOD[currentPeriod]||DEADLINES_BY_PERIOD.P5;}
 const LINKS={switchForm:'https://intranet.maastrichtuniversity.nl/en/msp-students/forms-and-downloads-0/withdrawswitch',waivers:'https://intranet.maastrichtuniversity.nl/en/msp-students/exams-rules-and-regulations/waivers',transcript:'https://intranet.maastrichtuniversity.nl/en/msp-students/forms-and-downloads/forms/transcript-request',additionalModule:'https://intranet.maastrichtuniversity.nl/en/msp-students/forms-and-downloads/forms/additional-module',esd:'mailto:msp-educationsupport@maastrichtuniversity.nl'};
 const HUMANITIES_CODES=['INT2007','INT3001','HUM2051','INT2013','INT3012'];
 const CORE_CODES=['BIO1101','CHE1101','PHY1101','INT1101','PRA1101','PRA1102','PRO1101'];
@@ -2256,7 +2262,8 @@ function buildSummary(){
     transcriptSummary=`<div class="printonly" style="margin-top:16px;padding:14px;background:var(--g0);border:1px solid var(--g2);border-radius:var(--rs)"><p class="seclbl" style="margin-bottom:6px">Transcript Summary</p><div style="font-size:12px;color:var(--g7)">Current ECTS: ${tc.totalECTSEarned} / 180 &nbsp;&bull;&nbsp; After this plan: ${(tc.totalECTSEarned+(c1?5:0)+(c2?5:0)+(lab?2.5:0)).toFixed(1)} &nbsp;&bull;&nbsp; GPA: ${tc.currentCumGPA.toFixed(1)} &nbsp;&bull;&nbsp; Courses: ${tc.courses.total}/20 &nbsp;&bull;&nbsp; Skills: ${tc.skills.total}/10 &nbsp;&bull;&nbsp; Projects: ${tc.projects.total}/5</div></div>`;
   }
 
-  let printReminders=`<div class="printonly" style="margin-top:16px;padding:14px;background:var(--g0);border:1px solid var(--g2);border-radius:var(--rs)"><p class="seclbl" style="margin-bottom:6px">Important Reminders</p><ul style="margin:0 0 0 16px;font-size:11.5px;color:var(--g5);line-height:1.7"><li>This plan is for self-preparation only. <strong>Confirm all registrations with your academic advisor.</strong></li><li>If you need prerequisite waivers, contact the course coordinator <strong>before the registration deadline</strong>.</li><li>Period ${DEADLINES.period} switch deadline: <strong>${DEADLINES.switch}</strong></li><li>Period ${DEADLINES.period} withdrawal deadline: <strong>${DEADLINES.withdrawal}</strong></li></ul></div>`;
+  const dl=getDeadlines();
+  let printReminders=`<div class="printonly" style="margin-top:16px;padding:14px;background:var(--g0);border:1px solid var(--g2);border-radius:var(--rs)"><p class="seclbl" style="margin-bottom:6px">Important Reminders</p><ul style="margin:0 0 0 16px;font-size:11.5px;color:var(--g5);line-height:1.7"><li>This plan is for self-preparation only. <strong>Confirm all registrations with your academic advisor.</strong></li><li>If you need prerequisite waivers, contact the course coordinator <strong>before the registration deadline</strong>.</li><li>Period ${dl.period} switch deadline: <strong>${dl.switch}</strong></li><li>Period ${dl.period} withdrawal deadline: <strong>${dl.withdrawal}</strong></li></ul></div>`;
 
   bEl.innerHTML=`<div style="overflow-x:auto"><table class="stbl"><thead><tr><th>Type</th><th>Course / Practical</th><th>Slot</th><th>Schedule</th><th>Coordinator</th></tr></thead><tbody>${rows}</tbody></table></div><div style="margin-top:18px"><p class="seclbl" style="margin-bottom:8px">Weekly Timetable</p>${ttHtml}</div>${checksHtml}${transcriptSummary}${printReminders}${sb}`;
   if(done){sEl.className='spill sp-ok';sEl.textContent='\u2713 Ready to print';}
@@ -2320,7 +2327,8 @@ function buildNextSteps(){
     el.style.display='';
     done=sel.length===2&&lab&&planStatus(act)==='ok';
   }
-  const switchDate=new Date('2026-03-06T17:00:00');
+  const dl=getDeadlines();
+  const switchDate=new Date(dl.switchISO);
   const now=new Date();
   const switchUrgent=now>new Date(switchDate.getTime()-7*24*60*60*1000);
   let html='';
@@ -2330,7 +2338,7 @@ function buildNextSteps(){
   }else{
     html+=`<div class="alrt a-inf"><span class="aico">\u2139</span><div class="abdy"><strong>Almost there</strong><p>Resolve the outstanding issues above, then follow these steps to finalise your registration.</p></div></div>`;
   }
-  html+=`<div class="dl-grid"><div class="dl-box${switchUrgent?' dl-urgent':''}"><div class="dl-lbl">Switch deadline \u2014 Period ${DEADLINES.period}</div><div class="dl-val">${DEADLINES.switch}</div></div><div class="dl-box"><div class="dl-lbl">Withdrawal deadline \u2014 Period ${DEADLINES.period}</div><div class="dl-val">${DEADLINES.withdrawal}</div></div></div>`;
+  html+=`<div class="dl-grid"><div class="dl-box${switchUrgent?' dl-urgent':''}"><div class="dl-lbl">Switch deadline \u2014 Period ${dl.period}</div><div class="dl-val">${dl.switch}</div></div><div class="dl-box"><div class="dl-lbl">Withdrawal deadline \u2014 Period ${dl.period}</div><div class="dl-val">${dl.withdrawal}</div></div></div>`;
   html+=`<div class="links-row"><a href="${LINKS.switchForm}" target="_blank">\u{1F4DD} Switch/withdraw form</a></div>`;
   bd.innerHTML=html;
 }
@@ -2554,37 +2562,11 @@ function buildInfoScreen(){
       <li style="margin-bottom:4px">Email the course coordinator with a short explanation of why you should receive a waiver</li>
       <li style="margin-bottom:4px">The coordinator evaluates whether you can cope with the course content</li>
       <li style="margin-bottom:4px">The coordinator grants the waiver by replying to your email</li>
-      <li style="margin-bottom:4px">Hand in this approval email with your course selection form</li>
-      <li>You will <strong>not</strong> be registered without the waiver, or with a waiver handed in after the deadline</li>
+      <li style="margin-bottom:4px">Forward the approval email to ESD at <a href="${LINKS.esd}" style="color:var(--inf);font-weight:500">msp-educationsupport@maastrichtuniversity.nl</a></li>
+      <li>You will <strong>not</strong> be registered without the waiver, or if the waiver reaches ESD after the deadline</li>
     </ol>
     <p style="font-size:13px;color:var(--g7);margin-bottom:8px"><strong>When:</strong> Waivers can be requested twice a year &mdash; November and May &mdash; during course registration.</p>
     <p style="font-size:13px;color:var(--warn);margin-bottom:12px"><strong>Important:</strong> Waivers should only be requested as an exception.</p>
-
-    <details style="margin-bottom:16px;border:1px solid var(--g2);border-radius:var(--rs);overflow:hidden">
-      <summary style="padding:10px 14px;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;background:var(--g0)">Course-specific waiver notes</summary>
-      <div style="padding:12px 14px;font-size:12.5px;color:var(--g7);line-height:1.7">
-        <p><strong>BIO3004 Animal Behaviour</strong> (prereq: BIO2004 + BIO2005) &mdash; Students without BIO2004 General Zoology but with sufficient biology background may be able to take this course with a waiver.</p>
-        <p style="margin-top:6px"><strong>CHE3009 Crystallography</strong> (prereq: PRO1002) &mdash; Not recommended for first-year students.</p>
-        <p style="margin-top:6px"><strong>PRA2007 Physics Laboratory</strong> (prereq: PRA1003) &mdash; Waivers unlikely without equivalent experimental physics experience.</p>
-        <p style="margin-top:6px"><strong>MAT2004 Linear Algebra</strong> &mdash; Requires substantial high-school mathematics experience.</p>
-      </div>
-    </details>
-
-    <hr style="border:none;border-top:1px solid var(--g2);margin:20px 0">
-
-    <h3 style="font-size:15px;color:var(--navy);margin-bottom:10px">Co-requisite Waivers</h3>
-    <p style="font-size:13px;color:var(--g5);margin-bottom:4px;font-style:italic">Legal basis: EER Article 4.3.5\u20134.3.8</p>
-    <p style="font-size:13px;color:var(--g7);margin-bottom:8px">Co-requisites require taking two or more modules in the same period. A co-requisite can be waived with <strong>written consent from the module coordinator</strong>.</p>
-    <p style="font-size:13px;color:var(--g7);margin-bottom:12px"><strong>Automatic waiver:</strong> A co-requisite is automatically waived if you have already passed the co-requisite module in a previous period.</p>
-
-    <details style="margin-bottom:16px;border:1px solid var(--g2);border-radius:var(--rs);overflow:hidden">
-      <summary style="padding:10px 14px;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;background:var(--g0)">P5 2025\u20132026 co-requisite pairs</summary>
-      <div style="padding:12px 14px;font-size:12.5px;color:var(--g7);line-height:1.7">
-        <p><strong>CHE2010</strong> General Chemistry \u2194 <strong>PRA2034</strong> General Chemistry Laboratory</p>
-        <p style="margin-top:4px"><strong>BIO3001</strong> Molecular Biology \u2194 <strong>PRA3003</strong> Molecular Biology Skills</p>
-        <p style="margin-top:4px"><strong>BIO3003</strong> Medical Microbiology \u2194 <strong>PRA3010</strong> Microbiology Skills</p>
-      </div>
-    </details>
 
     <hr style="border:none;border-top:1px solid var(--g2);margin:20px 0">
 
@@ -2602,8 +2584,8 @@ function buildInfoScreen(){
     <p style="font-size:13px;color:var(--g5);margin-bottom:4px;font-style:italic">Legal basis: R&amp;R Article 8</p>
     <p style="font-size:13px;color:var(--g7);margin-bottom:8px">Complete the online <a href="${LINKS.switchForm}" target="_blank" style="color:var(--inf);font-weight:500">withdraw/switch form</a>. Must be supported by your academic advisor and approved by Dr. Chris Pawley.</p>
     <div class="dl-grid" style="margin-bottom:16px">
-      <div class="dl-box"><div class="dl-lbl">Switch deadline \u2014 P${DEADLINES.period}</div><div class="dl-val">${DEADLINES.switch}</div></div>
-      <div class="dl-box"><div class="dl-lbl">Withdrawal deadline \u2014 P${DEADLINES.period}</div><div class="dl-val">${DEADLINES.withdrawal}</div></div>
+      <div class="dl-box"><div class="dl-lbl">Switch deadline \u2014 P${getDeadlines().period}</div><div class="dl-val">${getDeadlines().switch}</div></div>
+      <div class="dl-box"><div class="dl-lbl">Withdrawal deadline \u2014 P${getDeadlines().period}</div><div class="dl-val">${getDeadlines().withdrawal}</div></div>
     </div>
 
     <hr style="border:none;border-top:1px solid var(--g2);margin:20px 0">
