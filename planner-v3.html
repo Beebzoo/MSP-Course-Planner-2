@@ -198,6 +198,9 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .tt-course.sl-D{background:var(--sd-bg);color:var(--sd);border-color:rgba(91,33,182,.15)}
 .tt-course.sl-E{background:var(--se-bg);color:var(--se);border-color:rgba(159,18,57,.15)}
 .tt-lab{background:var(--inf-bg);color:var(--inf);border:1px solid rgba(12,74,110,.15)}
+.tt-overlap{background:repeating-linear-gradient(135deg,#FEE2E2,#FEE2E2 6px,#FCA5A5 6px,#FCA5A5 12px);color:#7F1D1D;border:1.5px solid #DC2626;font-weight:700}
+.tt-overlap .tt-code{font-size:10px;line-height:1.2}
+.tt-overlap .tt-warn{font-size:9px;font-weight:800;letter-spacing:.04em;margin-bottom:2px}
 .tt-code{font-weight:700;font-size:10px;letter-spacing:.02em}
 .tt-name{font-size:9px;opacity:.8;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
 
@@ -1692,19 +1695,23 @@ function buildCourse1(){
   s.innerHTML='<option value="">\u2014 Select a course \u2014</option>';
   addGroupedOptions(s,groupBySlot(courses,null));
 }
-function buildCourse2(ex){
+function buildCourse2(conflictSlot){
   const s=document.getElementById('c2'),pv=s.value;
   s.innerHTML='<option value="">\u2014 Select a course \u2014</option>';
-  addGroupedOptions(s,groupBySlot(courses,ex));
+  addGroupedOptions(s,groupBySlot(courses),conflictSlot);
   if(pv&&[...s.options].some(o=>o.value===pv))s.value=pv;
 }
-function groupBySlot(arr,ex){const g={};arr.forEach(c=>{if(c.Slot===ex&&ex)return;if(!g[c.Slot])g[c.Slot]=[];g[c.Slot].push(c);});return g;}
+function groupBySlot(arr){const g={};arr.forEach(c=>{if(!g[c.Slot])g[c.Slot]=[];g[c.Slot].push(c);});return g;}
 
-function addGroupedOptions(s,g){
+// `conflictSlot`: if set, courses in that slot share all meeting times with
+// Course 1. They're still selectable so an advisor can override, but the
+// optgroup and each option are tagged with a warning so the user sees why.
+function addGroupedOptions(s,g,conflictSlot){
   const t=APP.transcript;
   Object.keys(g).sort().forEach(sl=>{
+    const conflict=!!(conflictSlot&&sl===conflictSlot);
     const og=document.createElement('optgroup');
-    og.label=sl?`Slot ${sl}`:'Other';
+    og.label=conflict?`\u26a0 Slot ${sl} \u2014 same as Course 1 (full overlap)`:(sl?`Slot ${sl}`:'Other');
     g[sl].forEach(c=>{
       let flags=[c.Corequisite?'\u25ca':'',c.Prerequisite?'\u25b2':''].filter(Boolean).join(' ');
       let extra='';
@@ -1720,7 +1727,8 @@ function addGroupedOptions(s,g){
           extra=' \u25CF no prereqs';
         }
       }
-      const opt=new Option(`${c.Code} \u2014 ${c.Title}${flags?'  '+flags:''}${extra}`,c.Code);
+      const prefix=conflict?'\u26a0 ':'';
+      const opt=new Option(`${prefix}${c.Code} \u2014 ${c.Title}${flags?'  '+flags:''}${extra}`,c.Code);
       og.appendChild(opt);
     });
     s.appendChild(og);
@@ -1865,6 +1873,12 @@ function showPanel(item,id,isLab){
         conflictBadge=`<div style="margin-top:4px"><span style="color:var(--warn);font-size:11px;font-weight:600">\u26a0 Course overlap on ${ci.blocked.join('/')} \u2014 attend the ${ci.free.join('/')} session${ci.free.length>1?'s':''} instead.</span></div>`;
       }
     }
+  }else{
+    const other=id==='pi1'?getCourse2():getCourse1();
+    if(other&&other.Code!==item.Code&&other.Slot===item.Slot){
+      const days=item.Days.map(formatDay).join(' & ');
+      conflictBadge=`<div style="margin-top:4px"><span style="color:var(--err);font-size:11px;font-weight:600">\u26a0 Same slot as ${other.Code} \u2014 both meet ${days}. You cannot physically attend both; pick a different slot or arrange one as async/recorded with the coordinator.</span></div>`;
+    }
   }
   el.innerHTML=`<div class="crow">${!isLab?`<span class="slotb sl-${item.Slot}">SLOT ${item.Slot}</span>`:''}<div class="days">${chips}</div>${tags}</div><div class="crow"><span class="coord">Coordinator: ${item.Coordinator}</span></div>${prereqStatus}${passedBadge}${unlocksBadge}${conflictBadge}`;
   el.classList.add('show');
@@ -1911,7 +1925,10 @@ function buildTTHTML(c1,c2,lab,compact){
     html+=`<tr><td class="tt-label">${t}</td>`;
     DAYS.forEach(d=>{
       const cell=grid[d+t];
-      if(cell.length){
+      if(cell.length>1){
+        const codes=cell.map(e=>e.item.Code).join(' / ');
+        html+=`<td><div class="tt-cell tt-overlap"><div class="tt-warn">⚠ OVERLAP</div><div class="tt-code">${codes}</div></div></td>`;
+      }else if(cell.length){
         const e=cell[0];
         const cls=e.type==='lab'?'tt-lab':`tt-course sl-${e.item.Slot||''}`;
         const shortName=compact?'':`<div class="tt-name">${e.item.Title}</div>`;
@@ -1940,6 +1957,7 @@ function planStatus(k){
   const lab=labs.find(l=>l.Code===p.lab)||null,sel=[c1,c2].filter(Boolean);
   if(!sel.length)return'empty';
   const iss=[];
+  if(c1&&c2&&c1.Slot===c2.Slot)iss.push('co');
   const presentCodes=coreqPresentCodes(sel,lab);
   for(const c of sel)if(c.Corequisite&&c.CorequisiteOf&&!checkCoreqMet(c.CorequisiteOf,presentCodes))iss.push('co');
   if(lab&&lab.Corequisite&&lab.CorequisiteOf&&!checkCoreqMet(lab.CorequisiteOf,presentCodes))iss.push('co');
@@ -2000,9 +2018,15 @@ function checkPrereqs(){
   }
   const c1=getCourse1(),c2=getCourse2(),lab=getLab(),sel=[c1,c2].filter(Boolean);
   if(!sel.length){sEl.className='spill sp-pend';sEl.textContent='\u2014 Select courses first';bEl.innerHTML='<div class="emptys"><span class="ei">\u2713</span><p>Select your courses to see checks.</p></div>';return;}
-  let html='',badCo=false,unPre=false,coI=[];
+  let html='',badCo=false,unPre=false,coI=[],slotClash=false;
   const t=APP.transcript;
   const pc=t?t.computed.passedCodes:null;
+
+  if(c1&&c2&&c1.Slot===c2.Slot){
+    slotClash=true;
+    const days=c1.Days.map(formatDay).join(' & ');
+    html+=`<p class="seclbl">Schedule</p><div class="alrt a-err"><span class="aico">⚠</span><div class="abdy"><strong>Both courses are in Slot ${c1.Slot}</strong><p><em>${esc(c1.Code)} — ${esc(c1.Title)}</em> and <em>${esc(c2.Code)} — ${esc(c2.Title)}</em> both meet on ${days}. The two courses run at the exact same times every week, so you cannot physically attend both.</p><div class="guidance">Pick a different course for one of the two slots, or speak to the coordinator about following one async/recorded if the registrar permits it.</div></div></div>`;
+  }
 
   const presentCodes=coreqPresentCodes(sel,lab);
   const pushCo=(from,expr)=>{
@@ -2019,7 +2043,7 @@ function checkPrereqs(){
     if(!dup)pushCo(lab,lab.CorequisiteOf);
   }
 
-  if(coI.length){html+='<p class="seclbl">Co-requisites</p>';coI.forEach(i=>{if(i.ok)html+=`<div class="alrt a-ok"><span class="aico">\u2713</span><div class="abdy"><strong>Co-requisite satisfied</strong><p><em>${i.from.Code}</em> requires ${formatPrereqs(i.expr)}. ${i.autoWaived?'Already passed in a previous period (auto-waived).':'Already selected.'}</p></div></div>`;else{badCo=true;html+=`<div class="alrt a-err"><span class="aico">\u26a0</span><div class="abdy"><strong>Missing co-requisite</strong><p><em>${i.from.Code} \u2014 ${i.from.Title}</em> must be taken with ${formatPrereqs(i.expr)}.</p><div class="guidance"><strong>Add the co-requisite</strong> to your plan, or contact the module coordinator to <a href="${LINKS.waivers}" target="_blank">request a waiver</a>. If you have already passed the co-requisite in a previous period, it is automatically waived.</div></div></div>`;}});}
+  if(coI.length){if(html)html+='<div style="height:12px"></div>';html+='<p class="seclbl">Co-requisites</p>';coI.forEach(i=>{if(i.ok)html+=`<div class="alrt a-ok"><span class="aico">\u2713</span><div class="abdy"><strong>Co-requisite satisfied</strong><p><em>${i.from.Code}</em> requires ${formatPrereqs(i.expr)}. ${i.autoWaived?'Already passed in a previous period (auto-waived).':'Already selected.'}</p></div></div>`;else{badCo=true;html+=`<div class="alrt a-err"><span class="aico">\u26a0</span><div class="abdy"><strong>Missing co-requisite</strong><p><em>${i.from.Code} \u2014 ${i.from.Title}</em> must be taken with ${formatPrereqs(i.expr)}.</p><div class="guidance"><strong>Add the co-requisite</strong> to your plan, or contact the module coordinator to <a href="${LINKS.waivers}" target="_blank">request a waiver</a>. If you have already passed the co-requisite in a previous period, it is automatically waived.</div></div></div>`;}});}
 
   let badSched=false;
   if(lab&&sel.length){
@@ -2066,7 +2090,8 @@ function checkPrereqs(){
 
   if(!coI.length&&!preI.length&&!html)html='<div class="alrt a-ok"><span class="aico">\u2713</span><div class="abdy"><strong>No prerequisites or co-requisites</strong><p>Your selection has no additional requirements.</p></div></div>';
   bEl.innerHTML=html;
-  if(badCo){sEl.className='spill sp-err';sEl.textContent='\u26a0 Missing co-requisite';}
+  if(slotClash){sEl.className='spill sp-err';sEl.textContent='\u26a0 Same-slot course conflict';}
+  else if(badCo){sEl.className='spill sp-err';sEl.textContent='\u26a0 Missing co-requisite';}
   else if(badSched){sEl.className='spill sp-err';sEl.textContent='\u26a0 Schedule conflict';}
   else if(unPre){sEl.className='spill sp-warn';sEl.textContent='! Confirm prerequisites';}
   else{sEl.className='spill sp-ok';sEl.textContent='\u2713 All checks passed';}
@@ -2173,6 +2198,7 @@ function buildSummary(){
   const c1=getCourse1(),c2=getCourse2(),lab=getLab(),sel=[c1,c2].filter(Boolean);
   if(!sel.length){sEl.className='spill sp-pend';sEl.textContent='Incomplete';bEl.innerHTML='<div class="emptys"><span class="ei">\u{1F4CB}</span><p>Select courses to see your plan.</p></div>';btn.disabled=true;return;}
   const iss=[];
+  if(c1&&c2&&c1.Slot===c2.Slot)iss.push(`Same-slot conflict: ${c1.Code} & ${c2.Code} both in Slot ${c1.Slot}`);
   const presentCodes=coreqPresentCodes(sel,lab);
   for(const c of sel)if(c.Corequisite&&c.CorequisiteOf&&!checkCoreqMet(c.CorequisiteOf,presentCodes))iss.push(`Missing co-req: ${c.Code}`);
   if(lab&&lab.Corequisite&&lab.CorequisiteOf&&!checkCoreqMet(lab.CorequisiteOf,presentCodes))iss.push(`Missing co-req: ${lab.Code}`);
@@ -2668,8 +2694,8 @@ document.getElementById('csvf').addEventListener('change',e=>{
 });
 
 // Course selection listeners
-document.getElementById('c1').addEventListener('change',()=>{save();const c1=getCourse1();showPanel(c1,'pi1',false);buildCourse2(c1?.Slot||null);if(!getCourse2())document.getElementById('pi2').classList.remove('show');rebuildLabs();checkPrereqs();buildSummary();buildNextSteps();buildTT();buildAdvicePanel();});
-document.getElementById('c2').addEventListener('change',()=>{save();showPanel(getCourse2(),'pi2',false);rebuildLabs();checkPrereqs();buildSummary();buildNextSteps();buildTT();buildAdvicePanel();});
+document.getElementById('c1').addEventListener('change',()=>{save();const c1=getCourse1();showPanel(c1,'pi1',false);buildCourse2(c1?.Slot||null);const c2=getCourse2();if(!c2)document.getElementById('pi2').classList.remove('show');else showPanel(c2,'pi2',false);rebuildLabs();checkPrereqs();buildSummary();buildNextSteps();buildTT();buildAdvicePanel();});
+document.getElementById('c2').addEventListener('change',()=>{save();showPanel(getCourse2(),'pi2',false);const c1=getCourse1();if(c1)showPanel(c1,'pi1',false);rebuildLabs();checkPrereqs();buildSummary();buildNextSteps();buildTT();buildAdvicePanel();});
 document.getElementById('lab').addEventListener('change',()=>{save();showPanel(getLab(),'pil',true);checkPrereqs();buildSummary();buildNextSteps();buildTT();buildAdvicePanel();});
 
 // Init
