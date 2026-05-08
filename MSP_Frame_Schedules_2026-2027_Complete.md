@@ -81,7 +81,7 @@
 | PRA2027 | Fundamentals of Science Communication | May Lee | | ▲ | Tue/Thu | E, F, G |
 | PRA2030 | Introduction to Mycology ** | Alexandr Umanets | | | Tue | E, F, G |
 | PRA2032 | Fundamentals of Organic Chemistry Laboratory | Hanne Diliën | ◊ | | Mon/Fri | E, F |
-| PRA3018 | Molecular Modelling | Slava Vieru | ◊ | | Tue | E, F, G |
+| PRA3018 | Molecular Modelling | Slava Vieru | ◊ | | Thu | E, F, G |
 | PRA3021 | Topics in Scientific Computing | Marcin Pietrasik | | ▲ | Mon | E, F, G |
 | PRA3028 | Inorganic Synthesis | Giuditta Perversi | ◊ | ▲ | Tue/Wed | E, F |
 | PRA3030 | Finite Element Method | Harm Askes & Gerco Onderwater | | | Wed | E, F |
